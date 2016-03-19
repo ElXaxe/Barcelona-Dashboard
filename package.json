@@ -1,0 +1,21 @@
+{
+  "name": "tfg",
+  "version": "1.0.0",
+  "description": "Barcelona dashboard. End-of-degree project for UOC.",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.13.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Barcelona",
+    "dashboard",
+    "TFG",
+    "UOC"
+  ],
+  "author": "Jose L. Dolz",
+  "license": "MIT"
+}
