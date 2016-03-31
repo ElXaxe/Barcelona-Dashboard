@@ -66427,6 +66427,69 @@ requireModule("ember");
   generateModule('rsvp', { 'default': Ember.RSVP });
 })();
 
+;/**
+ * Patched to replace setTimeout with Ember.run.later
+ */
+
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.6
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    Ember.run.later(this, callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
 ;/* globals define */
 define('ember/load-initializers', ['exports', 'ember-load-initializers', 'ember'], function(exports, loadInitializers, Ember) {
   Ember['default'].deprecate(
@@ -66455,6 +66518,13 @@ function createDeprecatedModule(moduleId) {
 createDeprecatedModule('ember/resolver');
 createDeprecatedModule('resolver');
 
+;/*!
+ * Bootstrap v3.3.6 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
+ * Licensed under the MIT license
+ */
+if("undefined"==typeof jQuery)throw new Error("Bootstrap's JavaScript requires jQuery");+function(a){"use strict";var b=a.fn.jquery.split(" ")[0].split(".");if(b[0]<2&&b[1]<9||1==b[0]&&9==b[1]&&b[2]<1||b[0]>2)throw new Error("Bootstrap's JavaScript requires jQuery version 1.9.1 or higher, but lower than version 3")}(jQuery),+function(a){"use strict";function b(){var a=document.createElement("bootstrap"),b={WebkitTransition:"webkitTransitionEnd",MozTransition:"transitionend",OTransition:"oTransitionEnd otransitionend",transition:"transitionend"};for(var c in b)if(void 0!==a.style[c])return{end:b[c]};return!1}a.fn.emulateTransitionEnd=function(b){var c=!1,d=this;a(this).one("bsTransitionEnd",function(){c=!0});var e=function(){c||a(d).trigger(a.support.transition.end)};return setTimeout(e,b),this},a(function(){a.support.transition=b(),a.support.transition&&(a.event.special.bsTransitionEnd={bindType:a.support.transition.end,delegateType:a.support.transition.end,handle:function(b){return a(b.target).is(this)?b.handleObj.handler.apply(this,arguments):void 0}})})}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var c=a(this),e=c.data("bs.alert");e||c.data("bs.alert",e=new d(this)),"string"==typeof b&&e[b].call(c)})}var c='[data-dismiss="alert"]',d=function(b){a(b).on("click",c,this.close)};d.VERSION="3.3.6",d.TRANSITION_DURATION=150,d.prototype.close=function(b){function c(){g.detach().trigger("closed.bs.alert").remove()}var e=a(this),f=e.attr("data-target");f||(f=e.attr("href"),f=f&&f.replace(/.*(?=#[^\s]*$)/,""));var g=a(f);b&&b.preventDefault(),g.length||(g=e.closest(".alert")),g.trigger(b=a.Event("close.bs.alert")),b.isDefaultPrevented()||(g.removeClass("in"),a.support.transition&&g.hasClass("fade")?g.one("bsTransitionEnd",c).emulateTransitionEnd(d.TRANSITION_DURATION):c())};var e=a.fn.alert;a.fn.alert=b,a.fn.alert.Constructor=d,a.fn.alert.noConflict=function(){return a.fn.alert=e,this},a(document).on("click.bs.alert.data-api",c,d.prototype.close)}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.button"),f="object"==typeof b&&b;e||d.data("bs.button",e=new c(this,f)),"toggle"==b?e.toggle():b&&e.setState(b)})}var c=function(b,d){this.$element=a(b),this.options=a.extend({},c.DEFAULTS,d),this.isLoading=!1};c.VERSION="3.3.6",c.DEFAULTS={loadingText:"loading..."},c.prototype.setState=function(b){var c="disabled",d=this.$element,e=d.is("input")?"val":"html",f=d.data();b+="Text",null==f.resetText&&d.data("resetText",d[e]()),setTimeout(a.proxy(function(){d[e](null==f[b]?this.options[b]:f[b]),"loadingText"==b?(this.isLoading=!0,d.addClass(c).attr(c,c)):this.isLoading&&(this.isLoading=!1,d.removeClass(c).removeAttr(c))},this),0)},c.prototype.toggle=function(){var a=!0,b=this.$element.closest('[data-toggle="buttons"]');if(b.length){var c=this.$element.find("input");"radio"==c.prop("type")?(c.prop("checked")&&(a=!1),b.find(".active").removeClass("active"),this.$element.addClass("active")):"checkbox"==c.prop("type")&&(c.prop("checked")!==this.$element.hasClass("active")&&(a=!1),this.$element.toggleClass("active")),c.prop("checked",this.$element.hasClass("active")),a&&c.trigger("change")}else this.$element.attr("aria-pressed",!this.$element.hasClass("active")),this.$element.toggleClass("active")};var d=a.fn.button;a.fn.button=b,a.fn.button.Constructor=c,a.fn.button.noConflict=function(){return a.fn.button=d,this},a(document).on("click.bs.button.data-api",'[data-toggle^="button"]',function(c){var d=a(c.target);d.hasClass("btn")||(d=d.closest(".btn")),b.call(d,"toggle"),a(c.target).is('input[type="radio"]')||a(c.target).is('input[type="checkbox"]')||c.preventDefault()}).on("focus.bs.button.data-api blur.bs.button.data-api",'[data-toggle^="button"]',function(b){a(b.target).closest(".btn").toggleClass("focus",/^focus(in)?$/.test(b.type))})}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.carousel"),f=a.extend({},c.DEFAULTS,d.data(),"object"==typeof b&&b),g="string"==typeof b?b:f.slide;e||d.data("bs.carousel",e=new c(this,f)),"number"==typeof b?e.to(b):g?e[g]():f.interval&&e.pause().cycle()})}var c=function(b,c){this.$element=a(b),this.$indicators=this.$element.find(".carousel-indicators"),this.options=c,this.paused=null,this.sliding=null,this.interval=null,this.$active=null,this.$items=null,this.options.keyboard&&this.$element.on("keydown.bs.carousel",a.proxy(this.keydown,this)),"hover"==this.options.pause&&!("ontouchstart"in document.documentElement)&&this.$element.on("mouseenter.bs.carousel",a.proxy(this.pause,this)).on("mouseleave.bs.carousel",a.proxy(this.cycle,this))};c.VERSION="3.3.6",c.TRANSITION_DURATION=600,c.DEFAULTS={interval:5e3,pause:"hover",wrap:!0,keyboard:!0},c.prototype.keydown=function(a){if(!/input|textarea/i.test(a.target.tagName)){switch(a.which){case 37:this.prev();break;case 39:this.next();break;default:return}a.preventDefault()}},c.prototype.cycle=function(b){return b||(this.paused=!1),this.interval&&clearInterval(this.interval),this.options.interval&&!this.paused&&(this.interval=setInterval(a.proxy(this.next,this),this.options.interval)),this},c.prototype.getItemIndex=function(a){return this.$items=a.parent().children(".item"),this.$items.index(a||this.$active)},c.prototype.getItemForDirection=function(a,b){var c=this.getItemIndex(b),d="prev"==a&&0===c||"next"==a&&c==this.$items.length-1;if(d&&!this.options.wrap)return b;var e="prev"==a?-1:1,f=(c+e)%this.$items.length;return this.$items.eq(f)},c.prototype.to=function(a){var b=this,c=this.getItemIndex(this.$active=this.$element.find(".item.active"));return a>this.$items.length-1||0>a?void 0:this.sliding?this.$element.one("slid.bs.carousel",function(){b.to(a)}):c==a?this.pause().cycle():this.slide(a>c?"next":"prev",this.$items.eq(a))},c.prototype.pause=function(b){return b||(this.paused=!0),this.$element.find(".next, .prev").length&&a.support.transition&&(this.$element.trigger(a.support.transition.end),this.cycle(!0)),this.interval=clearInterval(this.interval),this},c.prototype.next=function(){return this.sliding?void 0:this.slide("next")},c.prototype.prev=function(){return this.sliding?void 0:this.slide("prev")},c.prototype.slide=function(b,d){var e=this.$element.find(".item.active"),f=d||this.getItemForDirection(b,e),g=this.interval,h="next"==b?"left":"right",i=this;if(f.hasClass("active"))return this.sliding=!1;var j=f[0],k=a.Event("slide.bs.carousel",{relatedTarget:j,direction:h});if(this.$element.trigger(k),!k.isDefaultPrevented()){if(this.sliding=!0,g&&this.pause(),this.$indicators.length){this.$indicators.find(".active").removeClass("active");var l=a(this.$indicators.children()[this.getItemIndex(f)]);l&&l.addClass("active")}var m=a.Event("slid.bs.carousel",{relatedTarget:j,direction:h});return a.support.transition&&this.$element.hasClass("slide")?(f.addClass(b),f[0].offsetWidth,e.addClass(h),f.addClass(h),e.one("bsTransitionEnd",function(){f.removeClass([b,h].join(" ")).addClass("active"),e.removeClass(["active",h].join(" ")),i.sliding=!1,setTimeout(function(){i.$element.trigger(m)},0)}).emulateTransitionEnd(c.TRANSITION_DURATION)):(e.removeClass("active"),f.addClass("active"),this.sliding=!1,this.$element.trigger(m)),g&&this.cycle(),this}};var d=a.fn.carousel;a.fn.carousel=b,a.fn.carousel.Constructor=c,a.fn.carousel.noConflict=function(){return a.fn.carousel=d,this};var e=function(c){var d,e=a(this),f=a(e.attr("data-target")||(d=e.attr("href"))&&d.replace(/.*(?=#[^\s]+$)/,""));if(f.hasClass("carousel")){var g=a.extend({},f.data(),e.data()),h=e.attr("data-slide-to");h&&(g.interval=!1),b.call(f,g),h&&f.data("bs.carousel").to(h),c.preventDefault()}};a(document).on("click.bs.carousel.data-api","[data-slide]",e).on("click.bs.carousel.data-api","[data-slide-to]",e),a(window).on("load",function(){a('[data-ride="carousel"]').each(function(){var c=a(this);b.call(c,c.data())})})}(jQuery),+function(a){"use strict";function b(b){var c,d=b.attr("data-target")||(c=b.attr("href"))&&c.replace(/.*(?=#[^\s]+$)/,"");return a(d)}function c(b){return this.each(function(){var c=a(this),e=c.data("bs.collapse"),f=a.extend({},d.DEFAULTS,c.data(),"object"==typeof b&&b);!e&&f.toggle&&/show|hide/.test(b)&&(f.toggle=!1),e||c.data("bs.collapse",e=new d(this,f)),"string"==typeof b&&e[b]()})}var d=function(b,c){this.$element=a(b),this.options=a.extend({},d.DEFAULTS,c),this.$trigger=a('[data-toggle="collapse"][href="#'+b.id+'"],[data-toggle="collapse"][data-target="#'+b.id+'"]'),this.transitioning=null,this.options.parent?this.$parent=this.getParent():this.addAriaAndCollapsedClass(this.$element,this.$trigger),this.options.toggle&&this.toggle()};d.VERSION="3.3.6",d.TRANSITION_DURATION=350,d.DEFAULTS={toggle:!0},d.prototype.dimension=function(){var a=this.$element.hasClass("width");return a?"width":"height"},d.prototype.show=function(){if(!this.transitioning&&!this.$element.hasClass("in")){var b,e=this.$parent&&this.$parent.children(".panel").children(".in, .collapsing");if(!(e&&e.length&&(b=e.data("bs.collapse"),b&&b.transitioning))){var f=a.Event("show.bs.collapse");if(this.$element.trigger(f),!f.isDefaultPrevented()){e&&e.length&&(c.call(e,"hide"),b||e.data("bs.collapse",null));var g=this.dimension();this.$element.removeClass("collapse").addClass("collapsing")[g](0).attr("aria-expanded",!0),this.$trigger.removeClass("collapsed").attr("aria-expanded",!0),this.transitioning=1;var h=function(){this.$element.removeClass("collapsing").addClass("collapse in")[g](""),this.transitioning=0,this.$element.trigger("shown.bs.collapse")};if(!a.support.transition)return h.call(this);var i=a.camelCase(["scroll",g].join("-"));this.$element.one("bsTransitionEnd",a.proxy(h,this)).emulateTransitionEnd(d.TRANSITION_DURATION)[g](this.$element[0][i])}}}},d.prototype.hide=function(){if(!this.transitioning&&this.$element.hasClass("in")){var b=a.Event("hide.bs.collapse");if(this.$element.trigger(b),!b.isDefaultPrevented()){var c=this.dimension();this.$element[c](this.$element[c]())[0].offsetHeight,this.$element.addClass("collapsing").removeClass("collapse in").attr("aria-expanded",!1),this.$trigger.addClass("collapsed").attr("aria-expanded",!1),this.transitioning=1;var e=function(){this.transitioning=0,this.$element.removeClass("collapsing").addClass("collapse").trigger("hidden.bs.collapse")};return a.support.transition?void this.$element[c](0).one("bsTransitionEnd",a.proxy(e,this)).emulateTransitionEnd(d.TRANSITION_DURATION):e.call(this)}}},d.prototype.toggle=function(){this[this.$element.hasClass("in")?"hide":"show"]()},d.prototype.getParent=function(){return a(this.options.parent).find('[data-toggle="collapse"][data-parent="'+this.options.parent+'"]').each(a.proxy(function(c,d){var e=a(d);this.addAriaAndCollapsedClass(b(e),e)},this)).end()},d.prototype.addAriaAndCollapsedClass=function(a,b){var c=a.hasClass("in");a.attr("aria-expanded",c),b.toggleClass("collapsed",!c).attr("aria-expanded",c)};var e=a.fn.collapse;a.fn.collapse=c,a.fn.collapse.Constructor=d,a.fn.collapse.noConflict=function(){return a.fn.collapse=e,this},a(document).on("click.bs.collapse.data-api",'[data-toggle="collapse"]',function(d){var e=a(this);e.attr("data-target")||d.preventDefault();var f=b(e),g=f.data("bs.collapse"),h=g?"toggle":e.data();c.call(f,h)})}(jQuery),+function(a){"use strict";function b(b){var c=b.attr("data-target");c||(c=b.attr("href"),c=c&&/#[A-Za-z]/.test(c)&&c.replace(/.*(?=#[^\s]*$)/,""));var d=c&&a(c);return d&&d.length?d:b.parent()}function c(c){c&&3===c.which||(a(e).remove(),a(f).each(function(){var d=a(this),e=b(d),f={relatedTarget:this};e.hasClass("open")&&(c&&"click"==c.type&&/input|textarea/i.test(c.target.tagName)&&a.contains(e[0],c.target)||(e.trigger(c=a.Event("hide.bs.dropdown",f)),c.isDefaultPrevented()||(d.attr("aria-expanded","false"),e.removeClass("open").trigger(a.Event("hidden.bs.dropdown",f)))))}))}function d(b){return this.each(function(){var c=a(this),d=c.data("bs.dropdown");d||c.data("bs.dropdown",d=new g(this)),"string"==typeof b&&d[b].call(c)})}var e=".dropdown-backdrop",f='[data-toggle="dropdown"]',g=function(b){a(b).on("click.bs.dropdown",this.toggle)};g.VERSION="3.3.6",g.prototype.toggle=function(d){var e=a(this);if(!e.is(".disabled, :disabled")){var f=b(e),g=f.hasClass("open");if(c(),!g){"ontouchstart"in document.documentElement&&!f.closest(".navbar-nav").length&&a(document.createElement("div")).addClass("dropdown-backdrop").insertAfter(a(this)).on("click",c);var h={relatedTarget:this};if(f.trigger(d=a.Event("show.bs.dropdown",h)),d.isDefaultPrevented())return;e.trigger("focus").attr("aria-expanded","true"),f.toggleClass("open").trigger(a.Event("shown.bs.dropdown",h))}return!1}},g.prototype.keydown=function(c){if(/(38|40|27|32)/.test(c.which)&&!/input|textarea/i.test(c.target.tagName)){var d=a(this);if(c.preventDefault(),c.stopPropagation(),!d.is(".disabled, :disabled")){var e=b(d),g=e.hasClass("open");if(!g&&27!=c.which||g&&27==c.which)return 27==c.which&&e.find(f).trigger("focus"),d.trigger("click");var h=" li:not(.disabled):visible a",i=e.find(".dropdown-menu"+h);if(i.length){var j=i.index(c.target);38==c.which&&j>0&&j--,40==c.which&&j<i.length-1&&j++,~j||(j=0),i.eq(j).trigger("focus")}}}};var h=a.fn.dropdown;a.fn.dropdown=d,a.fn.dropdown.Constructor=g,a.fn.dropdown.noConflict=function(){return a.fn.dropdown=h,this},a(document).on("click.bs.dropdown.data-api",c).on("click.bs.dropdown.data-api",".dropdown form",function(a){a.stopPropagation()}).on("click.bs.dropdown.data-api",f,g.prototype.toggle).on("keydown.bs.dropdown.data-api",f,g.prototype.keydown).on("keydown.bs.dropdown.data-api",".dropdown-menu",g.prototype.keydown)}(jQuery),+function(a){"use strict";function b(b,d){return this.each(function(){var e=a(this),f=e.data("bs.modal"),g=a.extend({},c.DEFAULTS,e.data(),"object"==typeof b&&b);f||e.data("bs.modal",f=new c(this,g)),"string"==typeof b?f[b](d):g.show&&f.show(d)})}var c=function(b,c){this.options=c,this.$body=a(document.body),this.$element=a(b),this.$dialog=this.$element.find(".modal-dialog"),this.$backdrop=null,this.isShown=null,this.originalBodyPad=null,this.scrollbarWidth=0,this.ignoreBackdropClick=!1,this.options.remote&&this.$element.find(".modal-content").load(this.options.remote,a.proxy(function(){this.$element.trigger("loaded.bs.modal")},this))};c.VERSION="3.3.6",c.TRANSITION_DURATION=300,c.BACKDROP_TRANSITION_DURATION=150,c.DEFAULTS={backdrop:!0,keyboard:!0,show:!0},c.prototype.toggle=function(a){return this.isShown?this.hide():this.show(a)},c.prototype.show=function(b){var d=this,e=a.Event("show.bs.modal",{relatedTarget:b});this.$element.trigger(e),this.isShown||e.isDefaultPrevented()||(this.isShown=!0,this.checkScrollbar(),this.setScrollbar(),this.$body.addClass("modal-open"),this.escape(),this.resize(),this.$element.on("click.dismiss.bs.modal",'[data-dismiss="modal"]',a.proxy(this.hide,this)),this.$dialog.on("mousedown.dismiss.bs.modal",function(){d.$element.one("mouseup.dismiss.bs.modal",function(b){a(b.target).is(d.$element)&&(d.ignoreBackdropClick=!0)})}),this.backdrop(function(){var e=a.support.transition&&d.$element.hasClass("fade");d.$element.parent().length||d.$element.appendTo(d.$body),d.$element.show().scrollTop(0),d.adjustDialog(),e&&d.$element[0].offsetWidth,d.$element.addClass("in"),d.enforceFocus();var f=a.Event("shown.bs.modal",{relatedTarget:b});e?d.$dialog.one("bsTransitionEnd",function(){d.$element.trigger("focus").trigger(f)}).emulateTransitionEnd(c.TRANSITION_DURATION):d.$element.trigger("focus").trigger(f)}))},c.prototype.hide=function(b){b&&b.preventDefault(),b=a.Event("hide.bs.modal"),this.$element.trigger(b),this.isShown&&!b.isDefaultPrevented()&&(this.isShown=!1,this.escape(),this.resize(),a(document).off("focusin.bs.modal"),this.$element.removeClass("in").off("click.dismiss.bs.modal").off("mouseup.dismiss.bs.modal"),this.$dialog.off("mousedown.dismiss.bs.modal"),a.support.transition&&this.$element.hasClass("fade")?this.$element.one("bsTransitionEnd",a.proxy(this.hideModal,this)).emulateTransitionEnd(c.TRANSITION_DURATION):this.hideModal())},c.prototype.enforceFocus=function(){a(document).off("focusin.bs.modal").on("focusin.bs.modal",a.proxy(function(a){this.$element[0]===a.target||this.$element.has(a.target).length||this.$element.trigger("focus")},this))},c.prototype.escape=function(){this.isShown&&this.options.keyboard?this.$element.on("keydown.dismiss.bs.modal",a.proxy(function(a){27==a.which&&this.hide()},this)):this.isShown||this.$element.off("keydown.dismiss.bs.modal")},c.prototype.resize=function(){this.isShown?a(window).on("resize.bs.modal",a.proxy(this.handleUpdate,this)):a(window).off("resize.bs.modal")},c.prototype.hideModal=function(){var a=this;this.$element.hide(),this.backdrop(function(){a.$body.removeClass("modal-open"),a.resetAdjustments(),a.resetScrollbar(),a.$element.trigger("hidden.bs.modal")})},c.prototype.removeBackdrop=function(){this.$backdrop&&this.$backdrop.remove(),this.$backdrop=null},c.prototype.backdrop=function(b){var d=this,e=this.$element.hasClass("fade")?"fade":"";if(this.isShown&&this.options.backdrop){var f=a.support.transition&&e;if(this.$backdrop=a(document.createElement("div")).addClass("modal-backdrop "+e).appendTo(this.$body),this.$element.on("click.dismiss.bs.modal",a.proxy(function(a){return this.ignoreBackdropClick?void(this.ignoreBackdropClick=!1):void(a.target===a.currentTarget&&("static"==this.options.backdrop?this.$element[0].focus():this.hide()))},this)),f&&this.$backdrop[0].offsetWidth,this.$backdrop.addClass("in"),!b)return;f?this.$backdrop.one("bsTransitionEnd",b).emulateTransitionEnd(c.BACKDROP_TRANSITION_DURATION):b()}else if(!this.isShown&&this.$backdrop){this.$backdrop.removeClass("in");var g=function(){d.removeBackdrop(),b&&b()};a.support.transition&&this.$element.hasClass("fade")?this.$backdrop.one("bsTransitionEnd",g).emulateTransitionEnd(c.BACKDROP_TRANSITION_DURATION):g()}else b&&b()},c.prototype.handleUpdate=function(){this.adjustDialog()},c.prototype.adjustDialog=function(){var a=this.$element[0].scrollHeight>document.documentElement.clientHeight;this.$element.css({paddingLeft:!this.bodyIsOverflowing&&a?this.scrollbarWidth:"",paddingRight:this.bodyIsOverflowing&&!a?this.scrollbarWidth:""})},c.prototype.resetAdjustments=function(){this.$element.css({paddingLeft:"",paddingRight:""})},c.prototype.checkScrollbar=function(){var a=window.innerWidth;if(!a){var b=document.documentElement.getBoundingClientRect();a=b.right-Math.abs(b.left)}this.bodyIsOverflowing=document.body.clientWidth<a,this.scrollbarWidth=this.measureScrollbar()},c.prototype.setScrollbar=function(){var a=parseInt(this.$body.css("padding-right")||0,10);this.originalBodyPad=document.body.style.paddingRight||"",this.bodyIsOverflowing&&this.$body.css("padding-right",a+this.scrollbarWidth)},c.prototype.resetScrollbar=function(){this.$body.css("padding-right",this.originalBodyPad)},c.prototype.measureScrollbar=function(){var a=document.createElement("div");a.className="modal-scrollbar-measure",this.$body.append(a);var b=a.offsetWidth-a.clientWidth;return this.$body[0].removeChild(a),b};var d=a.fn.modal;a.fn.modal=b,a.fn.modal.Constructor=c,a.fn.modal.noConflict=function(){return a.fn.modal=d,this},a(document).on("click.bs.modal.data-api",'[data-toggle="modal"]',function(c){var d=a(this),e=d.attr("href"),f=a(d.attr("data-target")||e&&e.replace(/.*(?=#[^\s]+$)/,"")),g=f.data("bs.modal")?"toggle":a.extend({remote:!/#/.test(e)&&e},f.data(),d.data());d.is("a")&&c.preventDefault(),f.one("show.bs.modal",function(a){a.isDefaultPrevented()||f.one("hidden.bs.modal",function(){d.is(":visible")&&d.trigger("focus")})}),b.call(f,g,this)})}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.tooltip"),f="object"==typeof b&&b;(e||!/destroy|hide/.test(b))&&(e||d.data("bs.tooltip",e=new c(this,f)),"string"==typeof b&&e[b]())})}var c=function(a,b){this.type=null,this.options=null,this.enabled=null,this.timeout=null,this.hoverState=null,this.$element=null,this.inState=null,this.init("tooltip",a,b)};c.VERSION="3.3.6",c.TRANSITION_DURATION=150,c.DEFAULTS={animation:!0,placement:"top",selector:!1,template:'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',trigger:"hover focus",title:"",delay:0,html:!1,container:!1,viewport:{selector:"body",padding:0}},c.prototype.init=function(b,c,d){if(this.enabled=!0,this.type=b,this.$element=a(c),this.options=this.getOptions(d),this.$viewport=this.options.viewport&&a(a.isFunction(this.options.viewport)?this.options.viewport.call(this,this.$element):this.options.viewport.selector||this.options.viewport),this.inState={click:!1,hover:!1,focus:!1},this.$element[0]instanceof document.constructor&&!this.options.selector)throw new Error("`selector` option must be specified when initializing "+this.type+" on the window.document object!");for(var e=this.options.trigger.split(" "),f=e.length;f--;){var g=e[f];if("click"==g)this.$element.on("click."+this.type,this.options.selector,a.proxy(this.toggle,this));else if("manual"!=g){var h="hover"==g?"mouseenter":"focusin",i="hover"==g?"mouseleave":"focusout";this.$element.on(h+"."+this.type,this.options.selector,a.proxy(this.enter,this)),this.$element.on(i+"."+this.type,this.options.selector,a.proxy(this.leave,this))}}this.options.selector?this._options=a.extend({},this.options,{trigger:"manual",selector:""}):this.fixTitle()},c.prototype.getDefaults=function(){return c.DEFAULTS},c.prototype.getOptions=function(b){return b=a.extend({},this.getDefaults(),this.$element.data(),b),b.delay&&"number"==typeof b.delay&&(b.delay={show:b.delay,hide:b.delay}),b},c.prototype.getDelegateOptions=function(){var b={},c=this.getDefaults();return this._options&&a.each(this._options,function(a,d){c[a]!=d&&(b[a]=d)}),b},c.prototype.enter=function(b){var c=b instanceof this.constructor?b:a(b.currentTarget).data("bs."+this.type);return c||(c=new this.constructor(b.currentTarget,this.getDelegateOptions()),a(b.currentTarget).data("bs."+this.type,c)),b instanceof a.Event&&(c.inState["focusin"==b.type?"focus":"hover"]=!0),c.tip().hasClass("in")||"in"==c.hoverState?void(c.hoverState="in"):(clearTimeout(c.timeout),c.hoverState="in",c.options.delay&&c.options.delay.show?void(c.timeout=setTimeout(function(){"in"==c.hoverState&&c.show()},c.options.delay.show)):c.show())},c.prototype.isInStateTrue=function(){for(var a in this.inState)if(this.inState[a])return!0;return!1},c.prototype.leave=function(b){var c=b instanceof this.constructor?b:a(b.currentTarget).data("bs."+this.type);return c||(c=new this.constructor(b.currentTarget,this.getDelegateOptions()),a(b.currentTarget).data("bs."+this.type,c)),b instanceof a.Event&&(c.inState["focusout"==b.type?"focus":"hover"]=!1),c.isInStateTrue()?void 0:(clearTimeout(c.timeout),c.hoverState="out",c.options.delay&&c.options.delay.hide?void(c.timeout=setTimeout(function(){"out"==c.hoverState&&c.hide()},c.options.delay.hide)):c.hide())},c.prototype.show=function(){var b=a.Event("show.bs."+this.type);if(this.hasContent()&&this.enabled){this.$element.trigger(b);var d=a.contains(this.$element[0].ownerDocument.documentElement,this.$element[0]);if(b.isDefaultPrevented()||!d)return;var e=this,f=this.tip(),g=this.getUID(this.type);this.setContent(),f.attr("id",g),this.$element.attr("aria-describedby",g),this.options.animation&&f.addClass("fade");var h="function"==typeof this.options.placement?this.options.placement.call(this,f[0],this.$element[0]):this.options.placement,i=/\s?auto?\s?/i,j=i.test(h);j&&(h=h.replace(i,"")||"top"),f.detach().css({top:0,left:0,display:"block"}).addClass(h).data("bs."+this.type,this),this.options.container?f.appendTo(this.options.container):f.insertAfter(this.$element),this.$element.trigger("inserted.bs."+this.type);var k=this.getPosition(),l=f[0].offsetWidth,m=f[0].offsetHeight;if(j){var n=h,o=this.getPosition(this.$viewport);h="bottom"==h&&k.bottom+m>o.bottom?"top":"top"==h&&k.top-m<o.top?"bottom":"right"==h&&k.right+l>o.width?"left":"left"==h&&k.left-l<o.left?"right":h,f.removeClass(n).addClass(h)}var p=this.getCalculatedOffset(h,k,l,m);this.applyPlacement(p,h);var q=function(){var a=e.hoverState;e.$element.trigger("shown.bs."+e.type),e.hoverState=null,"out"==a&&e.leave(e)};a.support.transition&&this.$tip.hasClass("fade")?f.one("bsTransitionEnd",q).emulateTransitionEnd(c.TRANSITION_DURATION):q()}},c.prototype.applyPlacement=function(b,c){var d=this.tip(),e=d[0].offsetWidth,f=d[0].offsetHeight,g=parseInt(d.css("margin-top"),10),h=parseInt(d.css("margin-left"),10);isNaN(g)&&(g=0),isNaN(h)&&(h=0),b.top+=g,b.left+=h,a.offset.setOffset(d[0],a.extend({using:function(a){d.css({top:Math.round(a.top),left:Math.round(a.left)})}},b),0),d.addClass("in");var i=d[0].offsetWidth,j=d[0].offsetHeight;"top"==c&&j!=f&&(b.top=b.top+f-j);var k=this.getViewportAdjustedDelta(c,b,i,j);k.left?b.left+=k.left:b.top+=k.top;var l=/top|bottom/.test(c),m=l?2*k.left-e+i:2*k.top-f+j,n=l?"offsetWidth":"offsetHeight";d.offset(b),this.replaceArrow(m,d[0][n],l)},c.prototype.replaceArrow=function(a,b,c){this.arrow().css(c?"left":"top",50*(1-a/b)+"%").css(c?"top":"left","")},c.prototype.setContent=function(){var a=this.tip(),b=this.getTitle();a.find(".tooltip-inner")[this.options.html?"html":"text"](b),a.removeClass("fade in top bottom left right")},c.prototype.hide=function(b){function d(){"in"!=e.hoverState&&f.detach(),e.$element.removeAttr("aria-describedby").trigger("hidden.bs."+e.type),b&&b()}var e=this,f=a(this.$tip),g=a.Event("hide.bs."+this.type);return this.$element.trigger(g),g.isDefaultPrevented()?void 0:(f.removeClass("in"),a.support.transition&&f.hasClass("fade")?f.one("bsTransitionEnd",d).emulateTransitionEnd(c.TRANSITION_DURATION):d(),this.hoverState=null,this)},c.prototype.fixTitle=function(){var a=this.$element;(a.attr("title")||"string"!=typeof a.attr("data-original-title"))&&a.attr("data-original-title",a.attr("title")||"").attr("title","")},c.prototype.hasContent=function(){return this.getTitle()},c.prototype.getPosition=function(b){b=b||this.$element;var c=b[0],d="BODY"==c.tagName,e=c.getBoundingClientRect();null==e.width&&(e=a.extend({},e,{width:e.right-e.left,height:e.bottom-e.top}));var f=d?{top:0,left:0}:b.offset(),g={scroll:d?document.documentElement.scrollTop||document.body.scrollTop:b.scrollTop()},h=d?{width:a(window).width(),height:a(window).height()}:null;return a.extend({},e,g,h,f)},c.prototype.getCalculatedOffset=function(a,b,c,d){return"bottom"==a?{top:b.top+b.height,left:b.left+b.width/2-c/2}:"top"==a?{top:b.top-d,left:b.left+b.width/2-c/2}:"left"==a?{top:b.top+b.height/2-d/2,left:b.left-c}:{top:b.top+b.height/2-d/2,left:b.left+b.width}},c.prototype.getViewportAdjustedDelta=function(a,b,c,d){var e={top:0,left:0};if(!this.$viewport)return e;var f=this.options.viewport&&this.options.viewport.padding||0,g=this.getPosition(this.$viewport);if(/right|left/.test(a)){var h=b.top-f-g.scroll,i=b.top+f-g.scroll+d;h<g.top?e.top=g.top-h:i>g.top+g.height&&(e.top=g.top+g.height-i)}else{var j=b.left-f,k=b.left+f+c;j<g.left?e.left=g.left-j:k>g.right&&(e.left=g.left+g.width-k)}return e},c.prototype.getTitle=function(){var a,b=this.$element,c=this.options;return a=b.attr("data-original-title")||("function"==typeof c.title?c.title.call(b[0]):c.title)},c.prototype.getUID=function(a){do a+=~~(1e6*Math.random());while(document.getElementById(a));return a},c.prototype.tip=function(){if(!this.$tip&&(this.$tip=a(this.options.template),1!=this.$tip.length))throw new Error(this.type+" `template` option must consist of exactly 1 top-level element!");return this.$tip},c.prototype.arrow=function(){return this.$arrow=this.$arrow||this.tip().find(".tooltip-arrow")},c.prototype.enable=function(){this.enabled=!0},c.prototype.disable=function(){this.enabled=!1},c.prototype.toggleEnabled=function(){this.enabled=!this.enabled},c.prototype.toggle=function(b){var c=this;b&&(c=a(b.currentTarget).data("bs."+this.type),c||(c=new this.constructor(b.currentTarget,this.getDelegateOptions()),a(b.currentTarget).data("bs."+this.type,c))),b?(c.inState.click=!c.inState.click,c.isInStateTrue()?c.enter(c):c.leave(c)):c.tip().hasClass("in")?c.leave(c):c.enter(c)},c.prototype.destroy=function(){var a=this;clearTimeout(this.timeout),this.hide(function(){a.$element.off("."+a.type).removeData("bs."+a.type),a.$tip&&a.$tip.detach(),a.$tip=null,a.$arrow=null,a.$viewport=null})};var d=a.fn.tooltip;a.fn.tooltip=b,a.fn.tooltip.Constructor=c,a.fn.tooltip.noConflict=function(){return a.fn.tooltip=d,this}}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.popover"),f="object"==typeof b&&b;(e||!/destroy|hide/.test(b))&&(e||d.data("bs.popover",e=new c(this,f)),"string"==typeof b&&e[b]())})}var c=function(a,b){this.init("popover",a,b)};if(!a.fn.tooltip)throw new Error("Popover requires tooltip.js");c.VERSION="3.3.6",c.DEFAULTS=a.extend({},a.fn.tooltip.Constructor.DEFAULTS,{placement:"right",trigger:"click",content:"",template:'<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'}),c.prototype=a.extend({},a.fn.tooltip.Constructor.prototype),c.prototype.constructor=c,c.prototype.getDefaults=function(){return c.DEFAULTS},c.prototype.setContent=function(){var a=this.tip(),b=this.getTitle(),c=this.getContent();a.find(".popover-title")[this.options.html?"html":"text"](b),a.find(".popover-content").children().detach().end()[this.options.html?"string"==typeof c?"html":"append":"text"](c),a.removeClass("fade top bottom left right in"),a.find(".popover-title").html()||a.find(".popover-title").hide()},c.prototype.hasContent=function(){return this.getTitle()||this.getContent()},c.prototype.getContent=function(){var a=this.$element,b=this.options;return a.attr("data-content")||("function"==typeof b.content?b.content.call(a[0]):b.content)},c.prototype.arrow=function(){return this.$arrow=this.$arrow||this.tip().find(".arrow")};var d=a.fn.popover;a.fn.popover=b,a.fn.popover.Constructor=c,a.fn.popover.noConflict=function(){return a.fn.popover=d,this}}(jQuery),+function(a){"use strict";function b(c,d){this.$body=a(document.body),this.$scrollElement=a(a(c).is(document.body)?window:c),this.options=a.extend({},b.DEFAULTS,d),this.selector=(this.options.target||"")+" .nav li > a",this.offsets=[],this.targets=[],this.activeTarget=null,this.scrollHeight=0,this.$scrollElement.on("scroll.bs.scrollspy",a.proxy(this.process,this)),this.refresh(),this.process()}function c(c){return this.each(function(){var d=a(this),e=d.data("bs.scrollspy"),f="object"==typeof c&&c;e||d.data("bs.scrollspy",e=new b(this,f)),"string"==typeof c&&e[c]()})}b.VERSION="3.3.6",b.DEFAULTS={offset:10},b.prototype.getScrollHeight=function(){return this.$scrollElement[0].scrollHeight||Math.max(this.$body[0].scrollHeight,document.documentElement.scrollHeight)},b.prototype.refresh=function(){var b=this,c="offset",d=0;this.offsets=[],this.targets=[],this.scrollHeight=this.getScrollHeight(),a.isWindow(this.$scrollElement[0])||(c="position",d=this.$scrollElement.scrollTop()),this.$body.find(this.selector).map(function(){var b=a(this),e=b.data("target")||b.attr("href"),f=/^#./.test(e)&&a(e);return f&&f.length&&f.is(":visible")&&[[f[c]().top+d,e]]||null}).sort(function(a,b){return a[0]-b[0]}).each(function(){b.offsets.push(this[0]),b.targets.push(this[1])})},b.prototype.process=function(){var a,b=this.$scrollElement.scrollTop()+this.options.offset,c=this.getScrollHeight(),d=this.options.offset+c-this.$scrollElement.height(),e=this.offsets,f=this.targets,g=this.activeTarget;if(this.scrollHeight!=c&&this.refresh(),b>=d)return g!=(a=f[f.length-1])&&this.activate(a);if(g&&b<e[0])return this.activeTarget=null,this.clear();for(a=e.length;a--;)g!=f[a]&&b>=e[a]&&(void 0===e[a+1]||b<e[a+1])&&this.activate(f[a])},b.prototype.activate=function(b){this.activeTarget=b,this.clear();var c=this.selector+'[data-target="'+b+'"],'+this.selector+'[href="'+b+'"]',d=a(c).parents("li").addClass("active");
+d.parent(".dropdown-menu").length&&(d=d.closest("li.dropdown").addClass("active")),d.trigger("activate.bs.scrollspy")},b.prototype.clear=function(){a(this.selector).parentsUntil(this.options.target,".active").removeClass("active")};var d=a.fn.scrollspy;a.fn.scrollspy=c,a.fn.scrollspy.Constructor=b,a.fn.scrollspy.noConflict=function(){return a.fn.scrollspy=d,this},a(window).on("load.bs.scrollspy.data-api",function(){a('[data-spy="scroll"]').each(function(){var b=a(this);c.call(b,b.data())})})}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.tab");e||d.data("bs.tab",e=new c(this)),"string"==typeof b&&e[b]()})}var c=function(b){this.element=a(b)};c.VERSION="3.3.6",c.TRANSITION_DURATION=150,c.prototype.show=function(){var b=this.element,c=b.closest("ul:not(.dropdown-menu)"),d=b.data("target");if(d||(d=b.attr("href"),d=d&&d.replace(/.*(?=#[^\s]*$)/,"")),!b.parent("li").hasClass("active")){var e=c.find(".active:last a"),f=a.Event("hide.bs.tab",{relatedTarget:b[0]}),g=a.Event("show.bs.tab",{relatedTarget:e[0]});if(e.trigger(f),b.trigger(g),!g.isDefaultPrevented()&&!f.isDefaultPrevented()){var h=a(d);this.activate(b.closest("li"),c),this.activate(h,h.parent(),function(){e.trigger({type:"hidden.bs.tab",relatedTarget:b[0]}),b.trigger({type:"shown.bs.tab",relatedTarget:e[0]})})}}},c.prototype.activate=function(b,d,e){function f(){g.removeClass("active").find("> .dropdown-menu > .active").removeClass("active").end().find('[data-toggle="tab"]').attr("aria-expanded",!1),b.addClass("active").find('[data-toggle="tab"]').attr("aria-expanded",!0),h?(b[0].offsetWidth,b.addClass("in")):b.removeClass("fade"),b.parent(".dropdown-menu").length&&b.closest("li.dropdown").addClass("active").end().find('[data-toggle="tab"]').attr("aria-expanded",!0),e&&e()}var g=d.find("> .active"),h=e&&a.support.transition&&(g.length&&g.hasClass("fade")||!!d.find("> .fade").length);g.length&&h?g.one("bsTransitionEnd",f).emulateTransitionEnd(c.TRANSITION_DURATION):f(),g.removeClass("in")};var d=a.fn.tab;a.fn.tab=b,a.fn.tab.Constructor=c,a.fn.tab.noConflict=function(){return a.fn.tab=d,this};var e=function(c){c.preventDefault(),b.call(a(this),"show")};a(document).on("click.bs.tab.data-api",'[data-toggle="tab"]',e).on("click.bs.tab.data-api",'[data-toggle="pill"]',e)}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.affix"),f="object"==typeof b&&b;e||d.data("bs.affix",e=new c(this,f)),"string"==typeof b&&e[b]()})}var c=function(b,d){this.options=a.extend({},c.DEFAULTS,d),this.$target=a(this.options.target).on("scroll.bs.affix.data-api",a.proxy(this.checkPosition,this)).on("click.bs.affix.data-api",a.proxy(this.checkPositionWithEventLoop,this)),this.$element=a(b),this.affixed=null,this.unpin=null,this.pinnedOffset=null,this.checkPosition()};c.VERSION="3.3.6",c.RESET="affix affix-top affix-bottom",c.DEFAULTS={offset:0,target:window},c.prototype.getState=function(a,b,c,d){var e=this.$target.scrollTop(),f=this.$element.offset(),g=this.$target.height();if(null!=c&&"top"==this.affixed)return c>e?"top":!1;if("bottom"==this.affixed)return null!=c?e+this.unpin<=f.top?!1:"bottom":a-d>=e+g?!1:"bottom";var h=null==this.affixed,i=h?e:f.top,j=h?g:b;return null!=c&&c>=e?"top":null!=d&&i+j>=a-d?"bottom":!1},c.prototype.getPinnedOffset=function(){if(this.pinnedOffset)return this.pinnedOffset;this.$element.removeClass(c.RESET).addClass("affix");var a=this.$target.scrollTop(),b=this.$element.offset();return this.pinnedOffset=b.top-a},c.prototype.checkPositionWithEventLoop=function(){setTimeout(a.proxy(this.checkPosition,this),1)},c.prototype.checkPosition=function(){if(this.$element.is(":visible")){var b=this.$element.height(),d=this.options.offset,e=d.top,f=d.bottom,g=Math.max(a(document).height(),a(document.body).height());"object"!=typeof d&&(f=e=d),"function"==typeof e&&(e=d.top(this.$element)),"function"==typeof f&&(f=d.bottom(this.$element));var h=this.getState(g,b,e,f);if(this.affixed!=h){null!=this.unpin&&this.$element.css("top","");var i="affix"+(h?"-"+h:""),j=a.Event(i+".bs.affix");if(this.$element.trigger(j),j.isDefaultPrevented())return;this.affixed=h,this.unpin="bottom"==h?this.getPinnedOffset():null,this.$element.removeClass(c.RESET).addClass(i).trigger(i.replace("affix","affixed")+".bs.affix")}"bottom"==h&&this.$element.offset({top:g-b-f})}};var d=a.fn.affix;a.fn.affix=b,a.fn.affix.Constructor=c,a.fn.affix.noConflict=function(){return a.fn.affix=d,this},a(window).on("load",function(){a('[data-spy="affix"]').each(function(){var c=a(this),d=c.data();d.offset=d.offset||{},null!=d.offsetBottom&&(d.offset.bottom=d.offsetBottom),null!=d.offsetTop&&(d.offset.top=d.offsetTop),b.call(c,d)})})}(jQuery);
 ;!function(r){function n(r){return r}function t(r,n){for(var t=0,e=n.length,u=Array(e);e>t;++t)u[t]=r[n[t]];return u}function e(r){function n(n,t,e,u){for(;u>e;){var f=e+u>>>1;r(n[f])<t?e=f+1:u=f}return e}function t(n,t,e,u){for(;u>e;){var f=e+u>>>1;t<r(n[f])?u=f:e=f+1}return e}return t.right=t,t.left=n,t}function u(r){function n(r,n,t){for(var u=t-n,f=(u>>>1)+1;--f>0;)e(r,f,u,n);return r}function t(r,n,t){for(var u,f=t-n;--f>0;)u=r[n],r[n]=r[n+f],r[n+f]=u,e(r,1,f,n);return r}function e(n,t,e,u){for(var f,o=n[--u+t],i=r(o);(f=t<<1)<=e&&(e>f&&r(n[u+f])>r(n[u+f+1])&&f++,!(i<=r(n[u+f])));)n[u+t]=n[u+f],t=f;n[u+t]=o}return n.sort=t,n}function f(r){function n(n,e,u,f){var o,i,a,c,l=Array(f=Math.min(u-e,f));for(i=0;f>i;++i)l[i]=n[e++];if(t(l,0,f),u>e){o=r(l[0]);do(a=r(c=n[e])>o)&&(l[0]=c,o=r(t(l,0,f)[0]));while(++e<u)}return l}var t=u(r);return n}function o(r){function n(n,t,e){for(var u=t+1;e>u;++u){for(var f=u,o=n[u],i=r(o);f>t&&r(n[f-1])>i;--f)n[f]=n[f-1];n[f]=o}return n}return n}function i(r){function n(r,n,u){return(N>u-n?e:t)(r,n,u)}function t(t,e,u){var f,o=0|(u-e)/6,i=e+o,a=u-1-o,c=e+u-1>>1,l=c-o,v=c+o,s=t[i],h=r(s),d=t[l],p=r(d),g=t[c],y=r(g),m=t[v],x=r(m),b=t[a],A=r(b);h>p&&(f=s,s=d,d=f,f=h,h=p,p=f),x>A&&(f=m,m=b,b=f,f=x,x=A,A=f),h>y&&(f=s,s=g,g=f,f=h,h=y,y=f),p>y&&(f=d,d=g,g=f,f=p,p=y,y=f),h>x&&(f=s,s=m,m=f,f=h,h=x,x=f),y>x&&(f=g,g=m,m=f,f=y,y=x,x=f),p>A&&(f=d,d=b,b=f,f=p,p=A,A=f),p>y&&(f=d,d=g,g=f,f=p,p=y,y=f),x>A&&(f=m,m=b,b=f,f=x,x=A,A=f);var k=d,O=p,w=m,E=x;t[i]=s,t[l]=t[e],t[c]=g,t[v]=t[u-1],t[a]=b;var M=e+1,U=u-2,z=E>=O&&O>=E;if(z)for(var N=M;U>=N;++N){var C=t[N],S=r(C);if(O>S)N!==M&&(t[N]=t[M],t[M]=C),++M;else if(S>O)for(;;){var q=r(t[U]);{if(!(q>O)){if(O>q){t[N]=t[M],t[M++]=t[U],t[U--]=C;break}t[N]=t[U],t[U--]=C;break}U--}}}else for(var N=M;U>=N;N++){var C=t[N],S=r(C);if(O>S)N!==M&&(t[N]=t[M],t[M]=C),++M;else if(S>E)for(;;){var q=r(t[U]);{if(!(q>E)){O>q?(t[N]=t[M],t[M++]=t[U],t[U--]=C):(t[N]=t[U],t[U--]=C);break}if(U--,N>U)break}}}if(t[e]=t[M-1],t[M-1]=k,t[u-1]=t[U+1],t[U+1]=w,n(t,e,M-1),n(t,U+2,u),z)return t;if(i>M&&U>a){for(var F,q;(F=r(t[M]))<=O&&F>=O;)++M;for(;(q=r(t[U]))<=E&&q>=E;)--U;for(var N=M;U>=N;N++){var C=t[N],S=r(C);if(O>=S&&S>=O)N!==M&&(t[N]=t[M],t[M]=C),M++;else if(E>=S&&S>=E)for(;;){var q=r(t[U]);{if(!(E>=q&&q>=E)){O>q?(t[N]=t[M],t[M++]=t[U],t[U--]=C):(t[N]=t[U],t[U--]=C);break}if(U--,N>U)break}}}}return n(t,M,U+1)}var e=o(r);return n}function a(r){for(var n=Array(r),t=-1;++t<r;)n[t]=0;return n}function c(r,n){for(var t=r.length;n>t;)r[t++]=0;return r}function l(r,n){if(n>32)throw Error("invalid array width!");return r}function v(r,n){return function(t){var e=t.length;return[r.left(t,n,0,e),r.right(t,n,0,e)]}}function s(r,n){var t=n[0],e=n[1];return function(n){var u=n.length;return[r.left(n,t,0,u),r.left(n,e,0,u)]}}function h(r){return[0,r.length]}function d(){return null}function p(){return 0}function g(r){return r+1}function y(r){return r-1}function m(r){return function(n,t){return n+ +r(t)}}function x(r){return function(n,t){return n-r(t)}}function b(){function r(r){var n=E,t=r.length;return t&&(b=b.concat(r),z=F(z,E+=t),S.forEach(function(e){e(r,n,t)})),l}function e(){for(var r=A(E,E),n=[],t=0,e=0;E>t;++t)z[t]?r[t]=e++:n.push(t);N.forEach(function(r){r(0,[],n)}),q.forEach(function(n){n(r)});for(var u,t=0,e=0;E>t;++t)(u=z[t])&&(t!==e&&(z[e]=u,b[e]=b[t]),++e);for(b.length=e;E>e;)z[--E]=0}function o(r){function e(n,e,u){T=n.map(r),V=$(k(u),0,u),T=t(T,V);var f,o=_(T),i=o[0],a=o[1];if(W)for(f=0;u>f;++f)W(T[f],f)||(z[V[f]+e]|=Y);else{for(f=0;i>f;++f)z[V[f]+e]|=Y;for(f=a;u>f;++f)z[V[f]+e]|=Y}if(!e)return P=T,Q=V,tn=i,en=a,void 0;var c=P,l=Q,v=0,s=0;for(P=Array(E),Q=A(E,E),f=0;e>v&&u>s;++f)c[v]<T[s]?(P[f]=c[v],Q[f]=l[v++]):(P[f]=T[s],Q[f]=V[s++]+e);for(;e>v;++v,++f)P[f]=c[v],Q[f]=l[v];for(;u>s;++s,++f)P[f]=T[s],Q[f]=V[s]+e;o=_(P),tn=o[0],en=o[1]}function o(r,n,t){rn.forEach(function(r){r(T,V,n,t)}),T=V=null}function a(r){for(var n,t=0,e=0;E>t;++t)z[n=Q[t]]&&(t!==e&&(P[e]=P[t]),Q[e]=r[n],++e);for(P.length=e;E>e;)Q[e++]=0;var u=_(P);tn=u[0],en=u[1]}function c(r){var n=r[0],t=r[1];if(W)return W=null,G(function(r,e){return e>=n&&t>e}),tn=n,en=t,X;var e,u,f,o=[],i=[];if(tn>n)for(e=n,u=Math.min(tn,t);u>e;++e)z[f=Q[e]]^=Y,o.push(f);else if(n>tn)for(e=tn,u=Math.min(n,en);u>e;++e)z[f=Q[e]]^=Y,i.push(f);if(t>en)for(e=Math.max(n,en),u=t;u>e;++e)z[f=Q[e]]^=Y,o.push(f);else if(en>t)for(e=Math.max(tn,t),u=en;u>e;++e)z[f=Q[e]]^=Y,i.push(f);return tn=n,en=t,N.forEach(function(r){r(Y,o,i)}),X}function l(r){return null==r?B():Array.isArray(r)?j(r):"function"==typeof r?D(r):C(r)}function C(r){return c((_=v(w,r))(P))}function j(r){return c((_=s(w,r))(P))}function B(){return c((_=h)(P))}function D(r){return _=h,G(W=r),tn=0,en=E,X}function G(r){var n,t,e,u=[],f=[];for(n=0;E>n;++n)!(z[t=Q[n]]&Y)^!!(e=r(P[n],n))&&(e?(z[t]&=Z,u.push(t)):(z[t]|=Y,f.push(t)));N.forEach(function(r){r(Y,u,f)})}function H(r){for(var n,t=[],e=en;--e>=tn&&r>0;)z[n=Q[e]]||(t.push(b[n]),--r);return t}function I(r){for(var n,t=[],e=tn;en>e&&r>0;)z[n=Q[e]]||(t.push(b[n]),--r),e++;return t}function J(r){function t(n,t,e,u){function f(){++T===L&&(m=R(m,K<<=1),B=R(B,K),L=O(K))}var l,v,s,h,p,g,y=j,m=A(T,L),x=H,k=J,w=T,M=0,U=0;for(X&&(x=k=d),j=Array(T),T=0,B=w>1?F(B,E):A(E,L),w&&(s=(v=y[0]).key);u>U&&!((h=r(n[U]))>=h);)++U;for(;u>U;){for(v&&h>=s?(p=v,g=s,m[M]=T,(v=y[++M])&&(s=v.key)):(p={key:h,value:k()},g=h),j[T]=p;!(h>g||(B[l=t[U]+e]=T,z[l]&Z||(p.value=x(p.value,b[l])),++U>=u));)h=r(n[U]);f()}for(;w>M;)j[m[M]=T]=y[M++],f();if(T>M)for(M=0;e>M;++M)B[M]=m[B[M]];l=N.indexOf(V),T>1?(V=o,W=a):(!T&&$&&(T=1,j=[{key:null,value:k()}]),1===T?(V=i,W=c):(V=d,W=d),B=null),N[l]=V}function e(){if(T>1){for(var r=T,n=j,t=A(r,r),e=0,u=0;E>e;++e)z[e]&&(t[B[u]=B[e]]=1,++u);for(j=[],T=0,e=0;r>e;++e)t[e]&&(t[e]=T++,j.push(n[e]));if(T>1)for(var e=0;u>e;++e)B[e]=t[B[e]];else B=null;N[N.indexOf(V)]=T>1?(W=a,V=o):1===T?(W=c,V=i):W=V=d}else if(1===T){if($)return;for(var e=0;E>e;++e)if(z[e])return;j=[],T=0,N[N.indexOf(V)]=V=W=d}}function o(r,n,t){if(r!==Y&&!X){var e,u,f,o;for(e=0,f=n.length;f>e;++e)z[u=n[e]]&Z||(o=j[B[u]],o.value=H(o.value,b[u]));for(e=0,f=t.length;f>e;++e)(z[u=t[e]]&Z)===r&&(o=j[B[u]],o.value=I(o.value,b[u]))}}function i(r,n,t){if(r!==Y&&!X){var e,u,f,o=j[0];for(e=0,f=n.length;f>e;++e)z[u=n[e]]&Z||(o.value=H(o.value,b[u]));for(e=0,f=t.length;f>e;++e)(z[u=t[e]]&Z)===r&&(o.value=I(o.value,b[u]))}}function a(){var r,n;for(r=0;T>r;++r)j[r].value=J();for(r=0;E>r;++r)z[r]&Z||(n=j[B[r]],n.value=H(n.value,b[r]))}function c(){var r,n=j[0];for(n.value=J(),r=0;E>r;++r)z[r]&Z||(n.value=H(n.value,b[r]))}function l(){return X&&(W(),X=!1),j}function v(r){var n=D(l(),0,j.length,r);return G.sort(n,0,n.length)}function s(r,n,t){return H=r,I=n,J=t,X=!0,S}function h(){return s(g,y,p)}function k(r){return s(m(r),x(r),p)}function w(r){function n(n){return r(n.value)}return D=f(n),G=u(n),S}function M(){return w(n)}function U(){return T}function C(){var r=N.indexOf(V);return r>=0&&N.splice(r,1),r=rn.indexOf(t),r>=0&&rn.splice(r,1),r=q.indexOf(e),r>=0&&q.splice(r,1),S}var S={top:v,all:l,reduce:s,reduceCount:h,reduceSum:k,order:w,orderNatural:M,size:U,dispose:C,remove:C};nn.push(S);var j,B,D,G,H,I,J,K=8,L=O(K),T=0,V=d,W=d,X=!0,$=r===d;return arguments.length<1&&(r=n),N.push(V),rn.push(t),q.push(e),t(P,Q,0,E),h().orderNatural()}function K(){var r=J(d),n=r.all;return delete r.all,delete r.top,delete r.order,delete r.orderNatural,delete r.size,r.value=function(){return n()[0].value},r}function L(){nn.forEach(function(r){r.dispose()});var r=S.indexOf(e);return r>=0&&S.splice(r,1),r=S.indexOf(o),r>=0&&S.splice(r,1),r=q.indexOf(a),r>=0&&q.splice(r,1),M&=Z,B()}var P,Q,T,V,W,X={filter:l,filterExact:C,filterRange:j,filterFunction:D,filterAll:B,top:H,bottom:I,group:J,groupAll:K,dispose:L,remove:L},Y=~M&-~M,Z=~Y,$=i(function(r){return T[r]}),_=h,rn=[],nn=[],tn=0,en=0;return S.unshift(e),S.push(o),q.push(a),M|=Y,(U>=32?!Y:M&-(1<<U))&&(z=R(z,U<<=1)),e(b,0,E),o(b,0,E),X}function a(){function r(r,n){var t;if(!h)for(t=n;E>t;++t)z[t]||(a=c(a,b[t]))}function n(r,n,t){var e,u,f;if(!h){for(e=0,f=n.length;f>e;++e)z[u=n[e]]||(a=c(a,b[u]));for(e=0,f=t.length;f>e;++e)z[u=t[e]]===r&&(a=l(a,b[u]))}}function t(){var r;for(a=v(),r=0;E>r;++r)z[r]||(a=c(a,b[r]))}function e(r,n,t){return c=r,l=n,v=t,h=!0,s}function u(){return e(g,y,p)}function f(r){return e(m(r),x(r),p)}function o(){return h&&(t(),h=!1),a}function i(){var t=N.indexOf(n);return t>=0&&N.splice(t),t=S.indexOf(r),t>=0&&S.splice(t),s}var a,c,l,v,s={reduce:e,reduceCount:u,reduceSum:f,value:o,dispose:i,remove:i},h=!0;return N.push(n),S.push(r),r(b,0,E),u()}function c(){return E}var l={add:r,remove:e,dimension:o,groupAll:a,size:c},b=[],E=0,M=0,U=8,z=C(0),N=[],S=[],q=[];return arguments.length?r(arguments[0]):l}function A(r,n){return(257>n?C:65537>n?S:q)(r)}function k(r){for(var n=A(r,r),t=-1;++t<r;)n[t]=t;return n}function O(r){return 8===r?256:16===r?65536:4294967296}b.version="1.3.12",b.permute=t;var w=b.bisect=e(n);w.by=e;var E=b.heap=u(n);E.by=u;var M=b.heapselect=f(n);M.by=f;var U=b.insertionsort=o(n);U.by=o;var z=b.quicksort=i(n);z.by=i;var N=32,C=a,S=a,q=a,F=c,R=l;"undefined"!=typeof Uint8Array&&(C=function(r){return new Uint8Array(r)},S=function(r){return new Uint16Array(r)},q=function(r){return new Uint32Array(r)},F=function(r,n){if(r.length>=n)return r;var t=new r.constructor(n);return t.set(r),t},R=function(r,n){var t;switch(n){case 16:t=S(r.length);break;case 32:t=q(r.length);break;default:throw Error("invalid array width!")}return t.set(r),t}),r.crossfilter=b}("undefined"!=typeof exports&&exports||this);
 ;!function(){function n(n){return n&&(n.ownerDocument||n.document||n).documentElement}function t(n){return n&&(n.ownerDocument&&n.ownerDocument.defaultView||n.document&&n||n.defaultView)}function e(n,t){return t>n?-1:n>t?1:n>=t?0:NaN}function r(n){return null===n?NaN:+n}function u(n){return!isNaN(n)}function i(n){return{left:function(t,e,r,u){for(arguments.length<3&&(r=0),arguments.length<4&&(u=t.length);u>r;){var i=r+u>>>1;n(t[i],e)<0?r=i+1:u=i}return r},right:function(t,e,r,u){for(arguments.length<3&&(r=0),arguments.length<4&&(u=t.length);u>r;){var i=r+u>>>1;n(t[i],e)>0?u=i:r=i+1}return r}}}function a(n){return n.length}function o(n){for(var t=1;n*t%1;)t*=10;return t}function l(n,t){for(var e in t)Object.defineProperty(n.prototype,e,{value:t[e],enumerable:!1})}function c(){this._=Object.create(null)}function s(n){return(n+="")===xa||n[0]===ba?ba+n:n}function f(n){return(n+="")[0]===ba?n.slice(1):n}function h(n){return s(n)in this._}function g(n){return(n=s(n))in this._&&delete this._[n]}function p(){var n=[];for(var t in this._)n.push(f(t));return n}function v(){var n=0;for(var t in this._)++n;return n}function d(){for(var n in this._)return!1;return!0}function m(){this._=Object.create(null)}function y(n){return n}function M(n,t,e){return function(){var r=e.apply(t,arguments);return r===t?n:r}}function x(n,t){if(t in n)return t;t=t.charAt(0).toUpperCase()+t.slice(1);for(var e=0,r=_a.length;r>e;++e){var u=_a[e]+t;if(u in n)return u}}function b(){}function _(){}function w(n){function t(){for(var t,r=e,u=-1,i=r.length;++u<i;)(t=r[u].on)&&t.apply(this,arguments);return n}var e=[],r=new c;return t.on=function(t,u){var i,a=r.get(t);return arguments.length<2?a&&a.on:(a&&(a.on=null,e=e.slice(0,i=e.indexOf(a)).concat(e.slice(i+1)),r.remove(t)),u&&e.push(r.set(t,{on:u})),n)},t}function S(){oa.event.preventDefault()}function k(){for(var n,t=oa.event;n=t.sourceEvent;)t=n;return t}function N(n){for(var t=new _,e=0,r=arguments.length;++e<r;)t[arguments[e]]=w(t);return t.of=function(e,r){return function(u){try{var i=u.sourceEvent=oa.event;u.target=n,oa.event=u,t[u.type].apply(e,r)}finally{oa.event=i}}},t}function E(n){return Sa(n,Aa),n}function A(n){return"function"==typeof n?n:function(){return ka(n,this)}}function C(n){return"function"==typeof n?n:function(){return Na(n,this)}}function z(n,t){function e(){this.removeAttribute(n)}function r(){this.removeAttributeNS(n.space,n.local)}function u(){this.setAttribute(n,t)}function i(){this.setAttributeNS(n.space,n.local,t)}function a(){var e=t.apply(this,arguments);null==e?this.removeAttribute(n):this.setAttribute(n,e)}function o(){var e=t.apply(this,arguments);null==e?this.removeAttributeNS(n.space,n.local):this.setAttributeNS(n.space,n.local,e)}return n=oa.ns.qualify(n),null==t?n.local?r:e:"function"==typeof t?n.local?o:a:n.local?i:u}function L(n){return n.trim().replace(/\s+/g," ")}function q(n){return new RegExp("(?:^|\\s+)"+oa.requote(n)+"(?:\\s+|$)","g")}function T(n){return(n+"").trim().split(/^|\s+/)}function R(n,t){function e(){for(var e=-1;++e<u;)n[e](this,t)}function r(){for(var e=-1,r=t.apply(this,arguments);++e<u;)n[e](this,r)}n=T(n).map(D);var u=n.length;return"function"==typeof t?r:e}function D(n){var t=q(n);return function(e,r){if(u=e.classList)return r?u.add(n):u.remove(n);var u=e.getAttribute("class")||"";r?(t.lastIndex=0,t.test(u)||e.setAttribute("class",L(u+" "+n))):e.setAttribute("class",L(u.replace(t," ")))}}function P(n,t,e){function r(){this.style.removeProperty(n)}function u(){this.style.setProperty(n,t,e)}function i(){var r=t.apply(this,arguments);null==r?this.style.removeProperty(n):this.style.setProperty(n,r,e)}return null==t?r:"function"==typeof t?i:u}function U(n,t){function e(){delete this[n]}function r(){this[n]=t}function u(){var e=t.apply(this,arguments);null==e?delete this[n]:this[n]=e}return null==t?e:"function"==typeof t?u:r}function j(n){function t(){var t=this.ownerDocument,e=this.namespaceURI;return e===Ca&&t.documentElement.namespaceURI===Ca?t.createElement(n):t.createElementNS(e,n)}function e(){return this.ownerDocument.createElementNS(n.space,n.local)}return"function"==typeof n?n:(n=oa.ns.qualify(n)).local?e:t}function F(){var n=this.parentNode;n&&n.removeChild(this)}function H(n){return{__data__:n}}function O(n){return function(){return Ea(this,n)}}function I(n){return arguments.length||(n=e),function(t,e){return t&&e?n(t.__data__,e.__data__):!t-!e}}function Y(n,t){for(var e=0,r=n.length;r>e;e++)for(var u,i=n[e],a=0,o=i.length;o>a;a++)(u=i[a])&&t(u,a,e);return n}function Z(n){return Sa(n,La),n}function V(n){var t,e;return function(r,u,i){var a,o=n[i].update,l=o.length;for(i!=e&&(e=i,t=0),u>=t&&(t=u+1);!(a=o[t])&&++t<l;);return a}}function X(n,t,e){function r(){var t=this[a];t&&(this.removeEventListener(n,t,t.$),delete this[a])}function u(){var u=l(t,ca(arguments));r.call(this),this.addEventListener(n,this[a]=u,u.$=e),u._=t}function i(){var t,e=new RegExp("^__on([^.]+)"+oa.requote(n)+"$");for(var r in this)if(t=r.match(e)){var u=this[r];this.removeEventListener(t[1],u,u.$),delete this[r]}}var a="__on"+n,o=n.indexOf("."),l=$;o>0&&(n=n.slice(0,o));var c=qa.get(n);return c&&(n=c,l=B),o?t?u:r:t?b:i}function $(n,t){return function(e){var r=oa.event;oa.event=e,t[0]=this.__data__;try{n.apply(this,t)}finally{oa.event=r}}}function B(n,t){var e=$(n,t);return function(n){var t=this,r=n.relatedTarget;r&&(r===t||8&r.compareDocumentPosition(t))||e.call(t,n)}}function W(e){var r=".dragsuppress-"+ ++Ra,u="click"+r,i=oa.select(t(e)).on("touchmove"+r,S).on("dragstart"+r,S).on("selectstart"+r,S);if(null==Ta&&(Ta="onselectstart"in e?!1:x(e.style,"userSelect")),Ta){var a=n(e).style,o=a[Ta];a[Ta]="none"}return function(n){if(i.on(r,null),Ta&&(a[Ta]=o),n){var t=function(){i.on(u,null)};i.on(u,function(){S(),t()},!0),setTimeout(t,0)}}}function J(n,e){e.changedTouches&&(e=e.changedTouches[0]);var r=n.ownerSVGElement||n;if(r.createSVGPoint){var u=r.createSVGPoint();if(0>Da){var i=t(n);if(i.scrollX||i.scrollY){r=oa.select("body").append("svg").style({position:"absolute",top:0,left:0,margin:0,padding:0,border:"none"},"important");var a=r[0][0].getScreenCTM();Da=!(a.f||a.e),r.remove()}}return Da?(u.x=e.pageX,u.y=e.pageY):(u.x=e.clientX,u.y=e.clientY),u=u.matrixTransform(n.getScreenCTM().inverse()),[u.x,u.y]}var o=n.getBoundingClientRect();return[e.clientX-o.left-n.clientLeft,e.clientY-o.top-n.clientTop]}function G(){return oa.event.changedTouches[0].identifier}function K(n){return n>0?1:0>n?-1:0}function Q(n,t,e){return(t[0]-n[0])*(e[1]-n[1])-(t[1]-n[1])*(e[0]-n[0])}function nn(n){return n>1?0:-1>n?ja:Math.acos(n)}function tn(n){return n>1?Oa:-1>n?-Oa:Math.asin(n)}function en(n){return((n=Math.exp(n))-1/n)/2}function rn(n){return((n=Math.exp(n))+1/n)/2}function un(n){return((n=Math.exp(2*n))-1)/(n+1)}function an(n){return(n=Math.sin(n/2))*n}function on(){}function ln(n,t,e){return this instanceof ln?(this.h=+n,this.s=+t,void(this.l=+e)):arguments.length<2?n instanceof ln?new ln(n.h,n.s,n.l):_n(""+n,wn,ln):new ln(n,t,e)}function cn(n,t,e){function r(n){return n>360?n-=360:0>n&&(n+=360),60>n?i+(a-i)*n/60:180>n?a:240>n?i+(a-i)*(240-n)/60:i}function u(n){return Math.round(255*r(n))}var i,a;return n=isNaN(n)?0:(n%=360)<0?n+360:n,t=isNaN(t)?0:0>t?0:t>1?1:t,e=0>e?0:e>1?1:e,a=.5>=e?e*(1+t):e+t-e*t,i=2*e-a,new yn(u(n+120),u(n),u(n-120))}function sn(n,t,e){return this instanceof sn?(this.h=+n,this.c=+t,void(this.l=+e)):arguments.length<2?n instanceof sn?new sn(n.h,n.c,n.l):n instanceof hn?pn(n.l,n.a,n.b):pn((n=Sn((n=oa.rgb(n)).r,n.g,n.b)).l,n.a,n.b):new sn(n,t,e)}function fn(n,t,e){return isNaN(n)&&(n=0),isNaN(t)&&(t=0),new hn(e,Math.cos(n*=Ia)*t,Math.sin(n)*t)}function hn(n,t,e){return this instanceof hn?(this.l=+n,this.a=+t,void(this.b=+e)):arguments.length<2?n instanceof hn?new hn(n.l,n.a,n.b):n instanceof sn?fn(n.h,n.c,n.l):Sn((n=yn(n)).r,n.g,n.b):new hn(n,t,e)}function gn(n,t,e){var r=(n+16)/116,u=r+t/500,i=r-e/200;return u=vn(u)*Qa,r=vn(r)*no,i=vn(i)*to,new yn(mn(3.2404542*u-1.5371385*r-.4985314*i),mn(-.969266*u+1.8760108*r+.041556*i),mn(.0556434*u-.2040259*r+1.0572252*i))}function pn(n,t,e){return n>0?new sn(Math.atan2(e,t)*Ya,Math.sqrt(t*t+e*e),n):new sn(NaN,NaN,n)}function vn(n){return n>.206893034?n*n*n:(n-4/29)/7.787037}function dn(n){return n>.008856?Math.pow(n,1/3):7.787037*n+4/29}function mn(n){return Math.round(255*(.00304>=n?12.92*n:1.055*Math.pow(n,1/2.4)-.055))}function yn(n,t,e){return this instanceof yn?(this.r=~~n,this.g=~~t,void(this.b=~~e)):arguments.length<2?n instanceof yn?new yn(n.r,n.g,n.b):_n(""+n,yn,cn):new yn(n,t,e)}function Mn(n){return new yn(n>>16,n>>8&255,255&n)}function xn(n){return Mn(n)+""}function bn(n){return 16>n?"0"+Math.max(0,n).toString(16):Math.min(255,n).toString(16)}function _n(n,t,e){var r,u,i,a=0,o=0,l=0;if(r=/([a-z]+)\((.*)\)/.exec(n=n.toLowerCase()))switch(u=r[2].split(","),r[1]){case"hsl":return e(parseFloat(u[0]),parseFloat(u[1])/100,parseFloat(u[2])/100);case"rgb":return t(Nn(u[0]),Nn(u[1]),Nn(u[2]))}return(i=uo.get(n))?t(i.r,i.g,i.b):(null==n||"#"!==n.charAt(0)||isNaN(i=parseInt(n.slice(1),16))||(4===n.length?(a=(3840&i)>>4,a=a>>4|a,o=240&i,o=o>>4|o,l=15&i,l=l<<4|l):7===n.length&&(a=(16711680&i)>>16,o=(65280&i)>>8,l=255&i)),t(a,o,l))}function wn(n,t,e){var r,u,i=Math.min(n/=255,t/=255,e/=255),a=Math.max(n,t,e),o=a-i,l=(a+i)/2;return o?(u=.5>l?o/(a+i):o/(2-a-i),r=n==a?(t-e)/o+(e>t?6:0):t==a?(e-n)/o+2:(n-t)/o+4,r*=60):(r=NaN,u=l>0&&1>l?0:r),new ln(r,u,l)}function Sn(n,t,e){n=kn(n),t=kn(t),e=kn(e);var r=dn((.4124564*n+.3575761*t+.1804375*e)/Qa),u=dn((.2126729*n+.7151522*t+.072175*e)/no),i=dn((.0193339*n+.119192*t+.9503041*e)/to);return hn(116*u-16,500*(r-u),200*(u-i))}function kn(n){return(n/=255)<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4)}function Nn(n){var t=parseFloat(n);return"%"===n.charAt(n.length-1)?Math.round(2.55*t):t}function En(n){return"function"==typeof n?n:function(){return n}}function An(n){return function(t,e,r){return 2===arguments.length&&"function"==typeof e&&(r=e,e=null),Cn(t,e,n,r)}}function Cn(n,t,e,r){function u(){var n,t=l.status;if(!t&&Ln(l)||t>=200&&300>t||304===t){try{n=e.call(i,l)}catch(r){return void a.error.call(i,r)}a.load.call(i,n)}else a.error.call(i,l)}var i={},a=oa.dispatch("beforesend","progress","load","error"),o={},l=new XMLHttpRequest,c=null;return!this.XDomainRequest||"withCredentials"in l||!/^(http(s)?:)?\/\//.test(n)||(l=new XDomainRequest),"onload"in l?l.onload=l.onerror=u:l.onreadystatechange=function(){l.readyState>3&&u()},l.onprogress=function(n){var t=oa.event;oa.event=n;try{a.progress.call(i,l)}finally{oa.event=t}},i.header=function(n,t){return n=(n+"").toLowerCase(),arguments.length<2?o[n]:(null==t?delete o[n]:o[n]=t+"",i)},i.mimeType=function(n){return arguments.length?(t=null==n?null:n+"",i):t},i.responseType=function(n){return arguments.length?(c=n,i):c},i.response=function(n){return e=n,i},["get","post"].forEach(function(n){i[n]=function(){return i.send.apply(i,[n].concat(ca(arguments)))}}),i.send=function(e,r,u){if(2===arguments.length&&"function"==typeof r&&(u=r,r=null),l.open(e,n,!0),null==t||"accept"in o||(o.accept=t+",*/*"),l.setRequestHeader)for(var s in o)l.setRequestHeader(s,o[s]);return null!=t&&l.overrideMimeType&&l.overrideMimeType(t),null!=c&&(l.responseType=c),null!=u&&i.on("error",u).on("load",function(n){u(null,n)}),a.beforesend.call(i,l),l.send(null==r?null:r),i},i.abort=function(){return l.abort(),i},oa.rebind(i,a,"on"),null==r?i:i.get(zn(r))}function zn(n){return 1===n.length?function(t,e){n(null==t?e:null)}:n}function Ln(n){var t=n.responseType;return t&&"text"!==t?n.response:n.responseText}function qn(n,t,e){var r=arguments.length;2>r&&(t=0),3>r&&(e=Date.now());var u=e+t,i={c:n,t:u,n:null};return ao?ao.n=i:io=i,ao=i,oo||(lo=clearTimeout(lo),oo=1,co(Tn)),i}function Tn(){var n=Rn(),t=Dn()-n;t>24?(isFinite(t)&&(clearTimeout(lo),lo=setTimeout(Tn,t)),oo=0):(oo=1,co(Tn))}function Rn(){for(var n=Date.now(),t=io;t;)n>=t.t&&t.c(n-t.t)&&(t.c=null),t=t.n;return n}function Dn(){for(var n,t=io,e=1/0;t;)t.c?(t.t<e&&(e=t.t),t=(n=t).n):t=n?n.n=t.n:io=t.n;return ao=n,e}function Pn(n,t){return t-(n?Math.ceil(Math.log(n)/Math.LN10):1)}function Un(n,t){var e=Math.pow(10,3*Ma(8-t));return{scale:t>8?function(n){return n/e}:function(n){return n*e},symbol:n}}function jn(n){var t=n.decimal,e=n.thousands,r=n.grouping,u=n.currency,i=r&&e?function(n,t){for(var u=n.length,i=[],a=0,o=r[0],l=0;u>0&&o>0&&(l+o+1>t&&(o=Math.max(1,t-l)),i.push(n.substring(u-=o,u+o)),!((l+=o+1)>t));)o=r[a=(a+1)%r.length];return i.reverse().join(e)}:y;return function(n){var e=fo.exec(n),r=e[1]||" ",a=e[2]||">",o=e[3]||"-",l=e[4]||"",c=e[5],s=+e[6],f=e[7],h=e[8],g=e[9],p=1,v="",d="",m=!1,y=!0;switch(h&&(h=+h.substring(1)),(c||"0"===r&&"="===a)&&(c=r="0",a="="),g){case"n":f=!0,g="g";break;case"%":p=100,d="%",g="f";break;case"p":p=100,d="%",g="r";break;case"b":case"o":case"x":case"X":"#"===l&&(v="0"+g.toLowerCase());case"c":y=!1;case"d":m=!0,h=0;break;case"s":p=-1,g="r"}"$"===l&&(v=u[0],d=u[1]),"r"!=g||h||(g="g"),null!=h&&("g"==g?h=Math.max(1,Math.min(21,h)):("e"==g||"f"==g)&&(h=Math.max(0,Math.min(20,h)))),g=ho.get(g)||Fn;var M=c&&f;return function(n){var e=d;if(m&&n%1)return"";var u=0>n||0===n&&0>1/n?(n=-n,"-"):"-"===o?"":o;if(0>p){var l=oa.formatPrefix(n,h);n=l.scale(n),e=l.symbol+d}else n*=p;n=g(n,h);var x,b,_=n.lastIndexOf(".");if(0>_){var w=y?n.lastIndexOf("e"):-1;0>w?(x=n,b=""):(x=n.substring(0,w),b=n.substring(w))}else x=n.substring(0,_),b=t+n.substring(_+1);!c&&f&&(x=i(x,1/0));var S=v.length+x.length+b.length+(M?0:u.length),k=s>S?new Array(S=s-S+1).join(r):"";return M&&(x=i(k+x,k.length?s-b.length:1/0)),u+=v,n=x+b,("<"===a?u+n+k:">"===a?k+u+n:"^"===a?k.substring(0,S>>=1)+u+n+k.substring(S):u+(M?n:k+n))+e}}}function Fn(n){return n+""}function Hn(){this._=new Date(arguments.length>1?Date.UTC.apply(this,arguments):arguments[0])}function On(n,t,e){function r(t){var e=n(t),r=i(e,1);return r-t>t-e?e:r}function u(e){return t(e=n(new po(e-1)),1),e}function i(n,e){return t(n=new po(+n),e),n}function a(n,r,i){var a=u(n),o=[];if(i>1)for(;r>a;)e(a)%i||o.push(new Date(+a)),t(a,1);else for(;r>a;)o.push(new Date(+a)),t(a,1);return o}function o(n,t,e){try{po=Hn;var r=new Hn;return r._=n,a(r,t,e)}finally{po=Date}}n.floor=n,n.round=r,n.ceil=u,n.offset=i,n.range=a;var l=n.utc=In(n);return l.floor=l,l.round=In(r),l.ceil=In(u),l.offset=In(i),l.range=o,n}function In(n){return function(t,e){try{po=Hn;var r=new Hn;return r._=t,n(r,e)._}finally{po=Date}}}function Yn(n){function t(n){function t(t){for(var e,u,i,a=[],o=-1,l=0;++o<r;)37===n.charCodeAt(o)&&(a.push(n.slice(l,o)),null!=(u=mo[e=n.charAt(++o)])&&(e=n.charAt(++o)),(i=A[e])&&(e=i(t,null==u?"e"===e?" ":"0":u)),a.push(e),l=o+1);return a.push(n.slice(l,o)),a.join("")}var r=n.length;return t.parse=function(t){var r={y:1900,m:0,d:1,H:0,M:0,S:0,L:0,Z:null},u=e(r,n,t,0);if(u!=t.length)return null;"p"in r&&(r.H=r.H%12+12*r.p);var i=null!=r.Z&&po!==Hn,a=new(i?Hn:po);return"j"in r?a.setFullYear(r.y,0,r.j):"W"in r||"U"in r?("w"in r||(r.w="W"in r?1:0),a.setFullYear(r.y,0,1),a.setFullYear(r.y,0,"W"in r?(r.w+6)%7+7*r.W-(a.getDay()+5)%7:r.w+7*r.U-(a.getDay()+6)%7)):a.setFullYear(r.y,r.m,r.d),a.setHours(r.H+(r.Z/100|0),r.M+r.Z%100,r.S,r.L),i?a._:a},t.toString=function(){return n},t}function e(n,t,e,r){for(var u,i,a,o=0,l=t.length,c=e.length;l>o;){if(r>=c)return-1;if(u=t.charCodeAt(o++),37===u){if(a=t.charAt(o++),i=C[a in mo?t.charAt(o++):a],!i||(r=i(n,e,r))<0)return-1}else if(u!=e.charCodeAt(r++))return-1}return r}function r(n,t,e){_.lastIndex=0;var r=_.exec(t.slice(e));return r?(n.w=w.get(r[0].toLowerCase()),e+r[0].length):-1}function u(n,t,e){x.lastIndex=0;var r=x.exec(t.slice(e));return r?(n.w=b.get(r[0].toLowerCase()),e+r[0].length):-1}function i(n,t,e){N.lastIndex=0;var r=N.exec(t.slice(e));return r?(n.m=E.get(r[0].toLowerCase()),e+r[0].length):-1}function a(n,t,e){S.lastIndex=0;var r=S.exec(t.slice(e));return r?(n.m=k.get(r[0].toLowerCase()),e+r[0].length):-1}function o(n,t,r){return e(n,A.c.toString(),t,r)}function l(n,t,r){return e(n,A.x.toString(),t,r)}function c(n,t,r){return e(n,A.X.toString(),t,r)}function s(n,t,e){var r=M.get(t.slice(e,e+=2).toLowerCase());return null==r?-1:(n.p=r,e)}var f=n.dateTime,h=n.date,g=n.time,p=n.periods,v=n.days,d=n.shortDays,m=n.months,y=n.shortMonths;t.utc=function(n){function e(n){try{po=Hn;var t=new po;return t._=n,r(t)}finally{po=Date}}var r=t(n);return e.parse=function(n){try{po=Hn;var t=r.parse(n);return t&&t._}finally{po=Date}},e.toString=r.toString,e},t.multi=t.utc.multi=ct;var M=oa.map(),x=Vn(v),b=Xn(v),_=Vn(d),w=Xn(d),S=Vn(m),k=Xn(m),N=Vn(y),E=Xn(y);p.forEach(function(n,t){M.set(n.toLowerCase(),t)});var A={a:function(n){return d[n.getDay()]},A:function(n){return v[n.getDay()]},b:function(n){return y[n.getMonth()]},B:function(n){return m[n.getMonth()]},c:t(f),d:function(n,t){return Zn(n.getDate(),t,2)},e:function(n,t){return Zn(n.getDate(),t,2)},H:function(n,t){return Zn(n.getHours(),t,2)},I:function(n,t){return Zn(n.getHours()%12||12,t,2)},j:function(n,t){return Zn(1+go.dayOfYear(n),t,3)},L:function(n,t){return Zn(n.getMilliseconds(),t,3)},m:function(n,t){return Zn(n.getMonth()+1,t,2)},M:function(n,t){return Zn(n.getMinutes(),t,2)},p:function(n){return p[+(n.getHours()>=12)]},S:function(n,t){return Zn(n.getSeconds(),t,2)},U:function(n,t){return Zn(go.sundayOfYear(n),t,2)},w:function(n){return n.getDay()},W:function(n,t){return Zn(go.mondayOfYear(n),t,2)},x:t(h),X:t(g),y:function(n,t){return Zn(n.getFullYear()%100,t,2)},Y:function(n,t){return Zn(n.getFullYear()%1e4,t,4)},Z:ot,"%":function(){return"%"}},C={a:r,A:u,b:i,B:a,c:o,d:tt,e:tt,H:rt,I:rt,j:et,L:at,m:nt,M:ut,p:s,S:it,U:Bn,w:$n,W:Wn,x:l,X:c,y:Gn,Y:Jn,Z:Kn,"%":lt};return t}function Zn(n,t,e){var r=0>n?"-":"",u=(r?-n:n)+"",i=u.length;return r+(e>i?new Array(e-i+1).join(t)+u:u)}function Vn(n){return new RegExp("^(?:"+n.map(oa.requote).join("|")+")","i")}function Xn(n){for(var t=new c,e=-1,r=n.length;++e<r;)t.set(n[e].toLowerCase(),e);return t}function $n(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+1));return r?(n.w=+r[0],e+r[0].length):-1}function Bn(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e));return r?(n.U=+r[0],e+r[0].length):-1}function Wn(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e));return r?(n.W=+r[0],e+r[0].length):-1}function Jn(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+4));return r?(n.y=+r[0],e+r[0].length):-1}function Gn(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+2));return r?(n.y=Qn(+r[0]),e+r[0].length):-1}function Kn(n,t,e){return/^[+-]\d{4}$/.test(t=t.slice(e,e+5))?(n.Z=-t,e+5):-1}function Qn(n){return n+(n>68?1900:2e3)}function nt(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+2));return r?(n.m=r[0]-1,e+r[0].length):-1}function tt(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+2));return r?(n.d=+r[0],e+r[0].length):-1}function et(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+3));return r?(n.j=+r[0],e+r[0].length):-1}function rt(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+2));return r?(n.H=+r[0],e+r[0].length):-1}function ut(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+2));return r?(n.M=+r[0],e+r[0].length):-1}function it(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+2));return r?(n.S=+r[0],e+r[0].length):-1}function at(n,t,e){yo.lastIndex=0;var r=yo.exec(t.slice(e,e+3));return r?(n.L=+r[0],e+r[0].length):-1}function ot(n){var t=n.getTimezoneOffset(),e=t>0?"-":"+",r=Ma(t)/60|0,u=Ma(t)%60;return e+Zn(r,"0",2)+Zn(u,"0",2)}function lt(n,t,e){Mo.lastIndex=0;var r=Mo.exec(t.slice(e,e+1));return r?e+r[0].length:-1}function ct(n){for(var t=n.length,e=-1;++e<t;)n[e][0]=this(n[e][0]);return function(t){for(var e=0,r=n[e];!r[1](t);)r=n[++e];return r[0](t)}}function st(){}function ft(n,t,e){var r=e.s=n+t,u=r-n,i=r-u;e.t=n-i+(t-u)}function ht(n,t){n&&wo.hasOwnProperty(n.type)&&wo[n.type](n,t)}function gt(n,t,e){var r,u=-1,i=n.length-e;for(t.lineStart();++u<i;)r=n[u],t.point(r[0],r[1],r[2]);t.lineEnd()}function pt(n,t){var e=-1,r=n.length;for(t.polygonStart();++e<r;)gt(n[e],t,1);t.polygonEnd()}function vt(){function n(n,t){n*=Ia,t=t*Ia/2+ja/4;var e=n-r,a=e>=0?1:-1,o=a*e,l=Math.cos(t),c=Math.sin(t),s=i*c,f=u*l+s*Math.cos(o),h=s*a*Math.sin(o);ko.add(Math.atan2(h,f)),r=n,u=l,i=c}var t,e,r,u,i;No.point=function(a,o){No.point=n,r=(t=a)*Ia,u=Math.cos(o=(e=o)*Ia/2+ja/4),i=Math.sin(o)},No.lineEnd=function(){n(t,e)}}function dt(n){var t=n[0],e=n[1],r=Math.cos(e);return[r*Math.cos(t),r*Math.sin(t),Math.sin(e)]}function mt(n,t){return n[0]*t[0]+n[1]*t[1]+n[2]*t[2]}function yt(n,t){return[n[1]*t[2]-n[2]*t[1],n[2]*t[0]-n[0]*t[2],n[0]*t[1]-n[1]*t[0]]}function Mt(n,t){n[0]+=t[0],n[1]+=t[1],n[2]+=t[2]}function xt(n,t){return[n[0]*t,n[1]*t,n[2]*t]}function bt(n){var t=Math.sqrt(n[0]*n[0]+n[1]*n[1]+n[2]*n[2]);n[0]/=t,n[1]/=t,n[2]/=t}function _t(n){return[Math.atan2(n[1],n[0]),tn(n[2])]}function wt(n,t){return Ma(n[0]-t[0])<Pa&&Ma(n[1]-t[1])<Pa}function St(n,t){n*=Ia;var e=Math.cos(t*=Ia);kt(e*Math.cos(n),e*Math.sin(n),Math.sin(t))}function kt(n,t,e){++Eo,Co+=(n-Co)/Eo,zo+=(t-zo)/Eo,Lo+=(e-Lo)/Eo}function Nt(){function n(n,u){n*=Ia;var i=Math.cos(u*=Ia),a=i*Math.cos(n),o=i*Math.sin(n),l=Math.sin(u),c=Math.atan2(Math.sqrt((c=e*l-r*o)*c+(c=r*a-t*l)*c+(c=t*o-e*a)*c),t*a+e*o+r*l);Ao+=c,qo+=c*(t+(t=a)),To+=c*(e+(e=o)),Ro+=c*(r+(r=l)),kt(t,e,r)}var t,e,r;jo.point=function(u,i){u*=Ia;var a=Math.cos(i*=Ia);t=a*Math.cos(u),e=a*Math.sin(u),r=Math.sin(i),jo.point=n,kt(t,e,r)}}function Et(){jo.point=St}function At(){function n(n,t){n*=Ia;var e=Math.cos(t*=Ia),a=e*Math.cos(n),o=e*Math.sin(n),l=Math.sin(t),c=u*l-i*o,s=i*a-r*l,f=r*o-u*a,h=Math.sqrt(c*c+s*s+f*f),g=r*a+u*o+i*l,p=h&&-nn(g)/h,v=Math.atan2(h,g);Do+=p*c,Po+=p*s,Uo+=p*f,Ao+=v,qo+=v*(r+(r=a)),To+=v*(u+(u=o)),Ro+=v*(i+(i=l)),kt(r,u,i)}var t,e,r,u,i;jo.point=function(a,o){t=a,e=o,jo.point=n,a*=Ia;var l=Math.cos(o*=Ia);r=l*Math.cos(a),u=l*Math.sin(a),i=Math.sin(o),kt(r,u,i)},jo.lineEnd=function(){n(t,e),jo.lineEnd=Et,jo.point=St}}function Ct(n,t){function e(e,r){return e=n(e,r),t(e[0],e[1])}return n.invert&&t.invert&&(e.invert=function(e,r){return e=t.invert(e,r),e&&n.invert(e[0],e[1])}),e}function zt(){return!0}function Lt(n,t,e,r,u){var i=[],a=[];if(n.forEach(function(n){if(!((t=n.length-1)<=0)){var t,e=n[0],r=n[t];if(wt(e,r)){u.lineStart();for(var o=0;t>o;++o)u.point((e=n[o])[0],e[1]);return void u.lineEnd()}var l=new Tt(e,n,null,!0),c=new Tt(e,null,l,!1);l.o=c,i.push(l),a.push(c),l=new Tt(r,n,null,!1),c=new Tt(r,null,l,!0),l.o=c,i.push(l),a.push(c)}}),a.sort(t),qt(i),qt(a),i.length){for(var o=0,l=e,c=a.length;c>o;++o)a[o].e=l=!l;for(var s,f,h=i[0];;){for(var g=h,p=!0;g.v;)if((g=g.n)===h)return;s=g.z,u.lineStart();do{if(g.v=g.o.v=!0,g.e){if(p)for(var o=0,c=s.length;c>o;++o)u.point((f=s[o])[0],f[1]);else r(g.x,g.n.x,1,u);g=g.n}else{if(p){s=g.p.z;for(var o=s.length-1;o>=0;--o)u.point((f=s[o])[0],f[1])}else r(g.x,g.p.x,-1,u);g=g.p}g=g.o,s=g.z,p=!p}while(!g.v);u.lineEnd()}}}function qt(n){if(t=n.length){for(var t,e,r=0,u=n[0];++r<t;)u.n=e=n[r],e.p=u,u=e;u.n=e=n[0],e.p=u}}function Tt(n,t,e,r){this.x=n,this.z=t,this.o=e,this.e=r,this.v=!1,this.n=this.p=null}function Rt(n,t,e,r){return function(u,i){function a(t,e){var r=u(t,e);n(t=r[0],e=r[1])&&i.point(t,e)}function o(n,t){var e=u(n,t);d.point(e[0],e[1])}function l(){y.point=o,d.lineStart()}function c(){y.point=a,d.lineEnd()}function s(n,t){v.push([n,t]);var e=u(n,t);x.point(e[0],e[1])}function f(){x.lineStart(),v=[]}function h(){s(v[0][0],v[0][1]),x.lineEnd();var n,t=x.clean(),e=M.buffer(),r=e.length;if(v.pop(),p.push(v),v=null,r)if(1&t){n=e[0];var u,r=n.length-1,a=-1;if(r>0){for(b||(i.polygonStart(),b=!0),i.lineStart();++a<r;)i.point((u=n[a])[0],u[1]);i.lineEnd()}}else r>1&&2&t&&e.push(e.pop().concat(e.shift())),g.push(e.filter(Dt))}var g,p,v,d=t(i),m=u.invert(r[0],r[1]),y={point:a,lineStart:l,lineEnd:c,polygonStart:function(){y.point=s,y.lineStart=f,y.lineEnd=h,g=[],p=[]},polygonEnd:function(){y.point=a,y.lineStart=l,y.lineEnd=c,g=oa.merge(g);var n=Ot(m,p);g.length?(b||(i.polygonStart(),b=!0),Lt(g,Ut,n,e,i)):n&&(b||(i.polygonStart(),b=!0),i.lineStart(),e(null,null,1,i),i.lineEnd()),b&&(i.polygonEnd(),b=!1),g=p=null},sphere:function(){i.polygonStart(),i.lineStart(),e(null,null,1,i),i.lineEnd(),i.polygonEnd()}},M=Pt(),x=t(M),b=!1;return y}}function Dt(n){return n.length>1}function Pt(){var n,t=[];return{lineStart:function(){t.push(n=[])},point:function(t,e){n.push([t,e])},lineEnd:b,buffer:function(){var e=t;return t=[],n=null,e},rejoin:function(){t.length>1&&t.push(t.pop().concat(t.shift()))}}}function Ut(n,t){return((n=n.x)[0]<0?n[1]-Oa-Pa:Oa-n[1])-((t=t.x)[0]<0?t[1]-Oa-Pa:Oa-t[1])}function jt(n){var t,e=NaN,r=NaN,u=NaN;return{lineStart:function(){n.lineStart(),t=1},point:function(i,a){var o=i>0?ja:-ja,l=Ma(i-e);Ma(l-ja)<Pa?(n.point(e,r=(r+a)/2>0?Oa:-Oa),n.point(u,r),n.lineEnd(),n.lineStart(),n.point(o,r),n.point(i,r),t=0):u!==o&&l>=ja&&(Ma(e-u)<Pa&&(e-=u*Pa),Ma(i-o)<Pa&&(i-=o*Pa),r=Ft(e,r,i,a),n.point(u,r),n.lineEnd(),n.lineStart(),n.point(o,r),t=0),n.point(e=i,r=a),u=o},lineEnd:function(){n.lineEnd(),e=r=NaN},clean:function(){return 2-t}}}function Ft(n,t,e,r){var u,i,a=Math.sin(n-e);return Ma(a)>Pa?Math.atan((Math.sin(t)*(i=Math.cos(r))*Math.sin(e)-Math.sin(r)*(u=Math.cos(t))*Math.sin(n))/(u*i*a)):(t+r)/2}function Ht(n,t,e,r){var u;if(null==n)u=e*Oa,r.point(-ja,u),r.point(0,u),r.point(ja,u),r.point(ja,0),r.point(ja,-u),r.point(0,-u),r.point(-ja,-u),r.point(-ja,0),r.point(-ja,u);else if(Ma(n[0]-t[0])>Pa){var i=n[0]<t[0]?ja:-ja;u=e*i/2,r.point(-i,u),r.point(0,u),r.point(i,u)}else r.point(t[0],t[1])}function Ot(n,t){var e=n[0],r=n[1],u=[Math.sin(e),-Math.cos(e),0],i=0,a=0;ko.reset();for(var o=0,l=t.length;l>o;++o){var c=t[o],s=c.length;if(s)for(var f=c[0],h=f[0],g=f[1]/2+ja/4,p=Math.sin(g),v=Math.cos(g),d=1;;){d===s&&(d=0),n=c[d];var m=n[0],y=n[1]/2+ja/4,M=Math.sin(y),x=Math.cos(y),b=m-h,_=b>=0?1:-1,w=_*b,S=w>ja,k=p*M;if(ko.add(Math.atan2(k*_*Math.sin(w),v*x+k*Math.cos(w))),i+=S?b+_*Fa:b,S^h>=e^m>=e){var N=yt(dt(f),dt(n));bt(N);var E=yt(u,N);bt(E);var A=(S^b>=0?-1:1)*tn(E[2]);(r>A||r===A&&(N[0]||N[1]))&&(a+=S^b>=0?1:-1)}if(!d++)break;h=m,p=M,v=x,f=n}}return(-Pa>i||Pa>i&&0>ko)^1&a}function It(n){function t(n,t){return Math.cos(n)*Math.cos(t)>i}function e(n){var e,i,l,c,s;return{lineStart:function(){c=l=!1,s=1},point:function(f,h){var g,p=[f,h],v=t(f,h),d=a?v?0:u(f,h):v?u(f+(0>f?ja:-ja),h):0;if(!e&&(c=l=v)&&n.lineStart(),v!==l&&(g=r(e,p),(wt(e,g)||wt(p,g))&&(p[0]+=Pa,p[1]+=Pa,v=t(p[0],p[1]))),v!==l)s=0,v?(n.lineStart(),g=r(p,e),n.point(g[0],g[1])):(g=r(e,p),n.point(g[0],g[1]),n.lineEnd()),e=g;else if(o&&e&&a^v){var m;d&i||!(m=r(p,e,!0))||(s=0,a?(n.lineStart(),n.point(m[0][0],m[0][1]),n.point(m[1][0],m[1][1]),n.lineEnd()):(n.point(m[1][0],m[1][1]),n.lineEnd(),n.lineStart(),n.point(m[0][0],m[0][1])))}!v||e&&wt(e,p)||n.point(p[0],p[1]),e=p,l=v,i=d},lineEnd:function(){l&&n.lineEnd(),e=null},clean:function(){return s|(c&&l)<<1}}}function r(n,t,e){var r=dt(n),u=dt(t),a=[1,0,0],o=yt(r,u),l=mt(o,o),c=o[0],s=l-c*c;if(!s)return!e&&n;var f=i*l/s,h=-i*c/s,g=yt(a,o),p=xt(a,f),v=xt(o,h);Mt(p,v);var d=g,m=mt(p,d),y=mt(d,d),M=m*m-y*(mt(p,p)-1);if(!(0>M)){var x=Math.sqrt(M),b=xt(d,(-m-x)/y);if(Mt(b,p),b=_t(b),!e)return b;var _,w=n[0],S=t[0],k=n[1],N=t[1];w>S&&(_=w,w=S,S=_);var E=S-w,A=Ma(E-ja)<Pa,C=A||Pa>E;if(!A&&k>N&&(_=k,k=N,N=_),C?A?k+N>0^b[1]<(Ma(b[0]-w)<Pa?k:N):k<=b[1]&&b[1]<=N:E>ja^(w<=b[0]&&b[0]<=S)){var z=xt(d,(-m+x)/y);return Mt(z,p),[b,_t(z)]}}}function u(t,e){var r=a?n:ja-n,u=0;return-r>t?u|=1:t>r&&(u|=2),-r>e?u|=4:e>r&&(u|=8),u}var i=Math.cos(n),a=i>0,o=Ma(i)>Pa,l=ve(n,6*Ia);return Rt(t,e,l,a?[0,-n]:[-ja,n-ja])}function Yt(n,t,e,r){return function(u){var i,a=u.a,o=u.b,l=a.x,c=a.y,s=o.x,f=o.y,h=0,g=1,p=s-l,v=f-c;if(i=n-l,p||!(i>0)){if(i/=p,0>p){if(h>i)return;g>i&&(g=i)}else if(p>0){if(i>g)return;i>h&&(h=i)}if(i=e-l,p||!(0>i)){if(i/=p,0>p){if(i>g)return;i>h&&(h=i)}else if(p>0){if(h>i)return;g>i&&(g=i)}if(i=t-c,v||!(i>0)){if(i/=v,0>v){if(h>i)return;g>i&&(g=i)}else if(v>0){if(i>g)return;i>h&&(h=i)}if(i=r-c,v||!(0>i)){if(i/=v,0>v){if(i>g)return;i>h&&(h=i)}else if(v>0){if(h>i)return;g>i&&(g=i)}return h>0&&(u.a={x:l+h*p,y:c+h*v}),1>g&&(u.b={x:l+g*p,y:c+g*v}),u}}}}}}function Zt(n,t,e,r){function u(r,u){return Ma(r[0]-n)<Pa?u>0?0:3:Ma(r[0]-e)<Pa?u>0?2:1:Ma(r[1]-t)<Pa?u>0?1:0:u>0?3:2}function i(n,t){return a(n.x,t.x)}function a(n,t){var e=u(n,1),r=u(t,1);return e!==r?e-r:0===e?t[1]-n[1]:1===e?n[0]-t[0]:2===e?n[1]-t[1]:t[0]-n[0]}return function(o){function l(n){for(var t=0,e=d.length,r=n[1],u=0;e>u;++u)for(var i,a=1,o=d[u],l=o.length,c=o[0];l>a;++a)i=o[a],c[1]<=r?i[1]>r&&Q(c,i,n)>0&&++t:i[1]<=r&&Q(c,i,n)<0&&--t,c=i;return 0!==t}function c(i,o,l,c){var s=0,f=0;if(null==i||(s=u(i,l))!==(f=u(o,l))||a(i,o)<0^l>0){do c.point(0===s||3===s?n:e,s>1?r:t);while((s=(s+l+4)%4)!==f)}else c.point(o[0],o[1])}function s(u,i){return u>=n&&e>=u&&i>=t&&r>=i}function f(n,t){s(n,t)&&o.point(n,t)}function h(){C.point=p,d&&d.push(m=[]),S=!0,w=!1,b=_=NaN}function g(){v&&(p(y,M),x&&w&&E.rejoin(),v.push(E.buffer())),C.point=f,w&&o.lineEnd()}function p(n,t){n=Math.max(-Ho,Math.min(Ho,n)),t=Math.max(-Ho,Math.min(Ho,t));var e=s(n,t);if(d&&m.push([n,t]),S)y=n,M=t,x=e,S=!1,e&&(o.lineStart(),o.point(n,t));else if(e&&w)o.point(n,t);else{var r={a:{x:b,y:_},b:{x:n,y:t}};A(r)?(w||(o.lineStart(),o.point(r.a.x,r.a.y)),o.point(r.b.x,r.b.y),e||o.lineEnd(),k=!1):e&&(o.lineStart(),o.point(n,t),k=!1)}b=n,_=t,w=e}var v,d,m,y,M,x,b,_,w,S,k,N=o,E=Pt(),A=Yt(n,t,e,r),C={point:f,lineStart:h,lineEnd:g,polygonStart:function(){o=E,v=[],d=[],k=!0},polygonEnd:function(){o=N,v=oa.merge(v);var t=l([n,r]),e=k&&t,u=v.length;(e||u)&&(o.polygonStart(),e&&(o.lineStart(),c(null,null,1,o),o.lineEnd()),u&&Lt(v,i,t,c,o),o.polygonEnd()),v=d=m=null}};return C}}function Vt(n){var t=0,e=ja/3,r=oe(n),u=r(t,e);return u.parallels=function(n){return arguments.length?r(t=n[0]*ja/180,e=n[1]*ja/180):[t/ja*180,e/ja*180]},u}function Xt(n,t){function e(n,t){var e=Math.sqrt(i-2*u*Math.sin(t))/u;return[e*Math.sin(n*=u),a-e*Math.cos(n)]}var r=Math.sin(n),u=(r+Math.sin(t))/2,i=1+r*(2*u-r),a=Math.sqrt(i)/u;return e.invert=function(n,t){var e=a-t;return[Math.atan2(n,e)/u,tn((i-(n*n+e*e)*u*u)/(2*u))]},e}function $t(){function n(n,t){Io+=u*n-r*t,r=n,u=t}var t,e,r,u;$o.point=function(i,a){$o.point=n,t=r=i,e=u=a},$o.lineEnd=function(){n(t,e)}}function Bt(n,t){Yo>n&&(Yo=n),n>Vo&&(Vo=n),Zo>t&&(Zo=t),t>Xo&&(Xo=t)}function Wt(){function n(n,t){a.push("M",n,",",t,i)}function t(n,t){a.push("M",n,",",t),o.point=e}function e(n,t){a.push("L",n,",",t)}function r(){o.point=n}function u(){a.push("Z")}var i=Jt(4.5),a=[],o={point:n,lineStart:function(){o.point=t},lineEnd:r,polygonStart:function(){o.lineEnd=u},polygonEnd:function(){o.lineEnd=r,o.point=n},pointRadius:function(n){return i=Jt(n),o},result:function(){if(a.length){var n=a.join("");return a=[],n}}};return o}function Jt(n){return"m0,"+n+"a"+n+","+n+" 0 1,1 0,"+-2*n+"a"+n+","+n+" 0 1,1 0,"+2*n+"z"}function Gt(n,t){Co+=n,zo+=t,++Lo}function Kt(){function n(n,r){var u=n-t,i=r-e,a=Math.sqrt(u*u+i*i);qo+=a*(t+n)/2,To+=a*(e+r)/2,Ro+=a,Gt(t=n,e=r)}var t,e;Wo.point=function(r,u){Wo.point=n,Gt(t=r,e=u)}}function Qt(){Wo.point=Gt}function ne(){function n(n,t){var e=n-r,i=t-u,a=Math.sqrt(e*e+i*i);qo+=a*(r+n)/2,To+=a*(u+t)/2,Ro+=a,a=u*n-r*t,Do+=a*(r+n),Po+=a*(u+t),Uo+=3*a,Gt(r=n,u=t)}var t,e,r,u;Wo.point=function(i,a){Wo.point=n,Gt(t=r=i,e=u=a)},Wo.lineEnd=function(){n(t,e)}}function te(n){function t(t,e){n.moveTo(t+a,e),n.arc(t,e,a,0,Fa)}function e(t,e){n.moveTo(t,e),o.point=r}function r(t,e){n.lineTo(t,e)}function u(){o.point=t}function i(){n.closePath()}var a=4.5,o={point:t,lineStart:function(){o.point=e},lineEnd:u,polygonStart:function(){o.lineEnd=i},polygonEnd:function(){o.lineEnd=u,o.point=t},pointRadius:function(n){return a=n,o},result:b};return o}function ee(n){function t(n){return(o?r:e)(n)}function e(t){return ie(t,function(e,r){e=n(e,r),t.point(e[0],e[1])})}function r(t){function e(e,r){e=n(e,r),t.point(e[0],e[1])}function r(){M=NaN,S.point=i,t.lineStart()}function i(e,r){var i=dt([e,r]),a=n(e,r);u(M,x,y,b,_,w,M=a[0],x=a[1],y=e,b=i[0],_=i[1],w=i[2],o,t),t.point(M,x)}function a(){S.point=e,t.lineEnd()}function l(){
 r(),S.point=c,S.lineEnd=s}function c(n,t){i(f=n,h=t),g=M,p=x,v=b,d=_,m=w,S.point=i}function s(){u(M,x,y,b,_,w,g,p,f,v,d,m,o,t),S.lineEnd=a,a()}var f,h,g,p,v,d,m,y,M,x,b,_,w,S={point:e,lineStart:r,lineEnd:a,polygonStart:function(){t.polygonStart(),S.lineStart=l},polygonEnd:function(){t.polygonEnd(),S.lineStart=r}};return S}function u(t,e,r,o,l,c,s,f,h,g,p,v,d,m){var y=s-t,M=f-e,x=y*y+M*M;if(x>4*i&&d--){var b=o+g,_=l+p,w=c+v,S=Math.sqrt(b*b+_*_+w*w),k=Math.asin(w/=S),N=Ma(Ma(w)-1)<Pa||Ma(r-h)<Pa?(r+h)/2:Math.atan2(_,b),E=n(N,k),A=E[0],C=E[1],z=A-t,L=C-e,q=M*z-y*L;(q*q/x>i||Ma((y*z+M*L)/x-.5)>.3||a>o*g+l*p+c*v)&&(u(t,e,r,o,l,c,A,C,N,b/=S,_/=S,w,d,m),m.point(A,C),u(A,C,N,b,_,w,s,f,h,g,p,v,d,m))}}var i=.5,a=Math.cos(30*Ia),o=16;return t.precision=function(n){return arguments.length?(o=(i=n*n)>0&&16,t):Math.sqrt(i)},t}function re(n){var t=ee(function(t,e){return n([t*Ya,e*Ya])});return function(n){return le(t(n))}}function ue(n){this.stream=n}function ie(n,t){return{point:t,sphere:function(){n.sphere()},lineStart:function(){n.lineStart()},lineEnd:function(){n.lineEnd()},polygonStart:function(){n.polygonStart()},polygonEnd:function(){n.polygonEnd()}}}function ae(n){return oe(function(){return n})()}function oe(n){function t(n){return n=o(n[0]*Ia,n[1]*Ia),[n[0]*h+l,c-n[1]*h]}function e(n){return n=o.invert((n[0]-l)/h,(c-n[1])/h),n&&[n[0]*Ya,n[1]*Ya]}function r(){o=Ct(a=fe(m,M,x),i);var n=i(v,d);return l=g-n[0]*h,c=p+n[1]*h,u()}function u(){return s&&(s.valid=!1,s=null),t}var i,a,o,l,c,s,f=ee(function(n,t){return n=i(n,t),[n[0]*h+l,c-n[1]*h]}),h=150,g=480,p=250,v=0,d=0,m=0,M=0,x=0,b=Fo,_=y,w=null,S=null;return t.stream=function(n){return s&&(s.valid=!1),s=le(b(a,f(_(n)))),s.valid=!0,s},t.clipAngle=function(n){return arguments.length?(b=null==n?(w=n,Fo):It((w=+n)*Ia),u()):w},t.clipExtent=function(n){return arguments.length?(S=n,_=n?Zt(n[0][0],n[0][1],n[1][0],n[1][1]):y,u()):S},t.scale=function(n){return arguments.length?(h=+n,r()):h},t.translate=function(n){return arguments.length?(g=+n[0],p=+n[1],r()):[g,p]},t.center=function(n){return arguments.length?(v=n[0]%360*Ia,d=n[1]%360*Ia,r()):[v*Ya,d*Ya]},t.rotate=function(n){return arguments.length?(m=n[0]%360*Ia,M=n[1]%360*Ia,x=n.length>2?n[2]%360*Ia:0,r()):[m*Ya,M*Ya,x*Ya]},oa.rebind(t,f,"precision"),function(){return i=n.apply(this,arguments),t.invert=i.invert&&e,r()}}function le(n){return ie(n,function(t,e){n.point(t*Ia,e*Ia)})}function ce(n,t){return[n,t]}function se(n,t){return[n>ja?n-Fa:-ja>n?n+Fa:n,t]}function fe(n,t,e){return n?t||e?Ct(ge(n),pe(t,e)):ge(n):t||e?pe(t,e):se}function he(n){return function(t,e){return t+=n,[t>ja?t-Fa:-ja>t?t+Fa:t,e]}}function ge(n){var t=he(n);return t.invert=he(-n),t}function pe(n,t){function e(n,t){var e=Math.cos(t),o=Math.cos(n)*e,l=Math.sin(n)*e,c=Math.sin(t),s=c*r+o*u;return[Math.atan2(l*i-s*a,o*r-c*u),tn(s*i+l*a)]}var r=Math.cos(n),u=Math.sin(n),i=Math.cos(t),a=Math.sin(t);return e.invert=function(n,t){var e=Math.cos(t),o=Math.cos(n)*e,l=Math.sin(n)*e,c=Math.sin(t),s=c*i-l*a;return[Math.atan2(l*i+c*a,o*r+s*u),tn(s*r-o*u)]},e}function ve(n,t){var e=Math.cos(n),r=Math.sin(n);return function(u,i,a,o){var l=a*t;null!=u?(u=de(e,u),i=de(e,i),(a>0?i>u:u>i)&&(u+=a*Fa)):(u=n+a*Fa,i=n-.5*l);for(var c,s=u;a>0?s>i:i>s;s-=l)o.point((c=_t([e,-r*Math.cos(s),-r*Math.sin(s)]))[0],c[1])}}function de(n,t){var e=dt(t);e[0]-=n,bt(e);var r=nn(-e[1]);return((-e[2]<0?-r:r)+2*Math.PI-Pa)%(2*Math.PI)}function me(n,t,e){var r=oa.range(n,t-Pa,e).concat(t);return function(n){return r.map(function(t){return[n,t]})}}function ye(n,t,e){var r=oa.range(n,t-Pa,e).concat(t);return function(n){return r.map(function(t){return[t,n]})}}function Me(n){return n.source}function xe(n){return n.target}function be(n,t,e,r){var u=Math.cos(t),i=Math.sin(t),a=Math.cos(r),o=Math.sin(r),l=u*Math.cos(n),c=u*Math.sin(n),s=a*Math.cos(e),f=a*Math.sin(e),h=2*Math.asin(Math.sqrt(an(r-t)+u*a*an(e-n))),g=1/Math.sin(h),p=h?function(n){var t=Math.sin(n*=h)*g,e=Math.sin(h-n)*g,r=e*l+t*s,u=e*c+t*f,a=e*i+t*o;return[Math.atan2(u,r)*Ya,Math.atan2(a,Math.sqrt(r*r+u*u))*Ya]}:function(){return[n*Ya,t*Ya]};return p.distance=h,p}function _e(){function n(n,u){var i=Math.sin(u*=Ia),a=Math.cos(u),o=Ma((n*=Ia)-t),l=Math.cos(o);Jo+=Math.atan2(Math.sqrt((o=a*Math.sin(o))*o+(o=r*i-e*a*l)*o),e*i+r*a*l),t=n,e=i,r=a}var t,e,r;Go.point=function(u,i){t=u*Ia,e=Math.sin(i*=Ia),r=Math.cos(i),Go.point=n},Go.lineEnd=function(){Go.point=Go.lineEnd=b}}function we(n,t){function e(t,e){var r=Math.cos(t),u=Math.cos(e),i=n(r*u);return[i*u*Math.sin(t),i*Math.sin(e)]}return e.invert=function(n,e){var r=Math.sqrt(n*n+e*e),u=t(r),i=Math.sin(u),a=Math.cos(u);return[Math.atan2(n*i,r*a),Math.asin(r&&e*i/r)]},e}function Se(n,t){function e(n,t){a>0?-Oa+Pa>t&&(t=-Oa+Pa):t>Oa-Pa&&(t=Oa-Pa);var e=a/Math.pow(u(t),i);return[e*Math.sin(i*n),a-e*Math.cos(i*n)]}var r=Math.cos(n),u=function(n){return Math.tan(ja/4+n/2)},i=n===t?Math.sin(n):Math.log(r/Math.cos(t))/Math.log(u(t)/u(n)),a=r*Math.pow(u(n),i)/i;return i?(e.invert=function(n,t){var e=a-t,r=K(i)*Math.sqrt(n*n+e*e);return[Math.atan2(n,e)/i,2*Math.atan(Math.pow(a/r,1/i))-Oa]},e):Ne}function ke(n,t){function e(n,t){var e=i-t;return[e*Math.sin(u*n),i-e*Math.cos(u*n)]}var r=Math.cos(n),u=n===t?Math.sin(n):(r-Math.cos(t))/(t-n),i=r/u+n;return Ma(u)<Pa?ce:(e.invert=function(n,t){var e=i-t;return[Math.atan2(n,e)/u,i-K(u)*Math.sqrt(n*n+e*e)]},e)}function Ne(n,t){return[n,Math.log(Math.tan(ja/4+t/2))]}function Ee(n){var t,e=ae(n),r=e.scale,u=e.translate,i=e.clipExtent;return e.scale=function(){var n=r.apply(e,arguments);return n===e?t?e.clipExtent(null):e:n},e.translate=function(){var n=u.apply(e,arguments);return n===e?t?e.clipExtent(null):e:n},e.clipExtent=function(n){var a=i.apply(e,arguments);if(a===e){if(t=null==n){var o=ja*r(),l=u();i([[l[0]-o,l[1]-o],[l[0]+o,l[1]+o]])}}else t&&(a=null);return a},e.clipExtent(null)}function Ae(n,t){return[Math.log(Math.tan(ja/4+t/2)),-n]}function Ce(n){return n[0]}function ze(n){return n[1]}function Le(n){for(var t=n.length,e=[0,1],r=2,u=2;t>u;u++){for(;r>1&&Q(n[e[r-2]],n[e[r-1]],n[u])<=0;)--r;e[r++]=u}return e.slice(0,r)}function qe(n,t){return n[0]-t[0]||n[1]-t[1]}function Te(n,t,e){return(e[0]-t[0])*(n[1]-t[1])<(e[1]-t[1])*(n[0]-t[0])}function Re(n,t,e,r){var u=n[0],i=e[0],a=t[0]-u,o=r[0]-i,l=n[1],c=e[1],s=t[1]-l,f=r[1]-c,h=(o*(l-c)-f*(u-i))/(f*a-o*s);return[u+h*a,l+h*s]}function De(n){var t=n[0],e=n[n.length-1];return!(t[0]-e[0]||t[1]-e[1])}function Pe(){rr(this),this.edge=this.site=this.circle=null}function Ue(n){var t=cl.pop()||new Pe;return t.site=n,t}function je(n){Be(n),al.remove(n),cl.push(n),rr(n)}function Fe(n){var t=n.circle,e=t.x,r=t.cy,u={x:e,y:r},i=n.P,a=n.N,o=[n];je(n);for(var l=i;l.circle&&Ma(e-l.circle.x)<Pa&&Ma(r-l.circle.cy)<Pa;)i=l.P,o.unshift(l),je(l),l=i;o.unshift(l),Be(l);for(var c=a;c.circle&&Ma(e-c.circle.x)<Pa&&Ma(r-c.circle.cy)<Pa;)a=c.N,o.push(c),je(c),c=a;o.push(c),Be(c);var s,f=o.length;for(s=1;f>s;++s)c=o[s],l=o[s-1],nr(c.edge,l.site,c.site,u);l=o[0],c=o[f-1],c.edge=Ke(l.site,c.site,null,u),$e(l),$e(c)}function He(n){for(var t,e,r,u,i=n.x,a=n.y,o=al._;o;)if(r=Oe(o,a)-i,r>Pa)o=o.L;else{if(u=i-Ie(o,a),!(u>Pa)){r>-Pa?(t=o.P,e=o):u>-Pa?(t=o,e=o.N):t=e=o;break}if(!o.R){t=o;break}o=o.R}var l=Ue(n);if(al.insert(t,l),t||e){if(t===e)return Be(t),e=Ue(t.site),al.insert(l,e),l.edge=e.edge=Ke(t.site,l.site),$e(t),void $e(e);if(!e)return void(l.edge=Ke(t.site,l.site));Be(t),Be(e);var c=t.site,s=c.x,f=c.y,h=n.x-s,g=n.y-f,p=e.site,v=p.x-s,d=p.y-f,m=2*(h*d-g*v),y=h*h+g*g,M=v*v+d*d,x={x:(d*y-g*M)/m+s,y:(h*M-v*y)/m+f};nr(e.edge,c,p,x),l.edge=Ke(c,n,null,x),e.edge=Ke(n,p,null,x),$e(t),$e(e)}}function Oe(n,t){var e=n.site,r=e.x,u=e.y,i=u-t;if(!i)return r;var a=n.P;if(!a)return-(1/0);e=a.site;var o=e.x,l=e.y,c=l-t;if(!c)return o;var s=o-r,f=1/i-1/c,h=s/c;return f?(-h+Math.sqrt(h*h-2*f*(s*s/(-2*c)-l+c/2+u-i/2)))/f+r:(r+o)/2}function Ie(n,t){var e=n.N;if(e)return Oe(e,t);var r=n.site;return r.y===t?r.x:1/0}function Ye(n){this.site=n,this.edges=[]}function Ze(n){for(var t,e,r,u,i,a,o,l,c,s,f=n[0][0],h=n[1][0],g=n[0][1],p=n[1][1],v=il,d=v.length;d--;)if(i=v[d],i&&i.prepare())for(o=i.edges,l=o.length,a=0;l>a;)s=o[a].end(),r=s.x,u=s.y,c=o[++a%l].start(),t=c.x,e=c.y,(Ma(r-t)>Pa||Ma(u-e)>Pa)&&(o.splice(a,0,new tr(Qe(i.site,s,Ma(r-f)<Pa&&p-u>Pa?{x:f,y:Ma(t-f)<Pa?e:p}:Ma(u-p)<Pa&&h-r>Pa?{x:Ma(e-p)<Pa?t:h,y:p}:Ma(r-h)<Pa&&u-g>Pa?{x:h,y:Ma(t-h)<Pa?e:g}:Ma(u-g)<Pa&&r-f>Pa?{x:Ma(e-g)<Pa?t:f,y:g}:null),i.site,null)),++l)}function Ve(n,t){return t.angle-n.angle}function Xe(){rr(this),this.x=this.y=this.arc=this.site=this.cy=null}function $e(n){var t=n.P,e=n.N;if(t&&e){var r=t.site,u=n.site,i=e.site;if(r!==i){var a=u.x,o=u.y,l=r.x-a,c=r.y-o,s=i.x-a,f=i.y-o,h=2*(l*f-c*s);if(!(h>=-Ua)){var g=l*l+c*c,p=s*s+f*f,v=(f*g-c*p)/h,d=(l*p-s*g)/h,f=d+o,m=sl.pop()||new Xe;m.arc=n,m.site=u,m.x=v+a,m.y=f+Math.sqrt(v*v+d*d),m.cy=f,n.circle=m;for(var y=null,M=ll._;M;)if(m.y<M.y||m.y===M.y&&m.x<=M.x){if(!M.L){y=M.P;break}M=M.L}else{if(!M.R){y=M;break}M=M.R}ll.insert(y,m),y||(ol=m)}}}}function Be(n){var t=n.circle;t&&(t.P||(ol=t.N),ll.remove(t),sl.push(t),rr(t),n.circle=null)}function We(n){for(var t,e=ul,r=Yt(n[0][0],n[0][1],n[1][0],n[1][1]),u=e.length;u--;)t=e[u],(!Je(t,n)||!r(t)||Ma(t.a.x-t.b.x)<Pa&&Ma(t.a.y-t.b.y)<Pa)&&(t.a=t.b=null,e.splice(u,1))}function Je(n,t){var e=n.b;if(e)return!0;var r,u,i=n.a,a=t[0][0],o=t[1][0],l=t[0][1],c=t[1][1],s=n.l,f=n.r,h=s.x,g=s.y,p=f.x,v=f.y,d=(h+p)/2,m=(g+v)/2;if(v===g){if(a>d||d>=o)return;if(h>p){if(i){if(i.y>=c)return}else i={x:d,y:l};e={x:d,y:c}}else{if(i){if(i.y<l)return}else i={x:d,y:c};e={x:d,y:l}}}else if(r=(h-p)/(v-g),u=m-r*d,-1>r||r>1)if(h>p){if(i){if(i.y>=c)return}else i={x:(l-u)/r,y:l};e={x:(c-u)/r,y:c}}else{if(i){if(i.y<l)return}else i={x:(c-u)/r,y:c};e={x:(l-u)/r,y:l}}else if(v>g){if(i){if(i.x>=o)return}else i={x:a,y:r*a+u};e={x:o,y:r*o+u}}else{if(i){if(i.x<a)return}else i={x:o,y:r*o+u};e={x:a,y:r*a+u}}return n.a=i,n.b=e,!0}function Ge(n,t){this.l=n,this.r=t,this.a=this.b=null}function Ke(n,t,e,r){var u=new Ge(n,t);return ul.push(u),e&&nr(u,n,t,e),r&&nr(u,t,n,r),il[n.i].edges.push(new tr(u,n,t)),il[t.i].edges.push(new tr(u,t,n)),u}function Qe(n,t,e){var r=new Ge(n,null);return r.a=t,r.b=e,ul.push(r),r}function nr(n,t,e,r){n.a||n.b?n.l===e?n.b=r:n.a=r:(n.a=r,n.l=t,n.r=e)}function tr(n,t,e){var r=n.a,u=n.b;this.edge=n,this.site=t,this.angle=e?Math.atan2(e.y-t.y,e.x-t.x):n.l===t?Math.atan2(u.x-r.x,r.y-u.y):Math.atan2(r.x-u.x,u.y-r.y)}function er(){this._=null}function rr(n){n.U=n.C=n.L=n.R=n.P=n.N=null}function ur(n,t){var e=t,r=t.R,u=e.U;u?u.L===e?u.L=r:u.R=r:n._=r,r.U=u,e.U=r,e.R=r.L,e.R&&(e.R.U=e),r.L=e}function ir(n,t){var e=t,r=t.L,u=e.U;u?u.L===e?u.L=r:u.R=r:n._=r,r.U=u,e.U=r,e.L=r.R,e.L&&(e.L.U=e),r.R=e}function ar(n){for(;n.L;)n=n.L;return n}function or(n,t){var e,r,u,i=n.sort(lr).pop();for(ul=[],il=new Array(n.length),al=new er,ll=new er;;)if(u=ol,i&&(!u||i.y<u.y||i.y===u.y&&i.x<u.x))(i.x!==e||i.y!==r)&&(il[i.i]=new Ye(i),He(i),e=i.x,r=i.y),i=n.pop();else{if(!u)break;Fe(u.arc)}t&&(We(t),Ze(t));var a={cells:il,edges:ul};return al=ll=ul=il=null,a}function lr(n,t){return t.y-n.y||t.x-n.x}function cr(n,t,e){return(n.x-e.x)*(t.y-n.y)-(n.x-t.x)*(e.y-n.y)}function sr(n){return n.x}function fr(n){return n.y}function hr(){return{leaf:!0,nodes:[],point:null,x:null,y:null}}function gr(n,t,e,r,u,i){if(!n(t,e,r,u,i)){var a=.5*(e+u),o=.5*(r+i),l=t.nodes;l[0]&&gr(n,l[0],e,r,a,o),l[1]&&gr(n,l[1],a,r,u,o),l[2]&&gr(n,l[2],e,o,a,i),l[3]&&gr(n,l[3],a,o,u,i)}}function pr(n,t,e,r,u,i,a){var o,l=1/0;return function c(n,s,f,h,g){if(!(s>i||f>a||r>h||u>g)){if(p=n.point){var p,v=t-n.x,d=e-n.y,m=v*v+d*d;if(l>m){var y=Math.sqrt(l=m);r=t-y,u=e-y,i=t+y,a=e+y,o=p}}for(var M=n.nodes,x=.5*(s+h),b=.5*(f+g),_=t>=x,w=e>=b,S=w<<1|_,k=S+4;k>S;++S)if(n=M[3&S])switch(3&S){case 0:c(n,s,f,x,b);break;case 1:c(n,x,f,h,b);break;case 2:c(n,s,b,x,g);break;case 3:c(n,x,b,h,g)}}}(n,r,u,i,a),o}function vr(n,t){n=oa.rgb(n),t=oa.rgb(t);var e=n.r,r=n.g,u=n.b,i=t.r-e,a=t.g-r,o=t.b-u;return function(n){return"#"+bn(Math.round(e+i*n))+bn(Math.round(r+a*n))+bn(Math.round(u+o*n))}}function dr(n,t){var e,r={},u={};for(e in n)e in t?r[e]=Mr(n[e],t[e]):u[e]=n[e];for(e in t)e in n||(u[e]=t[e]);return function(n){for(e in r)u[e]=r[e](n);return u}}function mr(n,t){return n=+n,t=+t,function(e){return n*(1-e)+t*e}}function yr(n,t){var e,r,u,i=hl.lastIndex=gl.lastIndex=0,a=-1,o=[],l=[];for(n+="",t+="";(e=hl.exec(n))&&(r=gl.exec(t));)(u=r.index)>i&&(u=t.slice(i,u),o[a]?o[a]+=u:o[++a]=u),(e=e[0])===(r=r[0])?o[a]?o[a]+=r:o[++a]=r:(o[++a]=null,l.push({i:a,x:mr(e,r)})),i=gl.lastIndex;return i<t.length&&(u=t.slice(i),o[a]?o[a]+=u:o[++a]=u),o.length<2?l[0]?(t=l[0].x,function(n){return t(n)+""}):function(){return t}:(t=l.length,function(n){for(var e,r=0;t>r;++r)o[(e=l[r]).i]=e.x(n);return o.join("")})}function Mr(n,t){for(var e,r=oa.interpolators.length;--r>=0&&!(e=oa.interpolators[r](n,t)););return e}function xr(n,t){var e,r=[],u=[],i=n.length,a=t.length,o=Math.min(n.length,t.length);for(e=0;o>e;++e)r.push(Mr(n[e],t[e]));for(;i>e;++e)u[e]=n[e];for(;a>e;++e)u[e]=t[e];return function(n){for(e=0;o>e;++e)u[e]=r[e](n);return u}}function br(n){return function(t){return 0>=t?0:t>=1?1:n(t)}}function _r(n){return function(t){return 1-n(1-t)}}function wr(n){return function(t){return.5*(.5>t?n(2*t):2-n(2-2*t))}}function Sr(n){return n*n}function kr(n){return n*n*n}function Nr(n){if(0>=n)return 0;if(n>=1)return 1;var t=n*n,e=t*n;return 4*(.5>n?e:3*(n-t)+e-.75)}function Er(n){return function(t){return Math.pow(t,n)}}function Ar(n){return 1-Math.cos(n*Oa)}function Cr(n){return Math.pow(2,10*(n-1))}function zr(n){return 1-Math.sqrt(1-n*n)}function Lr(n,t){var e;return arguments.length<2&&(t=.45),arguments.length?e=t/Fa*Math.asin(1/n):(n=1,e=t/4),function(r){return 1+n*Math.pow(2,-10*r)*Math.sin((r-e)*Fa/t)}}function qr(n){return n||(n=1.70158),function(t){return t*t*((n+1)*t-n)}}function Tr(n){return 1/2.75>n?7.5625*n*n:2/2.75>n?7.5625*(n-=1.5/2.75)*n+.75:2.5/2.75>n?7.5625*(n-=2.25/2.75)*n+.9375:7.5625*(n-=2.625/2.75)*n+.984375}function Rr(n,t){n=oa.hcl(n),t=oa.hcl(t);var e=n.h,r=n.c,u=n.l,i=t.h-e,a=t.c-r,o=t.l-u;return isNaN(a)&&(a=0,r=isNaN(r)?t.c:r),isNaN(i)?(i=0,e=isNaN(e)?t.h:e):i>180?i-=360:-180>i&&(i+=360),function(n){return fn(e+i*n,r+a*n,u+o*n)+""}}function Dr(n,t){n=oa.hsl(n),t=oa.hsl(t);var e=n.h,r=n.s,u=n.l,i=t.h-e,a=t.s-r,o=t.l-u;return isNaN(a)&&(a=0,r=isNaN(r)?t.s:r),isNaN(i)?(i=0,e=isNaN(e)?t.h:e):i>180?i-=360:-180>i&&(i+=360),function(n){return cn(e+i*n,r+a*n,u+o*n)+""}}function Pr(n,t){n=oa.lab(n),t=oa.lab(t);var e=n.l,r=n.a,u=n.b,i=t.l-e,a=t.a-r,o=t.b-u;return function(n){return gn(e+i*n,r+a*n,u+o*n)+""}}function Ur(n,t){return t-=n,function(e){return Math.round(n+t*e)}}function jr(n){var t=[n.a,n.b],e=[n.c,n.d],r=Hr(t),u=Fr(t,e),i=Hr(Or(e,t,-u))||0;t[0]*e[1]<e[0]*t[1]&&(t[0]*=-1,t[1]*=-1,r*=-1,u*=-1),this.rotate=(r?Math.atan2(t[1],t[0]):Math.atan2(-e[0],e[1]))*Ya,this.translate=[n.e,n.f],this.scale=[r,i],this.skew=i?Math.atan2(u,i)*Ya:0}function Fr(n,t){return n[0]*t[0]+n[1]*t[1]}function Hr(n){var t=Math.sqrt(Fr(n,n));return t&&(n[0]/=t,n[1]/=t),t}function Or(n,t,e){return n[0]+=e*t[0],n[1]+=e*t[1],n}function Ir(n){return n.length?n.pop()+",":""}function Yr(n,t,e,r){if(n[0]!==t[0]||n[1]!==t[1]){var u=e.push("translate(",null,",",null,")");r.push({i:u-4,x:mr(n[0],t[0])},{i:u-2,x:mr(n[1],t[1])})}else(t[0]||t[1])&&e.push("translate("+t+")")}function Zr(n,t,e,r){n!==t?(n-t>180?t+=360:t-n>180&&(n+=360),r.push({i:e.push(Ir(e)+"rotate(",null,")")-2,x:mr(n,t)})):t&&e.push(Ir(e)+"rotate("+t+")")}function Vr(n,t,e,r){n!==t?r.push({i:e.push(Ir(e)+"skewX(",null,")")-2,x:mr(n,t)}):t&&e.push(Ir(e)+"skewX("+t+")")}function Xr(n,t,e,r){if(n[0]!==t[0]||n[1]!==t[1]){var u=e.push(Ir(e)+"scale(",null,",",null,")");r.push({i:u-4,x:mr(n[0],t[0])},{i:u-2,x:mr(n[1],t[1])})}else(1!==t[0]||1!==t[1])&&e.push(Ir(e)+"scale("+t+")")}function $r(n,t){var e=[],r=[];return n=oa.transform(n),t=oa.transform(t),Yr(n.translate,t.translate,e,r),Zr(n.rotate,t.rotate,e,r),Vr(n.skew,t.skew,e,r),Xr(n.scale,t.scale,e,r),n=t=null,function(n){for(var t,u=-1,i=r.length;++u<i;)e[(t=r[u]).i]=t.x(n);return e.join("")}}function Br(n,t){return t=(t-=n=+n)||1/t,function(e){return(e-n)/t}}function Wr(n,t){return t=(t-=n=+n)||1/t,function(e){return Math.max(0,Math.min(1,(e-n)/t))}}function Jr(n){for(var t=n.source,e=n.target,r=Kr(t,e),u=[t];t!==r;)t=t.parent,u.push(t);for(var i=u.length;e!==r;)u.splice(i,0,e),e=e.parent;return u}function Gr(n){for(var t=[],e=n.parent;null!=e;)t.push(n),n=e,e=e.parent;return t.push(n),t}function Kr(n,t){if(n===t)return n;for(var e=Gr(n),r=Gr(t),u=e.pop(),i=r.pop(),a=null;u===i;)a=u,u=e.pop(),i=r.pop();return a}function Qr(n){n.fixed|=2}function nu(n){n.fixed&=-7}function tu(n){n.fixed|=4,n.px=n.x,n.py=n.y}function eu(n){n.fixed&=-5}function ru(n,t,e){var r=0,u=0;if(n.charge=0,!n.leaf)for(var i,a=n.nodes,o=a.length,l=-1;++l<o;)i=a[l],null!=i&&(ru(i,t,e),n.charge+=i.charge,r+=i.charge*i.cx,u+=i.charge*i.cy);if(n.point){n.leaf||(n.point.x+=Math.random()-.5,n.point.y+=Math.random()-.5);var c=t*e[n.point.index];n.charge+=n.pointCharge=c,r+=c*n.point.x,u+=c*n.point.y}n.cx=r/n.charge,n.cy=u/n.charge}function uu(n,t){return oa.rebind(n,t,"sort","children","value"),n.nodes=n,n.links=su,n}function iu(n,t){for(var e=[n];null!=(n=e.pop());)if(t(n),(u=n.children)&&(r=u.length))for(var r,u;--r>=0;)e.push(u[r])}function au(n,t){for(var e=[n],r=[];null!=(n=e.pop());)if(r.push(n),(i=n.children)&&(u=i.length))for(var u,i,a=-1;++a<u;)e.push(i[a]);for(;null!=(n=r.pop());)t(n)}function ou(n){return n.children}function lu(n){return n.value}function cu(n,t){return t.value-n.value}function su(n){return oa.merge(n.map(function(n){return(n.children||[]).map(function(t){return{source:n,target:t}})}))}function fu(n){return n.x}function hu(n){return n.y}function gu(n,t,e){n.y0=t,n.y=e}function pu(n){return oa.range(n.length)}function vu(n){for(var t=-1,e=n[0].length,r=[];++t<e;)r[t]=0;return r}function du(n){for(var t,e=1,r=0,u=n[0][1],i=n.length;i>e;++e)(t=n[e][1])>u&&(r=e,u=t);return r}function mu(n){return n.reduce(yu,0)}function yu(n,t){return n+t[1]}function Mu(n,t){return xu(n,Math.ceil(Math.log(t.length)/Math.LN2+1))}function xu(n,t){for(var e=-1,r=+n[0],u=(n[1]-r)/t,i=[];++e<=t;)i[e]=u*e+r;return i}function bu(n){return[oa.min(n),oa.max(n)]}function _u(n,t){return n.value-t.value}function wu(n,t){var e=n._pack_next;n._pack_next=t,t._pack_prev=n,t._pack_next=e,e._pack_prev=t}function Su(n,t){n._pack_next=t,t._pack_prev=n}function ku(n,t){var e=t.x-n.x,r=t.y-n.y,u=n.r+t.r;return.999*u*u>e*e+r*r}function Nu(n){function t(n){s=Math.min(n.x-n.r,s),f=Math.max(n.x+n.r,f),h=Math.min(n.y-n.r,h),g=Math.max(n.y+n.r,g)}if((e=n.children)&&(c=e.length)){var e,r,u,i,a,o,l,c,s=1/0,f=-(1/0),h=1/0,g=-(1/0);if(e.forEach(Eu),r=e[0],r.x=-r.r,r.y=0,t(r),c>1&&(u=e[1],u.x=u.r,u.y=0,t(u),c>2))for(i=e[2],zu(r,u,i),t(i),wu(r,i),r._pack_prev=i,wu(i,u),u=r._pack_next,a=3;c>a;a++){zu(r,u,i=e[a]);var p=0,v=1,d=1;for(o=u._pack_next;o!==u;o=o._pack_next,v++)if(ku(o,i)){p=1;break}if(1==p)for(l=r._pack_prev;l!==o._pack_prev&&!ku(l,i);l=l._pack_prev,d++);p?(d>v||v==d&&u.r<r.r?Su(r,u=o):Su(r=l,u),a--):(wu(r,i),u=i,t(i))}var m=(s+f)/2,y=(h+g)/2,M=0;for(a=0;c>a;a++)i=e[a],i.x-=m,i.y-=y,M=Math.max(M,i.r+Math.sqrt(i.x*i.x+i.y*i.y));n.r=M,e.forEach(Au)}}function Eu(n){n._pack_next=n._pack_prev=n}function Au(n){delete n._pack_next,delete n._pack_prev}function Cu(n,t,e,r){var u=n.children;if(n.x=t+=r*n.x,n.y=e+=r*n.y,n.r*=r,u)for(var i=-1,a=u.length;++i<a;)Cu(u[i],t,e,r)}function zu(n,t,e){var r=n.r+e.r,u=t.x-n.x,i=t.y-n.y;if(r&&(u||i)){var a=t.r+e.r,o=u*u+i*i;a*=a,r*=r;var l=.5+(r-a)/(2*o),c=Math.sqrt(Math.max(0,2*a*(r+o)-(r-=o)*r-a*a))/(2*o);e.x=n.x+l*u+c*i,e.y=n.y+l*i-c*u}else e.x=n.x+r,e.y=n.y}function Lu(n,t){return n.parent==t.parent?1:2}function qu(n){var t=n.children;return t.length?t[0]:n.t}function Tu(n){var t,e=n.children;return(t=e.length)?e[t-1]:n.t}function Ru(n,t,e){var r=e/(t.i-n.i);t.c-=r,t.s+=e,n.c+=r,t.z+=e,t.m+=e}function Du(n){for(var t,e=0,r=0,u=n.children,i=u.length;--i>=0;)t=u[i],t.z+=e,t.m+=e,e+=t.s+(r+=t.c)}function Pu(n,t,e){return n.a.parent===t.parent?n.a:e}function Uu(n){return 1+oa.max(n,function(n){return n.y})}function ju(n){return n.reduce(function(n,t){return n+t.x},0)/n.length}function Fu(n){var t=n.children;return t&&t.length?Fu(t[0]):n}function Hu(n){var t,e=n.children;return e&&(t=e.length)?Hu(e[t-1]):n}function Ou(n){return{x:n.x,y:n.y,dx:n.dx,dy:n.dy}}function Iu(n,t){var e=n.x+t[3],r=n.y+t[0],u=n.dx-t[1]-t[3],i=n.dy-t[0]-t[2];return 0>u&&(e+=u/2,u=0),0>i&&(r+=i/2,i=0),{x:e,y:r,dx:u,dy:i}}function Yu(n){var t=n[0],e=n[n.length-1];return e>t?[t,e]:[e,t]}function Zu(n){return n.rangeExtent?n.rangeExtent():Yu(n.range())}function Vu(n,t,e,r){var u=e(n[0],n[1]),i=r(t[0],t[1]);return function(n){return i(u(n))}}function Xu(n,t){var e,r=0,u=n.length-1,i=n[r],a=n[u];return i>a&&(e=r,r=u,u=e,e=i,i=a,a=e),n[r]=t.floor(i),n[u]=t.ceil(a),n}function $u(n){return n?{floor:function(t){return Math.floor(t/n)*n},ceil:function(t){return Math.ceil(t/n)*n}}:Sl}function Bu(n,t,e,r){var u=[],i=[],a=0,o=Math.min(n.length,t.length)-1;for(n[o]<n[0]&&(n=n.slice().reverse(),t=t.slice().reverse());++a<=o;)u.push(e(n[a-1],n[a])),i.push(r(t[a-1],t[a]));return function(t){var e=oa.bisect(n,t,1,o)-1;return i[e](u[e](t))}}function Wu(n,t,e,r){function u(){var u=Math.min(n.length,t.length)>2?Bu:Vu,l=r?Wr:Br;return a=u(n,t,l,e),o=u(t,n,l,Mr),i}function i(n){return a(n)}var a,o;return i.invert=function(n){return o(n)},i.domain=function(t){return arguments.length?(n=t.map(Number),u()):n},i.range=function(n){return arguments.length?(t=n,u()):t},i.rangeRound=function(n){return i.range(n).interpolate(Ur)},i.clamp=function(n){return arguments.length?(r=n,u()):r},i.interpolate=function(n){return arguments.length?(e=n,u()):e},i.ticks=function(t){return Qu(n,t)},i.tickFormat=function(t,e){return ni(n,t,e)},i.nice=function(t){return Gu(n,t),u()},i.copy=function(){return Wu(n,t,e,r)},u()}function Ju(n,t){return oa.rebind(n,t,"range","rangeRound","interpolate","clamp")}function Gu(n,t){return Xu(n,$u(Ku(n,t)[2])),Xu(n,$u(Ku(n,t)[2])),n}function Ku(n,t){null==t&&(t=10);var e=Yu(n),r=e[1]-e[0],u=Math.pow(10,Math.floor(Math.log(r/t)/Math.LN10)),i=t/r*u;return.15>=i?u*=10:.35>=i?u*=5:.75>=i&&(u*=2),e[0]=Math.ceil(e[0]/u)*u,e[1]=Math.floor(e[1]/u)*u+.5*u,e[2]=u,e}function Qu(n,t){return oa.range.apply(oa,Ku(n,t))}function ni(n,t,e){var r=Ku(n,t);if(e){var u=fo.exec(e);if(u.shift(),"s"===u[8]){var i=oa.formatPrefix(Math.max(Ma(r[0]),Ma(r[1])));return u[7]||(u[7]="."+ti(i.scale(r[2]))),u[8]="f",e=oa.format(u.join("")),function(n){return e(i.scale(n))+i.symbol}}u[7]||(u[7]="."+ei(u[8],r)),e=u.join("")}else e=",."+ti(r[2])+"f";return oa.format(e)}function ti(n){return-Math.floor(Math.log(n)/Math.LN10+.01)}function ei(n,t){var e=ti(t[2]);return n in kl?Math.abs(e-ti(Math.max(Ma(t[0]),Ma(t[1]))))+ +("e"!==n):e-2*("%"===n)}function ri(n,t,e,r){function u(n){return(e?Math.log(0>n?0:n):-Math.log(n>0?0:-n))/Math.log(t)}function i(n){return e?Math.pow(t,n):-Math.pow(t,-n)}function a(t){return n(u(t))}return a.invert=function(t){return i(n.invert(t))},a.domain=function(t){return arguments.length?(e=t[0]>=0,n.domain((r=t.map(Number)).map(u)),a):r},a.base=function(e){return arguments.length?(t=+e,n.domain(r.map(u)),a):t},a.nice=function(){var t=Xu(r.map(u),e?Math:El);return n.domain(t),r=t.map(i),a},a.ticks=function(){var n=Yu(r),a=[],o=n[0],l=n[1],c=Math.floor(u(o)),s=Math.ceil(u(l)),f=t%1?2:t;if(isFinite(s-c)){if(e){for(;s>c;c++)for(var h=1;f>h;h++)a.push(i(c)*h);a.push(i(c))}else for(a.push(i(c));c++<s;)for(var h=f-1;h>0;h--)a.push(i(c)*h);for(c=0;a[c]<o;c++);for(s=a.length;a[s-1]>l;s--);a=a.slice(c,s)}return a},a.tickFormat=function(n,e){if(!arguments.length)return Nl;arguments.length<2?e=Nl:"function"!=typeof e&&(e=oa.format(e));var r=Math.max(1,t*n/a.ticks().length);return function(n){var a=n/i(Math.round(u(n)));return t-.5>a*t&&(a*=t),r>=a?e(n):""}},a.copy=function(){return ri(n.copy(),t,e,r)},Ju(a,n)}function ui(n,t,e){function r(t){return n(u(t))}var u=ii(t),i=ii(1/t);return r.invert=function(t){return i(n.invert(t))},r.domain=function(t){return arguments.length?(n.domain((e=t.map(Number)).map(u)),r):e},r.ticks=function(n){return Qu(e,n)},r.tickFormat=function(n,t){return ni(e,n,t)},r.nice=function(n){return r.domain(Gu(e,n))},r.exponent=function(a){return arguments.length?(u=ii(t=a),i=ii(1/t),n.domain(e.map(u)),r):t},r.copy=function(){return ui(n.copy(),t,e)},Ju(r,n)}function ii(n){return function(t){return 0>t?-Math.pow(-t,n):Math.pow(t,n)}}function ai(n,t){function e(e){return i[((u.get(e)||("range"===t.t?u.set(e,n.push(e)):NaN))-1)%i.length]}function r(t,e){return oa.range(n.length).map(function(n){return t+e*n})}var u,i,a;return e.domain=function(r){if(!arguments.length)return n;n=[],u=new c;for(var i,a=-1,o=r.length;++a<o;)u.has(i=r[a])||u.set(i,n.push(i));return e[t.t].apply(e,t.a)},e.range=function(n){return arguments.length?(i=n,a=0,t={t:"range",a:arguments},e):i},e.rangePoints=function(u,o){arguments.length<2&&(o=0);var l=u[0],c=u[1],s=n.length<2?(l=(l+c)/2,0):(c-l)/(n.length-1+o);return i=r(l+s*o/2,s),a=0,t={t:"rangePoints",a:arguments},e},e.rangeRoundPoints=function(u,o){arguments.length<2&&(o=0);var l=u[0],c=u[1],s=n.length<2?(l=c=Math.round((l+c)/2),0):(c-l)/(n.length-1+o)|0;return i=r(l+Math.round(s*o/2+(c-l-(n.length-1+o)*s)/2),s),a=0,t={t:"rangeRoundPoints",a:arguments},e},e.rangeBands=function(u,o,l){arguments.length<2&&(o=0),arguments.length<3&&(l=o);var c=u[1]<u[0],s=u[c-0],f=u[1-c],h=(f-s)/(n.length-o+2*l);return i=r(s+h*l,h),c&&i.reverse(),a=h*(1-o),t={t:"rangeBands",a:arguments},e},e.rangeRoundBands=function(u,o,l){arguments.length<2&&(o=0),arguments.length<3&&(l=o);var c=u[1]<u[0],s=u[c-0],f=u[1-c],h=Math.floor((f-s)/(n.length-o+2*l));return i=r(s+Math.round((f-s-(n.length-o)*h)/2),h),c&&i.reverse(),a=Math.round(h*(1-o)),t={t:"rangeRoundBands",a:arguments},e},e.rangeBand=function(){return a},e.rangeExtent=function(){return Yu(t.a[0])},e.copy=function(){return ai(n,t)},e.domain(n)}function oi(n,t){function i(){var e=0,r=t.length;for(o=[];++e<r;)o[e-1]=oa.quantile(n,e/r);return a}function a(n){return isNaN(n=+n)?void 0:t[oa.bisect(o,n)]}var o;return a.domain=function(t){return arguments.length?(n=t.map(r).filter(u).sort(e),i()):n},a.range=function(n){return arguments.length?(t=n,i()):t},a.quantiles=function(){return o},a.invertExtent=function(e){return e=t.indexOf(e),0>e?[NaN,NaN]:[e>0?o[e-1]:n[0],e<o.length?o[e]:n[n.length-1]]},a.copy=function(){return oi(n,t)},i()}function li(n,t,e){function r(t){return e[Math.max(0,Math.min(a,Math.floor(i*(t-n))))]}function u(){return i=e.length/(t-n),a=e.length-1,r}var i,a;return r.domain=function(e){return arguments.length?(n=+e[0],t=+e[e.length-1],u()):[n,t]},r.range=function(n){return arguments.length?(e=n,u()):e},r.invertExtent=function(t){return t=e.indexOf(t),t=0>t?NaN:t/i+n,[t,t+1/i]},r.copy=function(){return li(n,t,e)},u()}function ci(n,t){function e(e){return e>=e?t[oa.bisect(n,e)]:void 0}return e.domain=function(t){return arguments.length?(n=t,e):n},e.range=function(n){return arguments.length?(t=n,e):t},e.invertExtent=function(e){return e=t.indexOf(e),[n[e-1],n[e]]},e.copy=function(){return ci(n,t)},e}function si(n){function t(n){return+n}return t.invert=t,t.domain=t.range=function(e){return arguments.length?(n=e.map(t),t):n},t.ticks=function(t){return Qu(n,t)},t.tickFormat=function(t,e){return ni(n,t,e)},t.copy=function(){return si(n)},t}function fi(){return 0}function hi(n){return n.innerRadius}function gi(n){return n.outerRadius}function pi(n){return n.startAngle}function vi(n){return n.endAngle}function di(n){return n&&n.padAngle}function mi(n,t,e,r){return(n-e)*t-(t-r)*n>0?0:1}function yi(n,t,e,r,u){var i=n[0]-t[0],a=n[1]-t[1],o=(u?r:-r)/Math.sqrt(i*i+a*a),l=o*a,c=-o*i,s=n[0]+l,f=n[1]+c,h=t[0]+l,g=t[1]+c,p=(s+h)/2,v=(f+g)/2,d=h-s,m=g-f,y=d*d+m*m,M=e-r,x=s*g-h*f,b=(0>m?-1:1)*Math.sqrt(Math.max(0,M*M*y-x*x)),_=(x*m-d*b)/y,w=(-x*d-m*b)/y,S=(x*m+d*b)/y,k=(-x*d+m*b)/y,N=_-p,E=w-v,A=S-p,C=k-v;return N*N+E*E>A*A+C*C&&(_=S,w=k),[[_-l,w-c],[_*e/M,w*e/M]]}function Mi(n){function t(t){function a(){c.push("M",i(n(s),o))}for(var l,c=[],s=[],f=-1,h=t.length,g=En(e),p=En(r);++f<h;)u.call(this,l=t[f],f)?s.push([+g.call(this,l,f),+p.call(this,l,f)]):s.length&&(a(),s=[]);return s.length&&a(),c.length?c.join(""):null}var e=Ce,r=ze,u=zt,i=xi,a=i.key,o=.7;return t.x=function(n){return arguments.length?(e=n,t):e},t.y=function(n){return arguments.length?(r=n,t):r},t.defined=function(n){return arguments.length?(u=n,t):u},t.interpolate=function(n){return arguments.length?(a="function"==typeof n?i=n:(i=Tl.get(n)||xi).key,t):a},t.tension=function(n){return arguments.length?(o=n,t):o},t}function xi(n){return n.length>1?n.join("L"):n+"Z"}function bi(n){return n.join("L")+"Z"}function _i(n){for(var t=0,e=n.length,r=n[0],u=[r[0],",",r[1]];++t<e;)u.push("H",(r[0]+(r=n[t])[0])/2,"V",r[1]);return e>1&&u.push("H",r[0]),u.join("")}function wi(n){for(var t=0,e=n.length,r=n[0],u=[r[0],",",r[1]];++t<e;)u.push("V",(r=n[t])[1],"H",r[0]);return u.join("")}function Si(n){for(var t=0,e=n.length,r=n[0],u=[r[0],",",r[1]];++t<e;)u.push("H",(r=n[t])[0],"V",r[1]);return u.join("")}function ki(n,t){return n.length<4?xi(n):n[1]+Ai(n.slice(1,-1),Ci(n,t))}function Ni(n,t){return n.length<3?bi(n):n[0]+Ai((n.push(n[0]),n),Ci([n[n.length-2]].concat(n,[n[1]]),t))}function Ei(n,t){return n.length<3?xi(n):n[0]+Ai(n,Ci(n,t))}function Ai(n,t){if(t.length<1||n.length!=t.length&&n.length!=t.length+2)return xi(n);var e=n.length!=t.length,r="",u=n[0],i=n[1],a=t[0],o=a,l=1;if(e&&(r+="Q"+(i[0]-2*a[0]/3)+","+(i[1]-2*a[1]/3)+","+i[0]+","+i[1],u=n[1],l=2),t.length>1){o=t[1],i=n[l],l++,r+="C"+(u[0]+a[0])+","+(u[1]+a[1])+","+(i[0]-o[0])+","+(i[1]-o[1])+","+i[0]+","+i[1];for(var c=2;c<t.length;c++,l++)i=n[l],o=t[c],r+="S"+(i[0]-o[0])+","+(i[1]-o[1])+","+i[0]+","+i[1]}if(e){var s=n[l];r+="Q"+(i[0]+2*o[0]/3)+","+(i[1]+2*o[1]/3)+","+s[0]+","+s[1]}return r}function Ci(n,t){for(var e,r=[],u=(1-t)/2,i=n[0],a=n[1],o=1,l=n.length;++o<l;)e=i,i=a,a=n[o],r.push([u*(a[0]-e[0]),u*(a[1]-e[1])]);return r}function zi(n){if(n.length<3)return xi(n);var t=1,e=n.length,r=n[0],u=r[0],i=r[1],a=[u,u,u,(r=n[1])[0]],o=[i,i,i,r[1]],l=[u,",",i,"L",Ri(Pl,a),",",Ri(Pl,o)];for(n.push(n[e-1]);++t<=e;)r=n[t],a.shift(),a.push(r[0]),o.shift(),o.push(r[1]),Di(l,a,o);return n.pop(),l.push("L",r),l.join("")}function Li(n){if(n.length<4)return xi(n);for(var t,e=[],r=-1,u=n.length,i=[0],a=[0];++r<3;)t=n[r],i.push(t[0]),a.push(t[1]);for(e.push(Ri(Pl,i)+","+Ri(Pl,a)),--r;++r<u;)t=n[r],i.shift(),i.push(t[0]),a.shift(),a.push(t[1]),Di(e,i,a);return e.join("")}function qi(n){for(var t,e,r=-1,u=n.length,i=u+4,a=[],o=[];++r<4;)e=n[r%u],a.push(e[0]),o.push(e[1]);for(t=[Ri(Pl,a),",",Ri(Pl,o)],--r;++r<i;)e=n[r%u],a.shift(),a.push(e[0]),o.shift(),o.push(e[1]),Di(t,a,o);return t.join("")}function Ti(n,t){var e=n.length-1;if(e)for(var r,u,i=n[0][0],a=n[0][1],o=n[e][0]-i,l=n[e][1]-a,c=-1;++c<=e;)r=n[c],u=c/e,r[0]=t*r[0]+(1-t)*(i+u*o),r[1]=t*r[1]+(1-t)*(a+u*l);return zi(n)}function Ri(n,t){return n[0]*t[0]+n[1]*t[1]+n[2]*t[2]+n[3]*t[3]}function Di(n,t,e){n.push("C",Ri(Rl,t),",",Ri(Rl,e),",",Ri(Dl,t),",",Ri(Dl,e),",",Ri(Pl,t),",",Ri(Pl,e))}function Pi(n,t){return(t[1]-n[1])/(t[0]-n[0])}function Ui(n){for(var t=0,e=n.length-1,r=[],u=n[0],i=n[1],a=r[0]=Pi(u,i);++t<e;)r[t]=(a+(a=Pi(u=i,i=n[t+1])))/2;return r[t]=a,r}function ji(n){for(var t,e,r,u,i=[],a=Ui(n),o=-1,l=n.length-1;++o<l;)t=Pi(n[o],n[o+1]),Ma(t)<Pa?a[o]=a[o+1]=0:(e=a[o]/t,r=a[o+1]/t,u=e*e+r*r,u>9&&(u=3*t/Math.sqrt(u),a[o]=u*e,a[o+1]=u*r));for(o=-1;++o<=l;)u=(n[Math.min(l,o+1)][0]-n[Math.max(0,o-1)][0])/(6*(1+a[o]*a[o])),i.push([u||0,a[o]*u||0]);return i}function Fi(n){return n.length<3?xi(n):n[0]+Ai(n,ji(n))}function Hi(n){for(var t,e,r,u=-1,i=n.length;++u<i;)t=n[u],e=t[0],r=t[1]-Oa,t[0]=e*Math.cos(r),t[1]=e*Math.sin(r);return n}function Oi(n){function t(t){function l(){v.push("M",o(n(m),f),s,c(n(d.reverse()),f),"Z")}for(var h,g,p,v=[],d=[],m=[],y=-1,M=t.length,x=En(e),b=En(u),_=e===r?function(){
@@ -67032,6 +67102,3739 @@ define('ember-ajax/utils/parse-response-headers', ['exports'], function (exports
 
     return headers;
   }
+});
+define('ember-bootstrap/components/bs-accordion-item', ['exports', 'ember', 'ember-bootstrap/mixins/type-class', 'ember-bootstrap/mixins/sub-component'], function (exports, _ember, _emberBootstrapMixinsTypeClass, _emberBootstrapMixinsSubComponent) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   A collapsible/expandable item within an accordion
+  
+   See {{#crossLink "Components.Accordion"}}{{/crossLink}} for examples.
+  
+  
+   @class AccordionItem
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.TypeClass
+   @uses Mixins.SubComponent
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsTypeClass['default'], _emberBootstrapMixinsSubComponent['default'], {
+    classNames: ['panel'],
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'panel'
+     * @protected
+     */
+    classTypePrefix: 'panel',
+
+    /**
+     * The title of the accordion item, displayed as a .panel-title element
+     *
+     * @property title
+     * @type string
+     * @public
+     */
+    title: null,
+
+    /**
+     * The value of the accordion item, which is used as the value of the `selected` property of the parent {{#crossLink "Components.Accordion"}}{{/crossLink}} component
+     *
+     * @property value
+     * @public
+     */
+    value: computed.oneWay('elementId'),
+
+    selected: computed.alias('parentView.selected'),
+
+    collapsed: computed('value', 'selected', function () {
+      return this.get('value') !== this.get('selected');
+    }),
+    active: computed.not('collapsed'),
+
+    action: 'selected',
+
+    actions: {
+      toggleActive: function toggleActive() {
+        var value = this.get('value');
+        var previous = this.get('selected');
+        var active = this.get('active');
+        if (!active) {
+          this.set('selected', value);
+          this.sendAction('action', value, previous);
+        } else {
+          this.set('selected', null);
+          this.sendAction('action', null, previous);
+        }
+      }
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-accordion', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Bootstrap-style accordion group, with collapsible/expandable items.
+   See http://getbootstrap.com/components/#btn-groups
+  
+   Use as a block level component with any number of {{#crossLink "Components.AccordionItem"}}{{/crossLink}} components as children:
+  
+   ```handlebars
+    \{{#bs-accordion selected=selected}}
+        \{{#bs-accordion-item value="1" title="First item"}}
+          <p>Lorem ipsum...</p>
+        \{{/bs-accordion-item}}
+        \{{#bs-accordion-item value="2" title="Second item"}}
+          <p>Lorem ipsum...</p>
+        \{{/bs-accordion-item}}
+        \{{#bs-accordion-item value="3" title="Third item"}}
+          <p>Lorem ipsum...</p>
+        \{{/bs-accordion-item}}
+    \{{/bs-accordion}}
+  
+    <p>Selected accordion item: \{{selected}}</p>
+   ```
+  
+  
+   @class Accordion
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['panel-group'],
+    ariaRole: 'tablist',
+
+    /**
+     * The value of the currently selected accordion item
+     *
+     * @property selected
+     * @public
+     */
+    selected: null,
+
+    actions: {
+      selected: function selected(currentValue, previousValue) {
+        this.sendAction('action', currentValue, previousValue);
+      }
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-alert', ['exports', 'ember', 'ember-bootstrap/mixins/type-class'], function (exports, _ember, _emberBootstrapMixinsTypeClass) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   Implements Bootstrap alerts, see http://getbootstrap.com/components/#alerts
+  
+   By default it is a user dismissible alert with a fade out animation, both of which can be disabled. Be sure to set the
+   `type` property for proper styling.
+  
+   ```hbs
+   {{#bs-alert type="success"}}
+   <strong>Well done!</strong> You successfully read this important alert message.
+   {{/bs-alert}}
+   ```
+  
+   @class Alert
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.TypeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsTypeClass['default'], {
+    classNameBindings: ['alert', 'fade', 'in'],
+
+    /**
+     * A dismissible alert will have a close button in the upper right corner, that the user can click to dismiss
+     * the alert.
+     *
+     * @property dismissible
+     * @type boolean
+     * @default true
+     * @public
+     */
+    dismissible: true,
+
+    /**
+     * If true the alert is completely hidden. Will be set when the fade animation has finished.
+     *
+     * @property dismissed
+     * @type boolean
+     * @default false
+     * @readonly
+     * @protected
+     */
+    dismissed: computed.oneWay('notVisible'),
+
+    /**
+     * This property controls if the alert should be visible. If false it might still be in the DOM until the fade animation
+     * has completed.
+     *
+     * @property visible
+     * @type boolean
+     * @default true
+     * @public
+     */
+    visible: true,
+    notVisible: computed.not('visible'),
+
+    /**
+     * Set to false to disable the fade out animation when hiding the alert.
+     *
+     * @property fade
+     * @type boolean
+     * @default true
+     * @public
+     */
+    fade: true,
+
+    /**
+     * Computed property to set the alert class to the component div. Will be false when dismissed to have the component
+     * div (which cannot be removed form DOM by the component itself) without any markup.
+     *
+     * @property alert
+     * @type boolean
+     * @private
+     */
+    alert: computed.not('dismissed'),
+    'in': computed.and('visible', 'fade'),
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'alert'
+     * @protected
+     */
+    classTypePrefix: 'alert',
+
+    /**
+     * The duration of the fade out animation
+     *
+     * @property fadeDuration
+     * @type integer
+     * @default 150
+     * @public
+     */
+    fadeDuration: 150,
+
+    /**
+     * The action to be sent after the alert has been dismissed (including the CSS transition).
+     *
+     * @property dismissedAction
+     * @type string
+     * @default null
+     * @public
+     */
+    dismissedAction: null,
+
+    actions: {
+      dismiss: function dismiss() {
+        this.set('visible', false);
+      }
+    },
+
+    _onVisibleChange: observer('visible', function () {
+      if (this.get('visible')) {
+        this.show();
+      } else {
+        this.hide();
+      }
+    }),
+
+    /**
+     * Call to make the alert visible again after it has been hidden
+     *
+     * @method show
+     * @private
+     */
+    show: function show() {
+      this.setProperties({
+        dismissed: false
+      });
+    },
+
+    /**
+     * Call to hide the alert. If the `fade` property is true, this will fade out the alert before being finally
+     * dismissed.
+     *
+     * @method hide
+     * @private
+     */
+    hide: function hide() {
+      if (this.get('fade')) {
+        _ember['default'].run.later(this, function () {
+          if (!this.get('isDestroyed')) {
+            this.set('dismissed', true);
+            this.sendAction('dismissedAction');
+          }
+        }, this.get('fadeDuration'));
+      } else {
+        this.setProperties({
+          dismissed: true
+        });
+        this.sendAction('dismissedAction');
+      }
+    }
+  });
+});
+define('ember-bootstrap/components/bs-button-group', ['exports', 'ember', 'ember-bootstrap/mixins/size-class', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapMixinsSizeClass, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   Bootstrap-style button group, that visually groups buttons, and optionally adds radio/checkbox like behaviour.
+   See http://getbootstrap.com/components/#btn-groups
+  
+   Use as a block level component with any number of {{#crossLink "Components.Button"}}{{/crossLink}} components as children:
+  
+   ```handlebars
+   {{#bs-button-group}}
+   {{#bs-button}}1{{/bs-button}}
+   {{#bs-button}}2{{/bs-button}}
+   {{#bs-button}}3{{/bs-button}}
+   {{/bs-button-group}}
+   ```
+  
+   ### Radio-like behaviour
+  
+   Use the `type` property set to "radio" to make the child buttons toggle like radio buttons, i.e. only one button can be active.
+   Set the `value` property of the buttons to something meaningful. The `value` property of the button group will then reflect
+   the value of the active button:
+  
+   ```handlebars
+   {{#bs-button-group value=buttonGroupValue type="radio"}}
+   {{#bs-button value=1}}1{{/bs-button}}
+   {{#bs-button value=2}}2{{/bs-button}}
+   {{#bs-button value=3}}3{{/bs-button}}
+   {{/bs-button-group}}
+  
+   You selected: {{buttonGroupValue}}!
+   ```
+  
+   ### Checkbox-like behaviour
+  
+   Set `type` to "checkbox" to make any number of child buttons selectable. The `value` property will be an array
+   of all the values of the active buttons:
+  
+   ```handlebars
+   {{#bs-button-group value=buttonGroupValue type="checkbox"}}
+   {{#bs-button value=1}}1{{/bs-button}}
+   {{#bs-button value=2}}2{{/bs-button}}
+   {{#bs-button value=3}}3{{/bs-button}}
+   {{/bs-button-group}}
+  
+   You selected:
+   <ul>
+   {{#each value in buttonGroupValue}}
+   <li>{{value}}</li>
+   {{/each}}
+   </ul>
+   ```
+  
+   @class ButtonGroup
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.SizeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentParent['default'], _emberBootstrapMixinsSizeClass['default'], {
+    /**
+     * @type string
+     * @property ariaRole
+     * @default 'group'
+     * @protected
+     */
+    ariaRole: 'group',
+
+    /**
+     * @property classNames
+     * @type array
+     * @default ['btn-group']
+     * @protected
+     */
+    classNames: ['btn-group'],
+
+    /**
+     * @property classNameBindings
+     * @type array
+     * @protected
+     */
+    classNameBindings: ['vertical:btn-group-vertical', 'justified:btn-group-justified'],
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'btn-group'
+     * @protected
+     */
+    classTypePrefix: 'btn-group',
+
+    /**
+     * Set to true for a vertically stacked button group, see http://getbootstrap.com/components/#btn-groups-vertical
+     *
+     * @property vertical
+     * @type boolean
+     * @default false
+     * @public
+     */
+    vertical: false,
+
+    /**
+     * Set to true for the buttons to stretch at equal sizes to span the entire width of its parent.
+     *
+     * *Important*: You have to wrap every button component in a `div class="btn-group">`:
+     *
+     * ```handlebars
+     * <div class="btn-group" role="group">
+     * {{#bs-button}}My Button{{/bs-button}}
+     * </div>
+     * ```
+     *
+     * See http://getbootstrap.com/components/#btn-groups-justified
+     *
+     * @property justified
+     * @type boolean
+     * @default false
+     * @public
+     */
+    justified: false,
+
+    /**
+     * The type of the button group specifies how child buttons behave and how the `value` property will be computed:
+     *
+     * ### null
+     * If `type` is not set (null), the button group will add no functionality besides Bootstrap styling
+     *
+     * ### radio
+     * if `type` is set to "radio", the buttons will behave like radio buttons:
+     * * the buttons will toggle (`toggle` property of the child buttons will be set to true)
+     * * only one button may be active
+     * * the `value` property of the button group will reflect the `value` property of the active button
+     *
+     * ### checkbox
+     * if `type` is set to "checkbox", the buttons will behave like checkboxes:
+     * * the buttons will toggle (`toggle` property of the child buttons will be set to true)
+     * * any number of buttons may be active
+     * * the `value` property of the button group will be an array containing the `value` properties of all active buttons
+     *
+     * @property type
+     * @type string
+     * @default null
+     * @public
+     */
+    type: null,
+
+    /**
+     * The value of the button group, computed by its child buttons.
+     * See the {{#crossLink "Button-Group/type:attribute"}}`type` property{{/crossLink}} for how the value property is constructed.
+     *
+     * When you set the value, the corresponding buttons will be activated:
+     * * use a single value for a radio button group to activate the button with the same value
+     * * use an array of values for a checkbox button group to activate all the buttons with values contained in the array
+     *
+     * @property value
+     * @type array|any
+     * @public
+     */
+    value: undefined,
+
+    _syncValueToActiveButtons: observer('value', 'children.@each.value', '_inDOM', function () {
+      if (!this._inDOM) {
+        return;
+      }
+      var value = this.get('value');
+      var values = _ember['default'].A(!_ember['default'].isArray(value) ? [value] : value);
+      this.get('children').forEach(function (button) {
+        button.set('active', values.contains(button.get('value')));
+      });
+    }),
+
+    /**
+     * Child buttons that are active (pressed)
+     * @property activeChildren
+     * @type array
+     * @protected
+     */
+    activeChildren: computed.filterBy('children', 'active', true),
+
+    lastActiveChildren: null,
+    newActiveChildren: computed.setDiff('activeChildren', 'lastActiveChildren'),
+    _observeButtons: observer('activeChildren.[]', 'type', function () {
+      var type = this.get('type');
+
+      if (!this._inDOM || type !== 'radio' && type !== 'checkbox') {
+        return;
+      }
+
+      _ember['default'].run.scheduleOnce('actions', this, function () {
+        // the button that just became active
+        var value = undefined;
+
+        switch (type) {
+          case 'radio':
+            var newActive = _ember['default'].A(this.get('newActiveChildren')).objectAt(0);
+            if (newActive) {
+              value = newActive.get('value');
+            } else {
+              var lastActive = this.get('lastActiveChildren.firstObject');
+              if (lastActive) {
+                lastActive.set('active', true);
+              }
+            }
+            break;
+          case 'checkbox':
+            value = this.get('activeChildren').mapBy('value');
+            break;
+        }
+        if (value) {
+          this.set('value', value);
+        }
+        // remember activeChildren, used as a replacement for a before observer as they will be deprecated in the future...
+        this.set('lastActiveChildren', _ember['default'].A(this.get('activeChildren').slice()));
+      });
+    }),
+
+    _observeType: observer('type', 'children.[]', function () {
+      if (this.get('type') === 'radio' || this.get('type') === 'checkbox') {
+        // set all child buttons to toggle
+        this.get('children').forEach(function (button) {
+          button.set('toggle', true);
+        });
+      }
+    }),
+
+    init: function init() {
+      this._super();
+      this.set('lastActiveChildren', _ember['default'].A());
+    },
+
+    _inDOM: false,
+
+    didInsertElement: function didInsertElement() {
+      this.set('_inDOM', true);
+      this.get('activeChildren');
+    }
+  });
+});
+define('ember-bootstrap/components/bs-button', ['exports', 'ember', 'ember-bootstrap/mixins/type-class', 'ember-bootstrap/mixins/size-class', 'ember-bootstrap/mixins/component-child'], function (exports, _ember, _emberBootstrapMixinsTypeClass, _emberBootstrapMixinsSizeClass, _emberBootstrapMixinsComponentChild) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   Implements a HTML button element, with support for all [Bootstrap button CSS styles](http://getbootstrap.com/css/#buttons)
+   as well as advanced functionality such as button states.
+  
+   ### Basic Usage
+  
+   ```hbs
+   \{{#bs-button type="primary" icon="glyphicon glyphicon-download"}}
+   Downloads
+   \{{/bs-button}}
+   ```
+  
+   ### Actions
+  
+   Set the action property of the component to send an action to your controller. The following parameters will be sent:
+   * value: the button's value, see the `value` property
+   * event: the browsers event object
+   * callback: a function that may be called from the action handler to supply a Promise to the button component for automatic state handling
+  
+   ```hbs
+   \{{#bs-button type="primary" icon="glyphicon glyphicon-download" action="download"}}
+   Download
+   \{{/bs-button}}
+   ```
+  
+   ### States
+  
+   Use the `textState` property to change the label of the button. You can bind it to a controller property to set a "loading" state for example.
+   The label of the button will be taken from the `<state>Text` property.
+  
+   ```hbs
+   \{{bs-button type="primary" icon="glyphicon glyphicon-download" textState=buttonState defaultText="Download" loadingText="Loading..." action="download"}}
+   ```
+  
+   ```js
+   App.ApplicationController = Ember.Controller.extend({
+     buttonState: "default"
+     actions: {
+       download: function() {
+         this.set("buttonState", "loading");
+       }
+     }
+   });
+   ```
+  
+   ### Promise support for automatic state change
+  
+   When using the callback function of the click action to supply a Promise for any asynchronous operation the button will
+   manage its `textState` property automatically, changing its value according to the state of the promise:
+   "default" > "pending" > "resolved"/"rejected"
+  
+   ```hbs
+   \{{bs-button type="primary" icon="glyphicon glyphicon-download" defaultText="Download" pendingText="Loading..." resolvedText="Completed!" rejectedText="Oups!?" action="download"}}
+   ```
+  
+   ```js
+   App.ApplicationController = Ember.Controller.extend({
+     actions: {
+       download: function(actionParam, evt, cb) {
+         promise = new Ember.RSVP.Promise(...);
+         cb(promise);
+       }
+     }
+   });
+   ```
+  
+   @class Button
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.TypeClass
+   @uses Mixins.SizeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentChild['default'], _emberBootstrapMixinsTypeClass['default'], _emberBootstrapMixinsSizeClass['default'], {
+    tagName: 'button',
+    classNames: ['btn'],
+    classNameBindings: ['active', 'block:btn-block'],
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'btn'
+     * @protected
+     */
+    classTypePrefix: 'btn',
+
+    attributeBindings: ['disabled', 'buttonType:type'],
+
+    /**
+     * Default label of the button. Not need if used as a block component
+     *
+     * @property defaultText
+     * @type string
+     * @public
+     */
+    defaultText: null,
+
+    /**
+     * Property to disable the button
+     *
+     * @property disabled
+     * @type boolean
+     * @default false
+     * @public
+     */
+    disabled: false,
+
+    /**
+     * Set the type of the button, either 'button' or 'submit'
+     *
+     * @property buttonType
+     * @type String
+     * @default 'button'
+     * @public
+     */
+    buttonType: 'button',
+
+    /**
+     * Set the 'active' class to apply active/pressed CSS styling
+     *
+     * @property active
+     * @type boolean
+     * @default false
+     * @public
+     */
+    active: false,
+
+    /**
+     * Property for block level buttons
+     *
+     * See the [Bootstrap docs](http://getbootstrap.com/css/#buttons-sizes)
+     * @property block
+     * @type boolean
+     * @default false
+     * @public
+     */
+    block: false,
+
+    /**
+     * If toggle property is true, clicking the button will toggle the active state
+     *
+     * @property toggle
+     * @type boolean
+     * @default false
+     * @public
+     */
+    toggle: false,
+
+    /**
+     * If button is active and this is set, the icon property will match this property
+     *
+     * @property iconActive
+     * @type String
+     * @public
+     */
+    iconActive: null,
+
+    /**
+     * If button is inactive and this is set, the icon property will match this property
+     *
+     * @property iconInactive
+     * @type String
+     * @public
+     */
+    iconInactive: null,
+
+    /**
+     * Class(es) (e.g. glyphicons or font awesome) to use as a button icon
+     * This will render a <i class="{{icon}}"></i> element in front of the button's label
+     *
+     * @property icon
+     * @type String
+     * @readonly
+     * @protected
+     */
+    icon: computed('active', function () {
+      if (this.get('active')) {
+        return this.get('iconActive');
+      } else {
+        return this.get('iconInactive');
+      }
+    }),
+
+    /**
+     * Supply a value that will be associated with this button. This will be send
+     * as a parameter of the default action triggered when clicking the button
+     *
+     * @property value
+     * @type any
+     * @public
+     */
+    value: null,
+
+    /**
+     * State of the button. The button's label (if not used as a block component) will be set to the
+     * `<state>Text` property.
+     * This property will automatically be set when using a click action that supplies the callback with an promise
+     *
+     * @property textState
+     * @type String
+     * @default 'default'
+     * @protected
+     */
+    textState: 'default',
+
+    /**
+     * Set this to true to reset the state. A typical use case is to bind this attribute with ember-data isDirty flag.
+     *
+     * @property reset
+     * @type boolean
+     * @public
+     */
+    reset: null,
+
+    /**
+     * This will reset the state property to 'default', and with that the button's label to defaultText
+     *
+     * @method resetState
+     * @protected
+     */
+    resetState: function resetState() {
+      this.set('textState', 'default');
+    },
+
+    resetObserver: observer('reset', function () {
+      if (this.get('reset')) {
+        _ember['default'].run.scheduleOnce('actions', this, function () {
+          this.set('textState', 'default');
+        });
+      }
+    }),
+
+    text: computed('textState', 'defaultText', 'pendingText', 'resolvedText', 'rejectedText', function () {
+      return this.getWithDefault(this.get('textState') + 'Text', this.get('defaultText'));
+    }),
+
+    /**
+     * Click handler. This will send the default "action" action, with the following parameters:
+     * * value of the button (that is the value of the "value" property)
+     * * original event object of the click event
+     * * callback: call that with a promise object, and the buttons state will automatically set to "pending", "resolved" and/or "rejected"
+     *
+     * @method click
+     * @protected
+     * @param evt
+     */
+    click: function click(evt) {
+      if (this.get('toggle')) {
+        this.toggleProperty('active');
+      }
+      var that = this;
+      var callback = function callback(promise) {
+        if (promise) {
+          that.set('textState', 'pending');
+          promise.then(function () {
+            if (!that.get('isDestroyed')) {
+              that.set('textState', 'resolved');
+            }
+          }, function () {
+            if (!that.get('isDestroyed')) {
+              that.set('textState', 'rejected');
+            }
+          });
+        }
+      };
+      this.sendAction('action', this.get('value'), evt, callback);
+    },
+
+    init: function init() {
+      this._super();
+      this.get('reset');
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-collapse', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   An Ember component that mimics the behaviour of Bootstrap's collapse.js plugin, see http://getbootstrap.com/javascript/#collapse
+  
+   ```hbs
+   {{#bs-collapse collapsed=collapsed}}
+    <div class="well">
+      <h2>Collapse</h2>
+      <p>This is collapsible content</p>
+    </div>
+   {{/bs-collapse}}
+   ```
+  
+   @class Collapse
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+
+    classNameBindings: ['collapse', 'in', 'collapsing'],
+    attributeBindings: ['style'],
+
+    /**
+     * Collapsed/expanded state
+     *
+     * @property collapsed
+     * @type boolean
+     * @default true
+     * @public
+     */
+    collapsed: true,
+
+    /**
+     * True if this item is expanded
+     *
+     * @property active
+     * @protected
+     */
+    active: false,
+
+    collapse: computed.not('transitioning'),
+    collapsing: computed.alias('transitioning'),
+    'in': computed.and('collapse', 'active'),
+
+    /**
+     * true if the component is currently transitioning
+     *
+     * @property transitioning
+     * @type boolean
+     * @protected
+     */
+    transitioning: false,
+
+    /**
+     * @property collapseSize
+     * @type number
+     * @protected
+     */
+    collapseSize: null,
+
+    /**
+     * The size of the element when collapsed. Defaults to 0.
+     *
+     * @property collapsedSize
+     * @type number
+     * @default 0
+     * @public
+     */
+    collapsedSize: 0,
+
+    /**
+     * The size of the element when expanded. When null the value is calculated automatically to fit the containing elements.
+     *
+     * @property expandedSize
+     * @type number
+     * @default null
+     * @public
+     */
+    expandedSize: null,
+
+    /**
+     * Usually the size (height) of the element is only set while transitioning, and reseted afterwards. Set to true to always set a size.
+     *
+     * @property resetSizeWhenNotCollapsing
+     * @type boolean
+     * @default true
+     * @private
+     */
+    resetSizeWhenNotCollapsing: true,
+
+    /**
+     * The direction (height/width) of the collapse animation.
+     * When setting this to 'width' you should also define custom CSS transitions for the width property, as the Bootstrap
+     * CSS does only support collapsible elements for the height direction.
+     *
+     * @property collapseDimension
+     * @type string
+     * @default 'height'
+     * @public
+     */
+    collapseDimension: 'height',
+
+    style: computed('collapseSize', function () {
+      var size = this.get('collapseSize');
+      var dimension = this.get('collapseDimension');
+      if (_ember['default'].isEmpty(size)) {
+        return new _ember['default'].Handlebars.SafeString('');
+      }
+      return new _ember['default'].Handlebars.SafeString(dimension + ': ' + size + 'px');
+    }),
+
+    /**
+     * Triggers the show transition
+     *
+     * @method show
+     * @protected
+     */
+    show: function show() {
+      var complete = function complete() {
+        this.set('transitioning', false);
+        if (this.get('resetSizeWhenNotCollapsing')) {
+          this.set('collapseSize', null);
+        }
+        this.sendAction('didShow');
+      };
+
+      this.sendAction('willShow');
+
+      this.setProperties({
+        transitioning: true,
+        collapseSize: this.get('collapsedSize'),
+        active: true
+      });
+
+      if (!_ember['default'].$.support.transition) {
+        return complete.call(this);
+      }
+
+      this.$().one('bsTransitionEnd', _ember['default'].run.bind(this, complete))
+      // @todo: make duration configurable
+      .emulateTransitionEnd(350);
+
+      _ember['default'].run.next(this, function () {
+        if (!this.get('isDestroyed')) {
+          this.set('collapseSize', this.getExpandedSize('show'));
+        }
+      });
+    },
+
+    /**
+     * Get the size of the element when expanded
+     *
+     * @method getExpandedSize
+     * @param $action
+     * @returns number
+     * @private
+     */
+    getExpandedSize: function getExpandedSize($action) {
+      var expandedSize = this.get('expandedSize');
+      if (_ember['default'].isPresent(expandedSize)) {
+        return expandedSize;
+      }
+
+      var collapseElement = this.$();
+      var prefix = $action === 'show' ? 'scroll' : 'offset';
+      var measureProperty = _ember['default'].String.camelize(prefix + '-' + this.get('collapseDimension'));
+      return collapseElement[0][measureProperty];
+    },
+
+    /**
+     * Triggers the hide transition
+     *
+     * @method hide
+     * @protected
+     */
+    hide: function hide() {
+
+      var complete = function complete() {
+        this.set('transitioning', false);
+        if (this.get('resetSizeWhenNotCollapsing')) {
+          this.set('collapseSize', null);
+        }
+        this.sendAction('didHide');
+      };
+
+      this.sendAction('willHide');
+
+      this.setProperties({
+        transitioning: true,
+        collapseSize: this.getExpandedSize('hide'),
+        active: false
+      });
+
+      if (!_ember['default'].$.support.transition) {
+        return complete.call(this);
+      }
+
+      this.$().one('bsTransitionEnd', _ember['default'].run.bind(this, complete))
+      // @todo: make duration configurable
+      .emulateTransitionEnd(350);
+
+      _ember['default'].run.next(this, function () {
+        if (!this.get('isDestroyed')) {
+          this.set('collapseSize', this.get('collapsedSize'));
+        }
+      });
+    },
+
+    _onCollapsedChange: observer('collapsed', function () {
+      var collapsed = this.get('collapsed');
+      var active = this.get('active');
+      if (collapsed !== active) {
+        return;
+      }
+      if (collapsed === false) {
+        this.show();
+      } else {
+        this.hide();
+      }
+    }),
+
+    _onInit: _ember['default'].on('init', function () {
+      this.set('active', !this.get('collapsed'));
+    }),
+
+    _updateCollapsedSize: observer('collapsedSize', function () {
+      if (!this.get('resetSizeWhenNotCollapsing') && this.get('collapsed') && !this.get('collapsing')) {
+        this.set('collapseSize', this.get('collapsedSize'));
+      }
+    }),
+
+    _updateExpandedSize: observer('expandedSize', function () {
+      if (!this.get('resetSizeWhenNotCollapsing') && !this.get('collapsed') && !this.get('collapsing')) {
+        this.set('collapseSize', this.get('expandedSize'));
+      }
+    })
+  });
+});
+define('ember-bootstrap/components/bs-dropdown-button', ['exports', 'ember-bootstrap/components/bs-button', 'ember-bootstrap/mixins/dropdown-toggle'], function (exports, _emberBootstrapComponentsBsButton, _emberBootstrapMixinsDropdownToggle) {
+  'use strict';
+
+  /**
+   Button component with that can act as a dropdown toggler.
+  
+   See {{#crossLink "Components.Dropdown"}}{{/crossLink}} for examples.
+  
+   @class DropdownButton
+   @namespace Components
+   @extends Components.Button
+   @uses Mixins.DropdownToggle
+   @public
+   */
+  exports['default'] = _emberBootstrapComponentsBsButton['default'].extend(_emberBootstrapMixinsDropdownToggle['default']);
+});
+define('ember-bootstrap/components/bs-dropdown-menu', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   Component for the dropdown menu.
+  
+   See {{#crossLink "Components.Dropdown"}}{{/crossLink}} for examples.
+  
+   @class DropdownMenu
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+
+    /**
+     * Defaults to a `<ul>` tag. Change for other types of dropdown menus.
+     *
+     * @property tagName
+     * @type string
+     * @default ul
+     * @public
+     */
+    tagName: 'ul',
+    classNames: ['dropdown-menu'],
+    classNameBindings: ['alignClass'],
+
+    /**
+     * @property ariaRole
+     * @default menu
+     * @type string
+     * @protected
+     */
+    ariaRole: 'menu',
+
+    /**
+     * Alignment of the menu, either "left" or "right"
+     *
+     * @property align
+     * @type string
+     * @default left
+     * @public
+     */
+    align: 'left',
+
+    alignClass: computed('align', function () {
+      if (this.get('align') !== 'left') {
+        return 'dropdown-menu-' + this.get('align');
+      }
+    })
+  });
+});
+define('ember-bootstrap/components/bs-dropdown-toggle', ['exports', 'ember', 'ember-bootstrap/mixins/dropdown-toggle'], function (exports, _ember, _emberBootstrapMixinsDropdownToggle) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   Anchor element that triggers the parent dropdown to open.
+   Use {{#crossLink "Components.DropdownButton"}}{{/crossLink}} if you want a button instead of an anchor tag.
+  
+   See {{#crossLink "Components.Dropdown"}}{{/crossLink}} for examples.
+  
+  
+   @class DropdownToggle
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.DropdownToggle
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsDropdownToggle['default'], {
+    /**
+     * Defaults to a `<a>` tag. Change for other types of dropdown toggles.
+     *
+     * @property tagName
+     * @type string
+     * @default a
+     * @public
+     */
+    tagName: 'a',
+
+    attributeBindings: ['href'],
+
+    /**
+     * Computed property to generate a `href="#"` attribute when `tagName` is "a".
+     *
+     * @property href
+     * @type string
+     * @readonly
+     * @protected
+     */
+    href: computed('tagName', function () {
+      if (this.get('tagName').toUpperCase() === 'A') {
+        return '#';
+      }
+    }),
+
+    click: function click(e) {
+      e.preventDefault();
+      this.sendAction();
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-dropdown', ['exports', 'ember', 'ember-bootstrap/components/bs-dropdown-button', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapComponentsBsDropdownButton, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  /**
+   Bootstrap style dropdown menus, consisting of a toggle element, and the dropdown menu itself.
+   See http://getbootstrap.com/components/#dropdowns
+  
+   Use this component together with two sub components, a dropdown toggle (`Components.DropdownToggle` or
+   `Components.DropdownButton` component) and a dropdown menu (`Components.DropdownMenu`) component:
+  
+   ```hbs
+   <nav class="navbar navbar-default navbar-static">
+   <div class="container-fluid">
+   <ul class="nav navbar-nav">
+   {{#bs-dropdown tagName="li"}}
+   {{#bs-dropdown-toggle}}Dropdown <span class="caret"></span>{{/bs-dropdown-toggle}}
+   {{#bs-dropdown-menu}}
+   <li>{{#link-to "index"}}Something{{/link-to}}</li>
+   <li>{{#link-to "index"}}Something different{{/link-to}}</li>
+   {{/bs-dropdown-menu}}
+   {{/bs-dropdown}}
+   </ul>
+   </div>
+   </nav>
+   ```
+  
+   ### Button dropdowns
+  
+   To use a button as the dropdown toggle element (see http://getbootstrap.com/components/#btn-dropdowns), use the
+   `Components.DropdownButton` component as the toggle:
+  
+   ```hbs
+   {{#bs-dropdown}}
+   {{#bs-dropdown-button}}Dropdown <span class="caret"></span>{{/bs-dropdown-button}}
+   {{#bs-dropdown-menu}}
+   <li>{{#link-to "index"}}Something{{/link-to}}</li>
+   <li>{{#link-to "index"}}Something different{{/link-to}}</li>
+   {{/bs-dropdown-menu}}
+   {{/bs-dropdown}}
+   ```
+  
+   It has all the functionality of a `Components.Button` with additional dropdown support.
+  
+   ### Split button dropdowns
+  
+   To have a regular button with a dropdown button as in http://getbootstrap.com/components/#btn-dropdowns-split, use a
+   `Components.Button` component and a `Components.DropdownButton`:
+  
+   ```hbs
+   {{#bs-dropdown}}
+   {{#bs-button}}Dropdown{{/bs-button}}
+   {{#bs-dropdown-button}}Dropdown <span class="caret"></span>{{/bs-dropdown-button}}
+   {{#bs-dropdown-menu}}
+   <li>{{#link-to "index"}}Something{{/link-to}}</li>
+   <li>{{#link-to "index"}}Something different{{/link-to}}</li>
+   {{/bs-dropdown-menu}}
+   {{/bs-dropdown}}
+   ```
+  
+   @class Dropdown
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsComponentParent['default'], {
+    classNameBindings: ['open', 'containerClass'],
+
+    /**
+     * This property reflects the state of the dropdown, whether it is open or closed.
+     *
+     * @property open
+     * @default false
+     * @type boolean
+     * @public
+     */
+    open: false,
+
+    /**
+     * By default clicking on an open dropdown menu will close it. Set this property to false for the menu to stay open.
+     *
+     * @property closeOnMenuClick
+     * @default true
+     * @type boolean
+     * @public
+     */
+    closeOnMenuClick: true,
+
+    /**
+     * jQuery click event name, namespaced to this component's instance to prevent interference between multiple dropdowns.
+     *
+     * @property clickEventName
+     * @type string
+     * @private
+     */
+    clickEventName: undefined,
+
+    /**
+     * A computed property to generate the suiting class for the dropdown container, either "dropdown" or "btn-group".
+     *
+     * @property containerClass
+     * @type string
+     * @readonly
+     * @protected
+     */
+    containerClass: computed('toggleType', function () {
+      return this.get('toggleType') === 'button' ? 'btn-group' : 'dropdown';
+    }),
+
+    /**
+     * This property is "button" if the toggle element is an instance of {{#crossLink "Components.DropdownButton"}}{{/crossLink}}, otherwise "toggle".
+     *
+     * @property toggleType
+     * @type string
+     * @readonly
+     * @protected
+     */
+    toggleType: computed('children.[]', function () {
+      if (this.get('children').any(function (view) {
+        return view instanceof _emberBootstrapComponentsBsDropdownButton['default'];
+      })) {
+        return 'button';
+      }
+      return 'toggle';
+    }),
+
+    actions: {
+      toggleDropdown: function toggleDropdown() {
+        this.toggleProperty('open');
+      },
+
+      openDropdown: function openDropdown() {
+        this.set('open', true);
+      },
+
+      closeDropdown: function closeDropdown() {
+        this.set('open', false);
+      }
+    },
+
+    handleClickEvents: observer('open', function () {
+      if (this.get('open')) {
+        _ember['default'].$(document).on(this.clickEventName, _ember['default'].run.bind(this, this.closeOnClickHandler));
+      } else {
+        _ember['default'].$(document).off(this.clickEventName);
+      }
+    }),
+
+    willDestroyElement: function willDestroyElement() {
+      this._super();
+      _ember['default'].$(document).off(this.clickEventName);
+    },
+
+    init: function init() {
+      this._super();
+      // click event name that is namespaced to our component instance, so multiple dropdowns do not interfere
+      // with each other
+      this.clickEventName = 'click.' + this.get('elementId');
+    },
+
+    /**
+     * Handler for click events to close the dropdown
+     *
+     * @method closeOnClickHandler
+     * @param e
+     * @protected
+     */
+    closeOnClickHandler: function closeOnClickHandler(e) {
+      var $target = _ember['default'].$(e.target);
+      if (!this.get('isDestroyed') && $target.closest(this.$().find('.dropdown-toggle')).length === 0 && ($target.closest(this.$().find('.dropdown-menu')).length === 0 || this.get('closeOnMenuClick'))) {
+        this.set('open', false);
+      }
+    }
+  });
+});
+define('ember-bootstrap/components/bs-form-element', ['exports', 'ember', 'ember-bootstrap/components/bs-form-group', 'ember-bootstrap/components/bs-form'], function (exports, _ember, _emberBootstrapComponentsBsFormGroup, _emberBootstrapComponentsBsForm) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  var nonTextFieldControlTypes = _ember['default'].A(['checkbox', 'select', 'textarea']);
+
+  /**
+   Sub class of `Components.FormGroup` that adds automatic form layout markup and form validation features.
+  
+   ### Form layout
+  
+   The appropriate Bootstrap markup for the given `formLayout` and `controlType` is automatically generated to easily
+   create forms without coding the default Bootstrap form markup by hand:
+  
+   ```hbs
+   {{#bs-form formLayout="horizontal" action="submit"}}
+     {{bs-form-element controlType="email" label="Email" placeholder="Email" value=email}}
+     {{bs-form-element controlType="password" label="Password" placeholder="Password" value=password}}
+     {{bs-form-element controlType="checkbox" label="Remember me" value=rememberMe}}
+     {{bs-button defaultText="Submit" type="primary" buttonType="submit"}}
+   {{/bs-form}}
+   ```
+  
+   ### Form validation
+  
+   In the following example the control elements of the three form elements value will be bound to the properties
+   (given by `property`) of the form's `model`, which in this case is its controller (see `model=this`):
+  
+   ```hbs
+   {{#bs-form formLayout="horizontal" model=this action="submit"}}
+     {{bs-form-element controlType="email" label="Email" placeholder="Email" property="email"}}
+     {{bs-form-element controlType="password" label="Password" placeholder="Password" property="password"}}
+     {{bs-form-element controlType="checkbox" label="Remember me" property="rememberMe"}}
+     {{bs-button defaultText="Submit" type="primary" buttonType="submit"}}
+   {{/bs-form}}
+   ```
+  
+   By using this indirection in comparison to directly binding the `value` property, you get the benefit of automatic
+   form validation, given that your `model` is implementing [ember-validations](https://github.com/dockyard/ember-validations).
+  
+   In the example above the `model` was our controller itself, so the control elements were bound to the appropriate
+   properties of our controller. A controller implementing validations on those properties could look like this:
+  
+   ```js
+   import Ember from 'ember';
+   import EmberValidations from 'ember-validations';
+  
+   export default Ember.Controller.extend(EmberValidations,{
+     email: null,
+     password: null,
+     rememberMe: false,
+     validations: {
+       email: {
+         presence: true,
+         format: {
+           with: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/
+         }
+       },
+       password: {
+         presence: true,
+         length: { minimum: 6, maximum: 10}
+       },
+       comments: {
+         length: { minimum: 5, maximum: 20}
+       }
+     }
+   });
+   ```
+  
+   If the `showValidation` property is `true` (which is automatically the case if a `focusOut` event is captured from the
+   control element or the containing `Components.Form` was submitted with its `model` failing validation) and there are
+   validation errors for the `model`'s `property`, the appropriate Bootstrap validation markup (see
+   http://getbootstrap.com/css/#forms-control-validation) is applied:
+  
+   * `validation` is set to 'error', which will set the `has-error` CSS class
+   * the `errorIcon` feedback icon is displayed if `controlType` is a text field
+   * the validation messages are displayed as Bootstrap `help-block`s
+  
+   As soon as the validation is successful again...
+  
+   * `validation` is set to 'success', which will set the `has-success` CSS class
+   * the `successIcon` feedback icon is displayed if `controlType` is a text field
+   * the validation messages are removed
+  
+   ### Custom controls
+  
+   Apart from the standard built-in browser controls (see the `controlType` property), you can use any custom control simply
+   by invoking the component with a block template. Use whatever control you might want, for example a select-2 component
+   (from the [ember-select-2 addon](https://istefo.github.io/ember-select-2)):
+  
+   ```hbs
+   {{#bs-form formLayout="horizontal" model=this action="submit"}}
+     {{#bs-form-element label="Select-2" property="gender" as |value id|}}
+       {{select-2 id=id content=genderChoices optionLabelPath="label" value=value searchEnabled=false}}
+     {{/bs-form-element}}
+   {{/bs-form}}
+   ```
+  
+   @class FormElement
+   @namespace Components
+   @extends Components.FormGroup
+   @public
+   */
+  exports['default'] = _emberBootstrapComponentsBsFormGroup['default'].extend({
+    /**
+     * Text to display within a `<label>` tag.
+     *
+     * @property label
+     * @type string
+     * @public
+     */
+    label: null,
+
+    /**
+     * The type of the control widget.
+     * Supported types:
+     *
+     * * 'text'
+     * * 'checkbox'
+     * * 'select'
+     * * 'textarea'
+     * * any other type will use an input tag with the `controlType` value as the type attribute (for e.g. HTML5 input
+     * types like 'email'), and the same layout as the 'text' type
+     *
+     * @property controlType
+     * @type string
+     * @public
+     */
+    controlType: 'text',
+
+    /**
+     * The value of the control element is bound to this property. You can bind it to some controller property to
+     * get/set the control element's value:
+     *
+     * ```hbs
+     * {{bs-form-element controlType="email" label="Email" placeholder="Email" value=email}}
+     * ```
+     *
+     * Note: you loose the ability to validate this form element by directly binding to its value. It is recommended
+     * to use the `property` feature instead.
+     *
+     *
+     * @property value
+     * @public
+     */
+    value: null,
+
+    /**
+     The property name of the form element's `model` (by default the `model` of its parent `Components.Form`) that this
+     form element should represent. The control element's value will automatically be bound to the model property's
+     value.
+      Using this property enables form validation on this element.
+      @property property
+     @type string
+     @public
+     */
+    property: null,
+
+    /**
+     * Control element's HTML5 placeholder attribute
+     *
+     * @property placeholder
+     * @type string
+     * @public
+     */
+    placeholder: null,
+
+    /**
+     * Control element's HTML5 autofocus attribute
+     *
+     * @property autofocus
+     * @type boolean
+     * @public
+     */
+    autofocus: false,
+
+    /**
+     * Control element's name attribute
+     *
+     * @property name
+     * @type string
+     * @public
+     */
+    name: null,
+
+    /**
+     * An array of objects containing the selection of choices for multiple choice style form controls, e.g. select
+     * boxes.
+     *
+     * ```hbs
+     * {{bs-form-element controlType="select" choices=countries choiceLabelProperty="name" choiceValueProperty="id" label="Country" value=selectedCountry}}
+     * ```
+     *
+     * Be sure to also set the `choiceValueProperty` and `choiceLabelProperty` properties.
+     *
+     * @property choices
+     * @type array
+     * @public
+     */
+    choices: _ember['default'].A(),
+
+    /**
+     * The property of the `choices` array of objects, containing the value of the choice, e.g. the select box option.
+     *
+     * @property choiceValueProperty
+     * @type string
+     * @public
+     */
+    choiceValueProperty: null,
+
+    /**
+     * The property of the `choices` array of objects, containing the label of the choice, e.g. the select box option.
+     *
+     * @property choiceLabelProperty
+     * @type string
+     * @public
+     */
+    choiceLabelProperty: null,
+
+    /**
+     * Textarea's rows attribute (ignored for other `controlType`s)
+     *
+     * @property rows
+     * @type number
+     * @default 5
+     * @public
+     */
+    rows: 5,
+
+    /**
+     * Textarea's cols attribute (ignored for other `controlType`s)
+     *
+     * @property cols
+     * @type number
+     * @public
+     */
+    cols: null,
+
+    /**
+     * The model used for validation. Defaults to the parent `Components.Form`'s `model`
+     *
+     * @property model
+     * @public
+     */
+    model: computed.alias('form.model'),
+
+    /**
+     * The array of error messages from the `model`'s validation.
+     *
+     * @property errors
+     * @type array
+     * @protected
+     */
+    errors: null,
+
+    /**
+     * @property hasErrors
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasErrors: computed.gt('errors.length', 0),
+
+    /**
+     * @property hasValidator
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasValidator: computed.notEmpty('model.validate'),
+
+    /**
+     * If `true` form validation markup is rendered (requires a validatable `model`).
+     *
+     * @property showValidation
+     * @type boolean
+     * @default false
+     * @public
+     */
+    showValidation: false,
+
+    /**
+     * @property showErrors
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    showErrors: computed.and('showValidation', 'hasErrors'),
+
+    /**
+     * The validation ("error" or "success") or null if no validation is to be shown. Automatically computed from the
+     * models validation state.
+     *
+     * @property validation
+     * @readonly
+     * @type string
+     * @protected
+     */
+    validation: computed('hasErrors', 'hasValidator', 'showValidation', function () {
+      if (!this.get('showValidation') || !this.get('hasValidator')) {
+        return null;
+      }
+      return this.get('hasErrors') ? 'error' : 'success';
+    }),
+
+    /**
+     * @property hasLabel
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasLabel: computed.notEmpty('label'),
+
+    /**
+     * True for text field `controlType`s
+     *
+     * @property useIcons
+     * @type boolean
+     * @readonly
+     * @public
+     */
+    useIcons: computed('controlType', function () {
+      return !nonTextFieldControlTypes.contains(this.get('controlType'));
+    }),
+
+    /**
+     * The form layout used for the markup generation (see http://getbootstrap.com/css/#forms):
+     *
+     * * 'horizontal'
+     * * 'vertical'
+     * * 'inline'
+     *
+     * Defaults to the parent `form`'s `formLayout` property.
+     *
+     * @property formLayout
+     * @type string
+     * @public
+     */
+    formLayout: computed.alias('form.formLayout'),
+
+    /**
+     * @property isVertical
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    isVertical: computed.equal('formLayout', 'vertical'),
+
+    /**
+     * @property isHorizontal
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    isHorizontal: computed.equal('formLayout', 'horizontal'),
+
+    /**
+     * @property isInline
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    isInline: computed.equal('formLayout', 'inline'),
+
+    /**
+     * The Bootstrap grid class for form labels within a horizontal layout form. Defaults to the value of the same
+     * property of the parent form. The corresponding grid class for form controls is automatically computed.
+     *
+     * @property horizontalLabelGridClass
+     * @type string
+     * @default 'col-md-4'
+     * @public
+     */
+    horizontalLabelGridClass: computed.oneWay('form.horizontalLabelGridClass'),
+
+    /**
+     * Computed property that specifies the Bootstrap grid class for form controls within a horizontal layout form.
+     *
+     * @property horizontalInputGridClass
+     * @type string
+     * @readonly
+     * @protected
+     */
+    horizontalInputGridClass: computed('horizontalLabelGridClass', function () {
+      var parts = this.get('horizontalLabelGridClass').split('-');
+      _ember['default'].assert('horizontalInputGridClass must match format bootstrap grid column class', parts.length === 3);
+      parts[2] = 12 - parts[2];
+      return parts.join('-');
+    }),
+
+    /**
+     * Computed property that specifies the Bootstrap offset grid class for form controls within a horizontal layout
+     * form, that have no label.
+     *
+     * @property horizontalInputOffsetGridClass
+     * @type string
+     * @readonly
+     * @protected
+     */
+    horizontalInputOffsetGridClass: computed('horizontalLabelGridClass', function () {
+      var parts = this.get('horizontalLabelGridClass').split('-');
+      parts.splice(2, 0, 'offset');
+      return parts.join('-');
+    }),
+
+    /**
+     * ID for input field and the corresponding label's "for" attribute
+     *
+     * @property formElementId
+     * @type string
+     * @private
+     */
+    formElementId: computed('elementId', function () {
+      var elementId = this.get('elementId');
+      return elementId + '-field';
+    }),
+
+    /**
+     * Reference to the parent `Components.Form` class.
+     *
+     * @property form
+     * @protected
+     */
+    form: computed(function () {
+      return this.nearestOfType(_emberBootstrapComponentsBsForm['default']);
+    }),
+
+    formElementTemplate: computed('formLayout', 'controlType', function () {
+      var formLayout = this.getWithDefault('formLayout', 'vertical');
+      var inputLayout = undefined;
+      var controlType = this.get('controlType');
+
+      switch (true) {
+        case nonTextFieldControlTypes.contains(controlType):
+          inputLayout = controlType;
+          break;
+        default:
+          inputLayout = 'default';
+      }
+
+      return 'components/form-element/' + formLayout + '/' + inputLayout;
+    }),
+
+    /**
+     * Listen for focusOut events from the control element to automatically set `showValidation` to true to enable
+     * form validation markup rendering.
+     *
+     * @event focusOut
+     * @private
+     */
+    focusOut: function focusOut() {
+      this.set('showValidation', true);
+    },
+
+    init: function init() {
+      this._super();
+      if (!_ember['default'].isBlank(this.get('property'))) {
+        _ember['default'].Binding.from('model.' + this.get('property')).to('value').connect(this);
+        _ember['default'].Binding.from('model.errors.' + this.get('property')).to('errors').connect(this);
+      }
+    }
+  });
+});
+define('ember-bootstrap/components/bs-form-group', ['exports', 'ember', 'ember-bootstrap/config'], function (exports, _ember, _emberBootstrapConfig) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   This component renders a `<div class="form-group">` element, with support for validation states and feedback icons.
+   Use as a block level component:
+  
+   ```hbs
+   {{#bs-form-group validation=firstNameValidation}}
+   <label class="control-label">First name</label>
+   {{bs-input type="text" value=firstname}}
+   {{/bs-form-group}}
+   ```
+  
+   If the `validation` property is set to some state (usually Bootstrap's predefined states "success",
+   "warning" or "error"), the appropriate styles will be added, together with a feedback icon.
+   See http://getbootstrap.com/css/#forms-control-validation
+  
+   @class FormGroup
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+
+    classNames: ['form-group'],
+    classNameBindings: ['validationClass', 'hasFeedback'],
+
+    /**
+     * Whether to show validation state icons.
+     * See http://getbootstrap.com/css/#forms-control-validation
+     *
+     * @property useIcons
+     * @type boolean
+     * @default true
+     * @public
+     */
+    useIcons: true,
+
+    /**
+     * Computed property which is true if the form group is in a validation state
+     *
+     * @property hasValidation
+     * @type boolean
+     * @public
+     * @readonly
+     */
+    hasValidation: computed.notEmpty('validation'),
+
+    /**
+     * Computed property which is true if the form group is showing a validation icon
+     *
+     * @property hasFeedback
+     * @type boolean
+     * @public
+     * @readonly
+     */
+    hasFeedback: computed.and('hasValidation', 'useIcons', 'hasIconForValidationState'),
+
+    /**
+     * The icon classes to be used for a feedback icon in a "success" validation state.
+     * Defaults to the usual glyphicon classes. This is ignored, and no feedback icon is
+     * rendered if `useIcons` is false.
+     *
+     * You can change this globally by setting the `formValidationSuccessIcon` property of
+     * the ember-bootstrap configuration in your config/environment.js file. If your are
+     * using FontAwesome for example:
+     *
+     * ```js
+     * ENV['ember-bootstrap'] = {
+       *   formValidationSuccessIcon: 'fa fa-check'
+       * }
+     * ```
+     *
+     * @property successIcon
+     * @type string
+     * @default 'glyphicon glyphicon-ok'
+     * @public
+     */
+    successIcon: _emberBootstrapConfig['default'].formValidationSuccessIcon,
+
+    /**
+     * The icon classes to be used for a feedback icon in a "error" validation state.
+     * Defaults to the usual glyphicon classes. This is ignored, and no feedback icon is
+     * rendered if `useIcons` is false.
+     *
+     * You can change this globally by setting the `formValidationErrorIcon` property of
+     * the ember-bootstrap configuration in your config/environment.js file. If your are
+     * using FontAwesome for example:
+     *
+     * ```js
+     * ENV['ember-bootstrap'] = {
+       *   formValidationErrorIcon: 'fa fa-times'
+       * }
+     * ```
+     *
+     * @property errorIcon
+     * @type string
+     * @public
+     */
+    errorIcon: _emberBootstrapConfig['default'].formValidationErrorIcon,
+
+    /**
+     * The icon classes to be used for a feedback icon in a "warning" validation state.
+     * Defaults to the usual glyphicon classes. This is ignored, and no feedback icon is
+     * rendered if `useIcons` is false.
+     *
+     * You can change this globally by setting the `formValidationWarningIcon` property of
+     * the ember-bootstrap configuration in your config/environment.js file. If your are
+     * using FontAwesome for example:
+     *
+     * ```js
+     * ENV['ember-bootstrap'] = {
+       *   formValidationWarningIcon: 'fa fa-warning'
+       * }
+     * ```
+     *
+     * @property warningIcon
+     * @type string
+     * @public
+     */
+    warningIcon: _emberBootstrapConfig['default'].formValidationWarningIcon,
+
+    /**
+     * The icon classes to be used for a feedback icon in a "info" validation state.
+     * Defaults to the usual glyphicon classes. This is ignored, and no feedback icon is
+     * rendered if `useIcons` is false.
+     *
+     * You can change this globally by setting the `formValidationInfoIcon` property of
+     * the ember-bootstrap configuration in your config/environment.js file. If your are
+     * using FontAwesome for example:
+     *
+     * ```js
+     * ENV['ember-bootstrap'] = {
+       *   formValidationInfoIcon: 'fa fa-info-circle
+       * }
+     * ```
+     *
+     * The "info" validation state is not supported in Bootstrap CSS, but can be easily added
+     * using the following LESS style:
+     * ```less
+     * .has-info {
+       *   .form-control-validation(@state-info-text; @state-info-text; @state-info-bg);
+       * }
+     * ```
+     *
+     * @property infoIcon
+     * @type string
+     * @public
+     */
+    infoIcon: _emberBootstrapConfig['default'].formValidationInfoIcon,
+
+    iconName: computed('validation', function () {
+      var validation = this.get('validation') || 'success';
+      return this.get(validation + 'Icon');
+    }),
+
+    hasIconForValidationState: computed.notEmpty('iconName'),
+
+    /**
+     * Set to a validation state to render the form-group with a validation style.
+     * See http://getbootstrap.com/css/#forms-control-validation
+     *
+     * The default states of "success", "warning" and "error" are supported by Bootstrap out-of-the-box.
+     * But you can use custom states as well. This will set a has-<state> class, and (if `useIcons`is true)
+     * a feedback whose class is taken from the <state>Icon property
+     *
+     * @property validation
+     * @type string
+     * @public
+     */
+    validation: null,
+
+    validationClass: computed('validation', function () {
+      var validation = this.get('validation');
+      if (!_ember['default'].isBlank(validation)) {
+        return 'has-' + this.get('validation');
+      }
+    })
+  });
+});
+define('ember-bootstrap/components/bs-form', ['exports', 'ember', 'ember-bootstrap/components/bs-form-element'], function (exports, _ember, _emberBootstrapComponentsBsFormElement) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+   Render a form with the appropriate Bootstrap layout class (see `formLayout`).
+   Allows setting a `model` that nested `Components.FormElement`s can access, and that can provide form validation through
+   [ember-validations](https://github.com/dockyard/ember-validations)
+  
+   You can use whatever markup you like within the form:
+  
+   ```hbs
+   {{#bs-form action="submit"}}
+   {{#bs-form-group validation=firstNameValidation}}
+   <label class="control-label">First name</label>
+   {{bs-input type="text" value=firstname}}
+   {{/bs-form-group}}
+   {{/bs-form}}
+   ```
+  
+   However to benefit from features such as automatic form markup, validations and validation markup, use `Components.FormElement`
+   as nested components. See below for an example.
+  
+   ### Submitting the form
+  
+   When the form is submitted (e.g. by clicking a submit button), the event will be intercepted and the default action
+   will be sent to the controller.
+   When an [ember-validations](https://github.com/dockyard/ember-validations) validated model is supplied, validations
+   rules are evaluated before, and if those fail, the "invalid" action is sent instead of the default "action".
+  
+   ### Use with Components.FormElement
+  
+   When using `Components.FormElement`s with their `property` set to property names of the form's validation enabled
+   `model`, you gain some additional powerful features:
+   * the appropriate Bootstrap markup for the given `formLayout` and the form element's `controlType` is automatically generated
+   * markup for validation states and error messages is generated based on the model's validation, when submitting the form
+   with an invalid validation, or when focusing out of invalid inputs
+  
+   ```hbs
+   {{#bs-form formLayout="horizontal" model=this action="submit"}}
+   {{bs-form-element controlType="email" label="Email" placeholder="Email" property="email"}}
+   {{bs-form-element controlType="password" label="Password" placeholder="Password" property="password"}}
+   {{bs-form-element controlType="checkbox" label="Remember me" property="rememberMe"}}
+   {{bs-button defaultText="Submit" type="primary" buttonType="submit"}}
+   {{/bs-form}}
+   ```
+  
+   See the `Components.FormElement` API docs for further information.
+  
+   @class Form
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    tagName: 'form',
+    classNameBindings: ['layoutClass'],
+    ariaRole: 'form',
+
+    /**
+     * Bootstrap form class name (computed)
+     *
+     * @property layoutClass
+     * @type string
+     * @readonly
+     * @protected
+     *
+     */
+    layoutClass: computed('formLayout', function () {
+      var layout = this.get('formLayout');
+      return layout === 'vertical' ? 'form' : 'form-' + layout;
+    }),
+
+    /**
+     * Set a model that this form should represent. This serves several purposes:
+     *
+     * * child `Components.FormElement`s can access and bind to this model by their `property`
+     * * when the model supports validation by using the [ember-validations](https://github.com/dockyard/ember-validations) mixin,
+     * child `Components.FormElement`s will look at the validation information of their `property` and render their form group accordingly.
+     * Moreover the form's `submit` event handler will validate the model and deny submitting if the model is not validated successfully.
+     *
+     * @property model
+     * @type Ember.Object
+     * @public
+     */
+    model: null,
+
+    /**
+     * Set the layout of the form to either "vertical", "horizontal" or "inline". See http://getbootstrap.com/css/#forms-inline and http://getbootstrap.com/css/#forms-horizontal
+     *
+     * @property formLayout
+     * @type string
+     * @public
+     */
+    formLayout: 'vertical',
+
+    /**
+     * Check if the `model` has a validate method, i.e. supports validation by using [ember-validations](https://github.com/dockyard/ember-validations)
+     *
+     * @property hasValidator
+     * @type boolean
+     * @readonly
+     * @protected
+     */
+    hasValidator: computed.notEmpty('model.validate'),
+
+    /**
+     * The Bootstrap grid class for form labels. This is used by the `Components.FormElement` class as a default for the
+     * whole form.
+     *
+     * @property horizontalLabelGridClass
+     * @type string
+     * @default 'col-md-4'
+     * @public
+     */
+    horizontalLabelGridClass: 'col-md-4',
+
+    /**
+     * If set to true pressing enter will submit the form, even if no submit button is present
+     *
+     * @property submitOnEnter
+     * @type boolean
+     * @default false
+     * @public
+     */
+    submitOnEnter: false,
+
+    /**
+     * An array of `Components.FormElement`s that are children of this form.
+     *
+     * @property childFormElements
+     * @type Array
+     * @readonly
+     * @protected
+     */
+    childFormElements: computed.filter('childViews', function (view) {
+      return view instanceof _emberBootstrapComponentsBsFormElement['default'];
+    }),
+
+    /**
+     * Submit handler that will send the default action ("action") to the controller when submitting the form.
+     *
+     * If there is a supplied `model` that supports validation (`hasValidator`) the model will be validated before, and
+     * only if validation is successful the default action will be sent. Otherwise an "invalid" action will be sent, and
+     * all the `showValidation` property of all child `Components.FormElement`s will be set to true, so error state and
+     * messages will be shown automatically.
+     *
+     * @event submit
+     * @private
+     */
+    submit: function submit(e) {
+      var _this = this;
+
+      if (e) {
+        e.preventDefault();
+      }
+      if (!this.get('hasValidator')) {
+        return this.sendAction();
+      } else {
+        return this.get('model').validate().then(function () {
+          if (_this.get('model.isValid')) {
+            return _this.sendAction();
+          }
+        })['catch'](function () {
+          _this.get('childFormElements').setEach('showValidation', true);
+          return _this.sendAction('invalid');
+        });
+      }
+    },
+
+    keyPress: function keyPress(e) {
+      var code = e.keyCode || e.which;
+      if (code === 13 && this.get('submitOnEnter')) {
+        this.$().submit();
+      }
+    }
+  });
+});
+define('ember-bootstrap/components/bs-input', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Extends Ember.TextField to add Bootstrap's 'form-control' class.
+  
+   @class Input
+   @namespace Components
+   @extends Ember.TextField
+   @public
+   */
+  exports['default'] = _ember['default'].TextField.extend({
+    classNames: ['form-control']
+  });
+});
+define('ember-bootstrap/components/bs-modal-body', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+  
+   Modal body element used within {{#crossLink "Components.Modal"}}{{/crossLink}} components. See there for examples.
+  
+   @class ModalBody
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['modal-body']
+  });
+});
+define('ember-bootstrap/components/bs-modal-dialog', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+    Internal component for modal's markup and event handling. Should not be used directly.
+  
+    @class ModalDialog
+    @namespace Components
+    @extends Ember.Component
+    @private
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['modal'],
+    classNameBindings: ['fade', 'in'],
+    attributeBindings: ['tabindex'],
+    ariaRole: 'dialog',
+    tabindex: '-1',
+
+    /**
+     * The title of the modal, visible in the modal header. Is ignored if `header` is false.
+     *
+     * @property title
+     * @type string
+     * @public
+     */
+    title: null,
+
+    /**
+     * Display a close button (x icon) in the corner of the modal header.
+     *
+     * @property closeButton
+     * @type boolean
+     * @default true
+     * @public
+     */
+    closeButton: true,
+
+    /**
+     * Set to false to disable fade animations.
+     *
+     * @property fade
+     * @type boolean
+     * @default true
+     * @public
+     */
+    fade: true,
+
+    /**
+     * Used to apply Bootstrap's "in" class
+     *
+     * @property in
+     * @type boolean
+     * @default false
+     * @private
+     */
+    'in': false,
+
+    /**
+     * Closes the modal when escape key is pressed.
+     *
+     * @property keyboard
+     * @type boolean
+     * @default true
+     * @public
+     */
+    keyboard: true,
+
+    /**
+     * Generate a modal header component automatically. Set to false to disable. In this case you would want to include an
+     * instance of {{#crossLink "Components.ModalHeader"}}{{/crossLink}} in the components block template
+     *
+     * @property header
+     * @type boolean
+     * @default true
+     * @public
+     */
+    header: true,
+
+    /**
+     * Generate a modal body component automatically. Set to false to disable. In this case you would want to include an
+     * instance of {{#crossLink "Components.ModalBody"}}{{/crossLink}} in the components block template.
+     *
+     * Always set this to false if `header` and/or `footer` is false!
+     *
+     * @property body
+     * @type boolean
+     * @default true
+     * @public
+     */
+    body: true,
+
+    /**
+     * Generate a modal footer component automatically. Set to false to disable. In this case you would want to include an
+     * instance of {{#crossLink "Components.ModalFooter"}}{{/crossLink}} in the components block template
+     *
+     * @property footer
+     * @type boolean
+     * @default true
+     * @public
+     */
+    footer: true,
+
+    /**
+     * Property for size styling, set to null (default), 'lg' or 'sm'
+     *
+     * Also see the [Bootstrap docs](http://getbootstrap.com/javascript/#modals-sizes)
+     *
+     * @property size
+     * @type String
+     * @public
+     */
+    size: null,
+
+    /**
+     * If true clicking on the backdrop will close the modal.
+     *
+     * @property backdropClose
+     * @type boolean
+     * @default true
+     * @public
+     */
+    backdropClose: true,
+
+    /**
+     * Name of the size class
+     *
+     * @property sizeClass
+     * @type string
+     * @private
+     */
+    sizeClass: computed('size', function () {
+      var size = this.get('size');
+      return _ember['default'].isBlank(size) ? null : 'modal-' + size;
+    }),
+
+    keyDown: function keyDown(e) {
+      var code = e.keyCode || e.which;
+      if (code === 27 && this.get('keyboard')) {
+        this.sendAction('close');
+      }
+    },
+
+    click: function click(e) {
+      if (e.target !== e.currentTarget || !this.get('backdropClose')) {
+        return;
+      }
+      this.sendAction('close');
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-modal-footer', ['exports', 'ember', 'ember-bootstrap/mixins/modal-closer'], function (exports, _ember, _emberBootstrapMixinsModalCloser) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+  
+   Modal footer element used within {{#crossLink "Components.Modal"}}{{/crossLink}} components. See there for examples.
+  
+   @class ModalFooter
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsModalCloser['default'], {
+    tagName: 'form',
+    classNames: ['modal-footer'],
+
+    /**
+     * The title of the default close button. Will be ignored (i.e. no close button) if you provide your own block
+     * template.
+     *
+     * @property closeTitle
+     * @type string
+     * @default 'Ok'
+     * @public
+     */
+    closeTitle: 'Ok',
+
+    /**
+     * The title of the submit button (primary button). Will be ignored (i.e. no button) if set to null or if you provide
+     * your own block template.
+     *
+     * @property submitTitle
+     * @type string
+     * @default null
+     * @public
+     */
+    submitTitle: null,
+
+    hasSubmitButton: computed.notEmpty('submitTitle'),
+
+    /**
+     * Set to true to disable the submit button. If you bind this to some property that indicates if submitting is allowed
+     * (form validation for example) this can be used to prevent the user from pressing the submit button.
+     *
+     * @property submitDisabled
+     * @type boolean
+     * @default false
+     * @public
+     */
+    submitDisabled: false,
+
+    /**
+     * The action to send to the parent modal component when the modal footer's form is submitted
+     *
+     * @property submitAction
+     * @type string
+     * @default 'submit'
+     * @private
+     */
+    submitAction: 'submit',
+
+    submit: function submit(e) {
+      e.preventDefault();
+      // send to parent bs-modal component
+      this.sendAction('submitAction');
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-modal-header', ['exports', 'ember', 'ember-bootstrap/mixins/modal-closer'], function (exports, _ember, _emberBootstrapMixinsModalCloser) {
+  'use strict';
+
+  /**
+  
+   Modal header element used within {{#crossLink "Components.Modal"}}{{/crossLink}} components. See there for examples.
+  
+   @class ModalHeader
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsModalCloser['default'], {
+    classNames: ['modal-header'],
+
+    /**
+     * Show a close button (x icon)
+     *
+     * @property closeButton
+     * @type boolean
+     * @default true
+     * @public
+     */
+    closeButton: true,
+
+    /**
+     * The title to display in the modal header
+     *
+     * @property title
+     * @type string
+     * @default null
+     * @public
+     */
+    title: null
+
+  });
+});
+define('ember-bootstrap/components/bs-modal', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+
+  var Modal = {};
+
+  Modal.TRANSITION_DURATION = 300;
+  Modal.BACKDROP_TRANSITION_DURATION = 150;
+
+  var observeOpen = function observeOpen() {
+    if (this.get('open')) {
+      this.show();
+    } else {
+      this.hide();
+    }
+  };
+
+  /**
+  
+   Component for creating [Bootstrap modals](http://getbootstrap.com/javascript/#modals). Creating a simple modal is easy:
+  
+   ```hbs
+   {{#bs-modal title="Simple Dialog"}}
+   Hello world!
+   {{/bs-modal}}
+   ```
+  
+   This will automatically create the appropriate markup, with a modal header containing the title, and a footer containing
+   a default "Ok" button, that will close the modal automatically (unless you set `autoClose` to false).
+  
+   A modal created this way will be visible at once. You can use the `{{#if ...}}` helper to hide all modal elements form
+   the DOM until needed. Or you can bind the `open` property to trigger showing and hiding the modal:
+  
+   ```hbs
+   {{#bs-modal open=openModal title="Simple Dialog"}}
+   Hello world!
+   {{/bs-modal}}
+   ```
+  
+   ### Custom Markup
+  
+   To customize your modal markup you can use the following sub components:
+  
+   {{#crossLink "Components.ModalBody"}}{{/crossLink}}
+   {{#crossLink "Components.ModalHeader"}}{{/crossLink}}
+   {{#crossLink "Components.ModalFooter"}}{{/crossLink}}
+  
+   In the example above, these are generated for you automatically. Whenever you use one of these by yourself you should
+   set the appropriate property (`body`, `footer`, `header`) to false to prevent their automatic generation. Note that
+   in any case where you use a custom sub component, you must also use a custom {{#crossLink "Components.ModalBody"}}{{/crossLink}}!
+  
+   A common use case is to customize the buttons in the footer. Most often you will have a cancel button that closes the
+   model without action, and a submit button that triggers some action. The footer component supports this case by letting
+   you customize the button titles, the rest (triggering close or submit actions) automatically set up:
+  
+   ```hbs
+   {{#bs-modal body=false footer=false title="Attention" submitAction=(action "submit")}}
+   {{#bs-modal-body}}Are you sure?{{/bs-modal-body}}
+   {{bs-modal-footer closeTitle="Cancel" submitTitle="Ok"}}
+   {{/bs-modal}}
+   ```
+  
+   If you further want to customize your modal elements, you can supply custom templates for your footer and header, as in
+   the following example:
+  
+   ```hbs
+   {{#bs-modal body=false footer=false header=false submitAction=(action "submit")}}
+   {{#bs-modal-header}}
+   <h4 class="modal-title"><i class="glyphicon glyphicon-alert"></i> Alert</h4>
+   {{/bs-modal-header}}
+   {{#bs-modal-body}}Are you absolutely sure you want to do that???{{/bs-modal-body}}
+   {{#bs-modal-footer as |footer|}}
+   {{#bs-button action=(action "close" target=footer) type="danger"}}Oh no, forget it!{{/bs-button}}
+   {{#bs-button buttonType="submit" type="success"}}Yeah!{{/bs-button}}
+   {{/bs-modal-footer}}
+   {{/bs-modal}}
+   ```
+  
+   Note the use of the action helper of the close button that triggers the close action on the modal footer component
+   instead of on the controller, which will bubble up to the modal component and close the modal.
+  
+   ### Modals with forms
+  
+   There is a special case when you have a form inside your modals body: you probably do not want to have a submit button
+   within your form but instead in your modal footer. Hover pressing the submit button outside of your form would not
+   trigger the form data to be submitted. In the example below this would not trigger the submit action of the form, an
+   thus bypass the form validation feature of the form component.
+  
+   ```hbs
+   {{#bs-modal title="Form Example" body=false footer=false}}
+   {{#bs-modal-body}}
+   {{#bs-form action=(action "submit") model=this}}
+   {{bs-form-element controlType="text" label="first name" property="firstname"}}
+   {{bs-form-element controlType="text" label="last name" property="lastname"}}
+   {{/bs-form}}
+   {{/bs-modal-body}}
+   {{bs-modal-footer closeTitle=(t "contact.label.cancel") submitTitle=(t "contact.label.ok")}}
+   {{/bs-modal}}
+   ```
+  
+   The modal component supports this common case by triggering the submit event programmatically on the body's form if
+   present whenever the footer's submit button is pressed, so the example above will work as expected.
+  
+   ### Auto-focus
+  
+   In order to allow key handling to function, the modal's root element is given focus once the modal is shown. If your
+   modal contains an element such as a text input and you would like it to be given focus rather than the modal element,
+   then give it the HTML5 autofocus attribute:
+  
+   ```hbs
+   {{#bs-modal title="Form Example" body=false footer=false}}
+   {{#bs-modal-body}}
+   {{#bs-form action=(action "submit") model=this}}
+   {{bs-form-element controlType="text" label="first name" property="firstname" autofocus=true}}
+   {{bs-form-element controlType="text" label="last name" property="lastname"}}
+   {{/bs-form}}
+   {{/bs-modal-body}}
+   {{bs-modal-footer closeTitle=(t "contact.label.cancel") submitTitle=(t "contact.label.ok")}}
+   {{/bs-modal}}
+   ```
+  
+  
+   ### Modals inside wormhole
+  
+   Modals make use of the [ember-wormhole](https://github.com/yapplabs/ember-wormhole) addon, which will be installed
+   automatically alongside ember-bootstrap. This is used to allow the modal to be placed in deeply nested
+   components/templates where it belongs to logically, but to have the actual DOM elements within a special container
+   element, which is a child of ember's root element. This will make sure that modals always overlay the whole app, and
+   are not effected by parent elements with `overflow: hidden` for example.
+  
+   If you want the modal to render in place, rather than being wormholed, you can set renderInPlace=true.
+  
+   @class Modal
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+
+    /**
+     * Visibility of the modal. Toggle to to show/hide with CSS transitions.
+     *
+     * @property open
+     * @type boolean
+     * @default true
+     * @public
+     */
+    open: true,
+
+    /**
+     * The title of the modal, visible in the modal header. Is ignored if `header` is false.
+     *
+     * @property title
+     * @type string
+     * @public
+     */
+    title: null,
+
+    /**
+     * Display a close button (x icon) in the corner of the modal header.
+     *
+     * @property closeButton
+     * @type boolean
+     * @default true
+     * @public
+     */
+    closeButton: true,
+
+    /**
+     * Set to false to disable fade animations.
+     *
+     * @property fade
+     * @type boolean
+     * @default true
+     * @public
+     */
+    fade: true,
+
+    /**
+     * Used to apply Bootstrap's "in" class
+     *
+     * @property in
+     * @type boolean
+     * @default false
+     * @private
+     */
+    'in': false,
+
+    /**
+     * Use a semi-transparent modal background to hide the rest of the page.
+     *
+     * @property backdrop
+     * @type boolean
+     * @default true
+     * @public
+     */
+    backdrop: true,
+
+    /**
+     * @property showBackdrop
+     * @type boolean
+     * @default false
+     * @private
+     */
+    showBackdrop: false,
+
+    /**
+     * Closes the modal when escape key is pressed.
+     *
+     * @property keyboard
+     * @type boolean
+     * @default true
+     * @public
+     */
+    keyboard: true,
+
+    /**
+     * If true clicking a close button will hide the modal automatically.
+     * If you want to handle hiding the modal by yourself, you can set this to false and use the closeAction to
+     * implement your custom logic.
+     *
+     * @property autoClose
+     * @type boolean
+     * @default true
+     * @public
+     */
+    autoClose: true,
+
+    /**
+     * Generate a modal header component automatically. Set to false to disable. In this case you would want to include an
+     * instance of {{#crossLink "Components.ModalHeader"}}{{/crossLink}} in the components block template
+     *
+     * @property header
+     * @type boolean
+     * @default true
+     * @public
+     */
+    header: true,
+
+    /**
+     * Generate a modal body component automatically. Set to false to disable. In this case you would want to include an
+     * instance of {{#crossLink "Components.ModalBody"}}{{/crossLink}} in the components block template.
+     *
+     * Always set this to false if `header` and/or `footer` is false!
+     *
+     * @property body
+     * @type boolean
+     * @default true
+     * @public
+     */
+    body: true,
+
+    /**
+     * Generate a modal footer component automatically. Set to false to disable. In this case you would want to include an
+     * instance of {{#crossLink "Components.ModalFooter"}}{{/crossLink}} in the components block template
+     *
+     * @property footer
+     * @type boolean
+     * @default true
+     * @public
+     */
+    footer: true,
+
+    /**
+     * The id of the `.modal` element.
+     *
+     * @property modalId
+     * @type string
+     * @readonly
+     * @private
+     */
+    modalId: computed('elementId', function () {
+      return this.get('elementId') + '-modal';
+    }),
+
+    /**
+     * The jQuery object of the `.modal` element.
+     *
+     * @property modalElement
+     * @type object
+     * @readonly
+     * @private
+     */
+    modalElement: computed('modalId', function () {
+      return _ember['default'].$('#' + this.get('modalId'));
+    }).volatile(),
+
+    /**
+     * The id of the backdrop element.
+     *
+     * @property backdropId
+     * @type string
+     * @readonly
+     * @private
+     */
+    backdropId: computed('elementId', function () {
+      return this.get('elementId') + '-backdrop';
+    }),
+
+    /**
+     * The jQuery object of the backdrop element.
+     *
+     * @property backdropElement
+     * @type object
+     * @readonly
+     * @private
+     */
+    backdropElement: computed('backdropId', function () {
+      return _ember['default'].$('#' + this.get('backdropId'));
+    }).volatile(),
+
+    /**
+     * Use CSS transitions when showing/hiding the modal?
+     *
+     * @property usesTransition
+     * @type boolean
+     * @readonly
+     * @private
+     */
+    usesTransition: computed('fade', function () {
+      return _ember['default'].$.support.transition && this.get('fade');
+    }),
+
+    /**
+     * Property for size styling, set to null (default), 'lg' or 'sm'
+     *
+     * Also see the [Bootstrap docs](http://getbootstrap.com/javascript/#modals-sizes)
+     *
+     * @property size
+     * @type String
+     * @public
+     */
+    size: null,
+
+    /**
+     * If true clicking on the backdrop will close the modal.
+     *
+     * @property backdropClose
+     * @type boolean
+     * @default true
+     * @public
+     */
+    backdropClose: true,
+
+    /**
+     * If true component will render in place, rather than be wormholed.
+     *
+     * @property renderInPlace
+     * @type boolean
+     * @default false
+     * @public
+     */
+    renderInPlace: false,
+
+    /**
+     * The action to be sent when the modal footer's submit button (if present) is pressed.
+     * Note that if your modal body contains a form (e.g. {{#crossLink "Components.Form"}}{{/crossLink}}) this action will
+     * not be triggered. Instead a submit event will be triggered on the form itself. See the class description for an
+     * example.
+     *
+     * @property submitAction
+     * @type string
+     * @default null
+     * @public
+     */
+    submitAction: null,
+
+    /**
+     * The action to be sent when the modal is closing.
+     * This will be triggered by pressing the modal header's close button (x button) or the modal footer's close button.
+     * Note that this will happen before the modal is hidden from the DOM, as the fade transitions will still need some
+     * time to finish. Use the `closedAction` if you need the modal to be hidden when the action triggers.
+     *
+     * You can set `autoClose` to false to prevent closing the modal automatically, and do that in your closeAction by
+     * setting `open` to false.
+     *
+     * @property closeAction
+     * @type string
+     * @default null
+     * @public
+     */
+    closeAction: null,
+
+    /**
+     * The action to be sent after the modal has been completely hidden (including the CSS transition).
+     *
+     * @property closedAction
+     * @type string
+     * @default null
+     * @public
+     */
+    closedAction: null,
+
+    /**
+     * The action to be sent when the modal is opening.
+     * This will be triggered immediately after the modal is shown (so it's safe to access the DOM for
+     * size calculations and the like). This means that if fade=true, it will be shown in between the
+     * backdrop animation and the fade animation.
+     *
+     * @property openAction
+     * @type string
+     * @default null
+     * @public
+     */
+    openAction: null,
+
+    /**
+     * The action to be sent after the modal has been completely shown (including the CSS transition).
+     *
+     * @property openedAction
+     * @type string
+     * @default null
+     * @public
+     */
+    openedAction: null,
+
+    actions: {
+      close: function close() {
+        if (this.get('autoClose')) {
+          this.set('open', false);
+        }
+        this.sendAction('closeAction');
+      },
+      submit: function submit() {
+        var form = this.get('modalElement').find('.modal-body form');
+        if (form.length > 0) {
+          // trigger submit event on body form
+          form.trigger('submit');
+        } else {
+          // if we have no form, we send a submit action
+          this.sendAction('submitAction');
+        }
+      }
+    },
+
+    _observeOpen: observer('open', observeOpen),
+
+    /**
+     * Give the modal (or its autofocus element) focus
+     *
+     * @method takeFocus
+     * @private
+     */
+    takeFocus: function takeFocus() {
+
+      var focusElement = this.get('modalElement').find('[autofocus]');
+      if (focusElement.length === 0) {
+        focusElement = this.get('modalElement');
+      }
+      focusElement.focus();
+    },
+
+    /**
+     * Show the modal
+     *
+     * @method show
+     * @private
+     */
+    show: function show() {
+
+      this.checkScrollbar();
+      this.setScrollbar();
+
+      _ember['default'].$('body').addClass('modal-open');
+
+      this.resize();
+
+      var callback = function callback() {
+        if (this.get('isDestroyed')) {
+          return;
+        }
+
+        this.get('modalElement').show().scrollTop(0);
+
+        this.handleUpdate();
+        this.set('in', true);
+        this.sendAction('openAction');
+
+        if (this.get('usesTransition')) {
+          this.get('modalElement').one('bsTransitionEnd', _ember['default'].run.bind(this, function () {
+            this.takeFocus();
+            this.sendAction('openedAction');
+          })).emulateTransitionEnd(Modal.TRANSITION_DURATION);
+        } else {
+          this.takeFocus();
+          this.sendAction('openedAction');
+        }
+      };
+      _ember['default'].run.scheduleOnce('afterRender', this, this.handleBackdrop, callback);
+    },
+
+    /**
+     * Hide the modal
+     *
+     * @method hide
+     * @private
+     */
+    hide: function hide() {
+      this.resize();
+      this.set('in', false);
+
+      if (this.get('usesTransition')) {
+        this.get('modalElement').one('bsTransitionEnd', _ember['default'].run.bind(this, this.hideModal)).emulateTransitionEnd(Modal.TRANSITION_DURATION);
+      } else {
+        this.hideModal();
+      }
+    },
+
+    /**
+     * Clean up after modal is hidden and call closedAction
+     *
+     * @method hideModal
+     * @private
+     */
+    hideModal: function hideModal() {
+      var _this = this;
+
+      if (this.get('isDestroyed')) {
+        return;
+      }
+
+      this.get('modalElement').hide();
+      this.handleBackdrop(function () {
+        _ember['default'].$('body').removeClass('modal-open');
+        _this.resetAdjustments();
+        _this.resetScrollbar();
+        _this.sendAction('closedAction');
+      });
+    },
+
+    /**
+     * SHow/hide the backdrop
+     *
+     * @method handleBackdrop
+     * @param callback
+     * @private
+     */
+    handleBackdrop: function handleBackdrop(callback) {
+      var doAnimate = this.get('usesTransition');
+
+      if (this.get('open') && this.get('backdrop')) {
+        this.set('showBackdrop', true);
+
+        if (!callback) {
+          return;
+        }
+
+        var waitForFade = function waitForFade() {
+          var $backdrop = this.get('backdropElement');
+          _ember['default'].assert('Backdrop element should be in DOM', $backdrop && $backdrop.length > 0);
+
+          if (doAnimate) {
+            $backdrop.one('bsTransitionEnd', _ember['default'].run.bind(this, callback)).emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION);
+          } else {
+            callback.call(this);
+          }
+        };
+
+        _ember['default'].run.scheduleOnce('afterRender', this, waitForFade);
+      } else if (!this.get('open') && this.get('backdrop')) {
+        var $backdrop = this.get('backdropElement');
+        _ember['default'].assert('Backdrop element should be in DOM', $backdrop && $backdrop.length > 0);
+
+        var callbackRemove = function callbackRemove() {
+          this.set('showBackdrop', false);
+          if (callback) {
+            callback.call(this);
+          }
+        };
+        if (doAnimate) {
+          $backdrop.one('bsTransitionEnd', _ember['default'].run.bind(this, callbackRemove)).emulateTransitionEnd(Modal.BACKDROP_TRANSITION_DURATION);
+        } else {
+          callbackRemove.call(this);
+        }
+      } else if (callback) {
+        callback.call(this);
+      }
+    },
+
+    /**
+     * Attach/Detach resize event listeners
+     *
+     * @method resize
+     * @private
+     */
+    resize: function resize() {
+      if (this.get('open')) {
+        _ember['default'].$(window).on('resize.bs.modal', _ember['default'].run.bind(this, this.handleUpdate));
+      } else {
+        _ember['default'].$(window).off('resize.bs.modal');
+      }
+    },
+
+    /**
+     * @method handleUpdate
+     * @private
+     */
+    handleUpdate: function handleUpdate() {
+      this.adjustDialog();
+    },
+
+    /**
+     * @method adjustDialog
+     * @private
+     */
+    adjustDialog: function adjustDialog() {
+      var modalIsOverflowing = this.get('modalElement')[0].scrollHeight > document.documentElement.clientHeight;
+      this.get('modalElement').css({
+        paddingLeft: !this.bodyIsOverflowing && modalIsOverflowing ? this.get('scrollbarWidth') : '',
+        paddingRight: this.bodyIsOverflowing && !modalIsOverflowing ? this.get('scrollbarWidth') : ''
+      });
+    },
+
+    /**
+     * @method resetAdjustments
+     * @private
+     */
+    resetAdjustments: function resetAdjustments() {
+      this.get('modalElement').css({
+        paddingLeft: '',
+        paddingRight: ''
+      });
+    },
+
+    /**
+     * @method checkScrollbar
+     * @private
+     */
+    checkScrollbar: function checkScrollbar() {
+      var fullWindowWidth = window.innerWidth;
+      if (!fullWindowWidth) {
+        // workaround for missing window.innerWidth in IE8
+        var documentElementRect = document.documentElement.getBoundingClientRect();
+        fullWindowWidth = documentElementRect.right - Math.abs(documentElementRect.left);
+      }
+
+      this.bodyIsOverflowing = document.body.clientWidth < fullWindowWidth;
+    },
+
+    /**
+     * @method setScrollbar
+     * @private
+     */
+    setScrollbar: function setScrollbar() {
+      var bodyPad = parseInt(_ember['default'].$('body').css('padding-right') || 0, 10);
+      this.originalBodyPad = document.body.style.paddingRight || '';
+      if (this.bodyIsOverflowing) {
+        _ember['default'].$('body').css('padding-right', bodyPad + this.get('scrollbarWidth'));
+      }
+    },
+
+    /**
+     * @method resetScrollbar
+     * @private
+     */
+    resetScrollbar: function resetScrollbar() {
+      _ember['default'].$('body').css('padding-right', this.originalBodyPad);
+    },
+
+    /**
+     * @property scrollbarWidth
+     * @type number
+     * @readonly
+     * @private
+     */
+    scrollbarWidth: computed(function () {
+      var scrollDiv = document.createElement('div');
+      scrollDiv.className = 'modal-scrollbar-measure';
+      this.get('modalElement').after(scrollDiv);
+      var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+      _ember['default'].$(scrollDiv).remove();
+      return scrollbarWidth;
+    }),
+
+    didInsertElement: function didInsertElement() {
+      if (this.get('open')) {
+        this.show();
+      }
+    },
+
+    willDestroyElement: function willDestroyElement() {
+      _ember['default'].$(window).off('resize.bs.modal');
+      _ember['default'].$('body').removeClass('modal-open');
+    }
+
+  });
+});
+define('ember-bootstrap/components/bs-progress-bar', ['exports', 'ember', 'ember-bootstrap/mixins/type-class'], function (exports, _ember, _emberBootstrapMixinsTypeClass) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+
+  /**
+  
+   Component to display a Bootstrap progress bar, see http://getbootstrap.com/components/#progress.
+  
+   ### Usage
+  
+   Always wrap the progress bar in a {{#crossLink "Components.Progress"}}{{/crossLink}} component. Use the `value`
+   property to control the progress bar's width. To apply the different styling options supplied by Bootstrap, use the
+   appropriate properties like `type`, `showLabel`, `striped` or `animate`.
+  
+   ```hbs
+   \{{#bs-progress}}
+     \{{bs-progress-bar value=progressValue minValue=0 maxValue=10 showLabel=true type="danger"}}
+   \{{/bs-progress}}
+   ```
+  
+   ### Stacked
+  
+   You can place multiple progress bar components in a single {{#crossLink "Components.Progress"}}{{/crossLink}} to
+   create a stack of progress bars as seen in http://getbootstrap.com/components/#progress-stacked.
+  
+   ```hbs
+   \{{#bs-progress}}
+     \{{bs-progress-bar value=progressValue1 type="success"}}
+     \{{bs-progress-bar value=progressValue2 type="warning"}}
+     \{{bs-progress-bar value=progressValue3 type="danger"}}
+   \{{/bs-progress}}
+   ```
+  
+   @class ProgressBar
+   @namespace Components
+   @extends Ember.Component
+   @uses Mixins.TypeClass
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend(_emberBootstrapMixinsTypeClass['default'], {
+    classNames: ['progress-bar'],
+    classNameBindings: ['progressBarStriped', 'active'],
+
+    attributeBindings: ['style', 'ariaValuenow', 'ariaValuemin', 'ariaValuemax'],
+
+    /**
+     * @property classTypePrefix
+     * @type String
+     * @default 'progress-bar'
+     * @protected
+     */
+    classTypePrefix: 'progress-bar',
+
+    /**
+     * The lower limit of the value range
+     *
+     * @property minValue
+     * @type number
+     * @default 0
+     * @public
+     */
+    minValue: 0,
+
+    /**
+     * The upper limit of the value range
+     *
+     * @property maxValue
+     * @type number
+     * @default 100
+     * @public
+     */
+    maxValue: 100,
+
+    /**
+     * The value the progress bar should represent
+     *
+     * @property value
+     * @type number
+     * @default 0
+     * @public
+     */
+    value: 0,
+
+    /**
+     If true a label will be shown inside the progress bar.
+      By default it will be the percentage corresponding to the `value` property, rounded to `roundDigits` digits.
+     You can customize it by using the component with a block template, which the component yields the percentage
+     value to:
+      ```hbs
+     {{#bs-progress}}
+       {{#bs-progress-bar value=progressValue as |percent|}}{{progressValue}} ({{percent}}%){{/bs-progress-bar}}
+     {{/bs-progress}}
+     ```
+      @property showLabel
+     @type boolean
+     @default false
+     @public
+     */
+    showLabel: false,
+
+    /**
+     * Create a striped effect, see http://getbootstrap.com/components/#progress-striped
+     *
+     * @property striped
+     * @type boolean
+     * @default false
+     * @public
+     */
+    striped: false,
+
+    /**
+     * Animate the stripes, see http://getbootstrap.com/components/#progress-animated
+     *
+     * @property animate
+     * @type boolean
+     * @default false
+     * @public
+     */
+    animate: false,
+
+    /**
+     * Specify to how many digits the progress bar label should be rounded.
+     *
+     * @property roundDigits
+     * @type number
+     * @default 0
+     * @public
+     */
+    roundDigits: 0,
+
+    progressBarStriped: computed.alias('striped'),
+    active: computed.alias('animate'),
+
+    ariaValuenow: computed.alias('value'),
+    ariaValuemin: computed.alias('minValue'),
+    ariaValuemax: computed.alias('maxValue'),
+
+    /**
+     * The percentage of `value`
+     *
+     * @property percent
+     * @type number
+     * @protected
+     * @readonly
+     */
+    percent: computed('value', 'minValue', 'maxValue', function () {
+      var value = parseFloat(this.get('value'));
+      var minValue = parseFloat(this.get('minValue'));
+      var maxValue = parseFloat(this.get('maxValue'));
+
+      return Math.min(Math.max((value - minValue) / (maxValue - minValue), 0), 1) * 100;
+    }),
+
+    /**
+     * The percentage of `value`, rounded to `roundDigits` digits
+     *
+     * @property percentRounded
+     * @type number
+     * @protected
+     * @readonly
+     */
+    percentRounded: computed('percent', 'roundDigits', function () {
+      var roundFactor = Math.pow(10, this.get('roundDigits'));
+      return Math.round(this.get('percent') * roundFactor) / roundFactor;
+    }),
+
+    /**
+     * @property style
+     * @type string
+     * @private
+     * @readonly
+     */
+    style: computed('percent', function () {
+      var percent = this.get('percent');
+      return new _ember['default'].Handlebars.SafeString('width: ' + percent + '%');
+    })
+
+  });
+});
+define('ember-bootstrap/components/bs-progress', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Use to group one (or more) {{#crossLink "Components.ProgressBar"}}{{/crossLink}} components inside it.
+  
+   @class Progress
+   @namespace Components
+   @extends Ember.Component
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    classNames: ['progress']
+  });
+});
+define('ember-bootstrap/components/bs-select', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Extends Ember.Select to add Bootstrap's 'form-control' class.
+  
+   @class Select
+   @namespace Components
+   @extends Ember.Select
+   @public
+   */
+  exports['default'] = _ember['default'].Component.extend({
+    tagName: 'select',
+    classNames: ['form-control'],
+
+    content: null,
+    prompt: null,
+    optionValuePath: 'id',
+    optionLabelPath: 'title',
+    action: _ember['default'].K, // action to fire on change
+
+    value: null,
+
+    init: function init() {
+      this._super.apply(this, arguments);
+      if (!this.get('content')) {
+        this.set('content', []);
+      }
+    },
+
+    change: function change() {
+      var selectEl = this.$().get(0);
+      var selectedIndex = selectEl.selectedIndex;
+
+      var content = this.get('content');
+
+      // decrement index by 1 if we have a prompt
+      var hasPrompt = !!this.get('prompt');
+      var contentIndex = hasPrompt ? selectedIndex - 1 : selectedIndex;
+
+      var selection = content[contentIndex];
+
+      // set the local, shadowed selection to avoid leaking
+      // changes to `selection` out via 2-way binding
+      this.set('value', selection);
+
+      var changeCallback = this.get('action');
+      changeCallback(selection);
+    }
+  });
+});
+define('ember-bootstrap/components/bs-textarea', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   Extends Ember.TextArea to add Bootstrap's 'form-control' class.
+  
+   @class Textarea
+   @namespace Components
+   @extends Ember.TextArea
+   @public
+   */
+  exports['default'] = _ember['default'].TextArea.extend({
+    classNames: ['form-control']
+  });
+});
+define('ember-bootstrap/config', ['exports'], function (exports) {
+  'use strict';
+
+  var Config = {
+    formValidationSuccessIcon: 'glyphicon glyphicon-ok',
+    formValidationErrorIcon: 'glyphicon glyphicon-remove',
+    formValidationWarningIcon: 'glyphicon glyphicon-warning-sign',
+    formValidationInfoIcon: 'glyphicon glyphicon-info-sign',
+    insertEmberWormholeElementToDom: true,
+
+    load: function load(config) {
+      for (var property in this) {
+        if (this.hasOwnProperty(property) && typeof this[property] !== 'function' && typeof config[property] !== 'undefined') {
+          this[property] = config[property];
+        }
+      }
+    }
+  };
+
+  exports['default'] = Config;
+});
+define('ember-bootstrap/helpers/is-equal', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports.isEqual = isEqual;
+
+  function isEqual(params) {
+    return params[0] === params[1];
+  }
+
+  exports['default'] = _ember['default'].Helper.helper(isEqual);
+});
+define('ember-bootstrap/helpers/is-not', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports.isNot = isNot;
+
+  function isNot(params /*, hash*/) {
+    return !params[0];
+  }
+
+  exports['default'] = _ember['default'].Helper.helper(isNot);
+});
+define('ember-bootstrap/helpers/read-path', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  exports.readPath = readPath;
+
+  function readPath(params /*, hash*/) {
+    return _ember['default'].get(params[0], params[1]);
+  }
+
+  exports['default'] = _ember['default'].Helper.helper(readPath);
+});
+define('ember-bootstrap/initializers/modals-container', ['exports', 'ember-bootstrap/config'], function (exports, _emberBootstrapConfig) {
+  'use strict';
+
+  /*globals document */
+  var hasDOM = typeof document !== 'undefined';
+
+  function appendContainerElement(rootElementId, id) {
+    if (!hasDOM) {
+      return;
+    }
+
+    var rootEl = document.querySelector(rootElementId);
+    var modalContainerEl = document.createElement('div');
+    modalContainerEl.id = id;
+    rootEl.appendChild(modalContainerEl);
+  }
+
+  function initialize() {
+    if (!_emberBootstrapConfig['default'].insertEmberWormholeElementToDom) {
+      return;
+    }
+
+    var application = arguments[1] || arguments[0];
+    var modalContainerElId = 'ember-bootstrap-modal-container';
+    appendContainerElement(application.rootElement, modalContainerElId);
+  }
+
+  exports['default'] = {
+    name: 'modals-container',
+    initialize: initialize
+  };
+});
+define('ember-bootstrap/mixins/component-child', ['exports', 'ember', 'ember-bootstrap/mixins/component-parent'], function (exports, _ember, _emberBootstrapMixinsComponentParent) {
+  'use strict';
+
+  /**
+   * Mixin for components that act as a child component in a parent-child relationship of components
+   *
+   * @class ComponentChild
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+
+    _didInsertElement: _ember['default'].on('didInsertElement', function () {
+      var parent = this.nearestOfType(_emberBootstrapMixinsComponentParent['default']);
+      if (parent) {
+        parent.registerChild(this);
+      }
+    }),
+
+    _willDestroyElement: _ember['default'].on('willDestroyElement', function () {
+      var parent = this.nearestOfType(_emberBootstrapMixinsComponentParent['default']);
+      if (parent) {
+        parent.removeChild(this);
+      }
+    })
+  });
+});
+define('ember-bootstrap/mixins/component-parent', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   * Mixin for components that act as a parent component in a parent-child relationship of components
+   *
+   * @class ComponentParent
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+
+    /**
+     * Array of registered child components
+     *
+     * @property children
+     * @type array
+     * @protected
+     */
+    children: null,
+
+    _onInit: _ember['default'].on('init', function () {
+      this.set('children', _ember['default'].A());
+    }),
+
+    /**
+     * Register a component as a child of this parent
+     *
+     * @method registerChild
+     * @param child
+     * @public
+     */
+    registerChild: function registerChild(child) {
+      _ember['default'].run.schedule('sync', this, function () {
+        this.get('children').addObject(child);
+      });
+    },
+
+    /**
+     * Remove the child component from this parent component
+     *
+     * @method removeChild
+     * @param child
+     * @public
+     */
+    removeChild: function removeChild(child) {
+      this.get('children').removeObject(child);
+    }
+  });
+});
+define('ember-bootstrap/mixins/dropdown-toggle', ['exports', 'ember', 'ember-bootstrap/mixins/component-child'], function (exports, _ember, _emberBootstrapMixinsComponentChild) {
+  'use strict';
+
+  /**
+   * Mixin for components that act as dropdown toggles.
+   *
+   * @class DropdownToggle
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create(_emberBootstrapMixinsComponentChild['default'], {
+    classNames: ['dropdown-toggle'],
+    attributeBindings: ['data-toggle'],
+    /**
+     * @property ariaRole
+     * @default button
+     * @type string
+     * @protected
+     */
+    ariaRole: 'button',
+
+    'data-toggle': 'dropdown',
+
+    targetObject: _ember['default'].computed.alias('parentView'),
+
+    /**
+     * The default action is set to "toggleDropdown" on the parent {{#crossLink "Components.Dropdown"}}{{/crossLink}}
+     *
+     * @property action
+     * @default toggleDropdown
+     * @type string
+     * @protected
+     */
+    action: 'toggleDropdown'
+  });
+});
+define('ember-bootstrap/mixins/modal-closer', ['exports', 'ember', 'ember-bootstrap/components/bs-modal'], function (exports, _ember, _emberBootstrapComponentsBsModal) {
+  'use strict';
+
+  /**
+   * @class ModalCloser
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+    targetObject: _ember['default'].computed(function () {
+      return this.nearestOfType(_emberBootstrapComponentsBsModal['default']);
+    }).volatile(),
+
+    action: 'close',
+
+    actions: {
+      close: function close() {
+        this.sendAction();
+      }
+    }
+  });
+});
+define('ember-bootstrap/mixins/size-class', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   * Mixin to set the appropriate class for components with different sizes.
+   *
+   *
+   * @class SizeClass
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+    /**
+     * Prefix for the size class, e.g. "btn" for button size classes ("btn-lg", "btn-sm" etc.)
+     *
+     * @property classTypePrefix
+     * @type string
+     * @required
+     * @protected
+     */
+    classTypePrefix: null,
+
+    classNameBindings: ['sizeClass'],
+
+    sizeClass: _ember['default'].computed('size', function () {
+      var prefix = this.get('classTypePrefix');
+      var size = this.get('size');
+      return _ember['default'].isBlank(size) ? null : prefix + '-' + size;
+    }),
+
+    /**
+     * Property for size styling, set to 'lg', 'sm' or 'xs'
+     *
+     * Also see the [Bootstrap docs](http://getbootstrap.com/css/#buttons-sizes)
+     *
+     * @property size
+     * @type String
+     * @public
+     */
+    size: null
+  });
+});
+define('ember-bootstrap/mixins/sub-component', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   * @class SubComponent
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+    targetObject: _ember['default'].computed.alias('parentView')
+  });
+});
+define('ember-bootstrap/mixins/type-class', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  /**
+   * Mixin to set the appropriate class for components with differently styled types ("success", "danger" etc.)
+   *
+   * @class TypeClass
+   * @namespace Mixins
+   * @public
+   */
+  exports['default'] = _ember['default'].Mixin.create({
+    /**
+     * Prefix for the type class, e.g. "btn" for button type classes ("btn-primary2 etc.)
+     *
+     * @property classTypePrefix
+     * @type string
+     * @required
+     * @protected
+     */
+    classTypePrefix: null,
+
+    classNameBindings: ['typeClass'],
+
+    typeClass: _ember['default'].computed('type', function () {
+      var prefix = this.get('classTypePrefix');
+      var type = this.get('type') || 'default';
+      return prefix + '-' + type;
+    }),
+
+    /**
+     * Property for type styling
+     *
+     * For the available types see the [Bootstrap docs](http://getbootstrap.com/css/#buttons-options) (use without "btn-" prefix)
+     *
+     * @property type
+     * @type String
+     * @default 'default'
+     * @public
+     */
+    type: 'default'
+  });
 });
 define('ember-cli-app-version/components/app-version', ['exports', 'ember', 'ember-cli-app-version/templates/app-version'], function (exports, _ember, _emberCliAppVersionTemplatesAppVersion) {
   'use strict';
@@ -83739,6 +87542,86 @@ define('ember-resolver/utils/module-registry', ['exports', 'ember'], function (e
   };
 
   exports['default'] = ModuleRegistry;
+});
+define('ember-wormhole/components/ember-wormhole', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
+
+  var computed = _ember['default'].computed;
+  var observer = _ember['default'].observer;
+  var run = _ember['default'].run;
+
+  exports['default'] = _ember['default'].Component.extend({
+    to: computed.alias('destinationElementId'),
+    destinationElementId: null,
+    destinationElement: computed('destinationElementId', 'renderInPlace', function () {
+      return this.get('renderInPlace') ? this.element : document.getElementById(this.get('destinationElementId'));
+    }),
+    renderInPlace: false,
+
+    didInsertElement: function didInsertElement() {
+      this._super.apply(this, arguments);
+      this._firstNode = this.element.firstChild;
+      this._lastNode = this.element.lastChild;
+      this.appendToDestination();
+    },
+
+    willDestroyElement: function willDestroyElement() {
+      var _this = this;
+
+      this._super.apply(this, arguments);
+      var firstNode = this._firstNode;
+      var lastNode = this._lastNode;
+      run.schedule('render', function () {
+        _this.removeRange(firstNode, lastNode);
+      });
+    },
+
+    destinationDidChange: observer('destinationElement', function () {
+      var destinationElement = this.get('destinationElement');
+      if (destinationElement !== this._firstNode.parentNode) {
+        run.schedule('render', this, 'appendToDestination');
+      }
+    }),
+
+    appendToDestination: function appendToDestination() {
+      var destinationElement = this.get('destinationElement');
+      var currentActiveElement = document.activeElement;
+      if (!destinationElement) {
+        var destinationElementId = this.get('destinationElementId');
+        if (destinationElementId) {
+          throw new Error('ember-wormhole failed to render into \'#' + this.get('destinationElementId') + '\' because the element is not in the DOM');
+        }
+        throw new Error('ember-wormhole failed to render content because the destinationElementId was set to an undefined or falsy value.');
+      }
+
+      this.appendRange(destinationElement, this._firstNode, this._lastNode);
+      if (document.activeElement !== currentActiveElement) {
+        currentActiveElement.focus();
+      }
+    },
+
+    appendRange: function appendRange(destinationElement, firstNode, lastNode) {
+      while (firstNode) {
+        destinationElement.insertBefore(firstNode, null);
+        firstNode = firstNode !== lastNode ? lastNode.parentNode.firstChild : null;
+      }
+    },
+
+    removeRange: function removeRange(firstNode, lastNode) {
+      var node = lastNode;
+      do {
+        var next = node.previousSibling;
+        if (node.parentNode) {
+          node.parentNode.removeChild(node);
+          if (node === firstNode) {
+            break;
+          }
+        }
+        node = next;
+      } while (node);
+    }
+
+  });
 });
 ;/* jshint ignore:start */
 

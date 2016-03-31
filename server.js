@@ -19,21 +19,12 @@ var massiveInstance = massive.connectSync({connectionString: connection});
 
 app.set('db', massiveInstance);
 
-var db = app.get('db');
+
 
 // Configure routes
 var router = express.Router();
 
-router.get('/', function(req, res) {
-	res.json({message: "Benvinguts a l'API de Barcelona Dashboard"});
-});
-
-router.route('/poblacios')
-			.get(function(request, response) {
-				db.poblacio.find({}, function(err, res){
-					response.json(res);
-				});
-			});
+require('./server/routes')(app, router);
 
 app.use('/api/v1/', router);
 
@@ -45,13 +36,5 @@ app.use(express.static(__dirname + '/public'));
 http.createServer(app).listen(3000, function() {
 	console.log('Server listening on port 3000!');
 });
-
-// Handle connection errors
-var handleError = function(res) {
-	return function(err) {
-		console.log(err);
-		res.send(500, {error: err.message});
-	}
-}
 
 exports = module.exports = app;

@@ -147,15 +147,6 @@ define('client/tests/routes/application.jshint', ['exports'], function (exports)
     assert.ok(true, 'routes/application.js should pass jshint.');
   });
 });
-define('client/tests/serializers/poblacio.jshint', ['exports'], function (exports) {
-  'use strict';
-
-  QUnit.module('JSHint - serializers/poblacio.js');
-  QUnit.test('should pass jshint', function (assert) {
-    assert.expect(1);
-    assert.ok(true, 'serializers/poblacio.js should pass jshint.');
-  });
-});
 define('client/tests/test-helper', ['exports', 'client/tests/helpers/resolver', 'ember-qunit'], function (exports, _clientTestsHelpersResolver, _emberQunit) {
 
   (0, _emberQunit.setResolver)(_clientTestsHelpersResolver['default']);
@@ -234,29 +225,25 @@ define('client/tests/unit/routes/application-test.jshint', ['exports'], function
     assert.ok(true, 'unit/routes/application-test.js should pass jshint.');
   });
 });
-define('client/tests/unit/serializers/poblacio-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+define('client/tests/unit/routes/index-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
 
-  (0, _emberQunit.moduleForModel)('poblacio', 'Unit | Serializer | poblacio', {
+  (0, _emberQunit.moduleFor)('route:index', 'Unit | Route | index', {
     // Specify the other units that are required for this test.
-    needs: ['serializer:poblacio']
+    // needs: ['controller:foo']
   });
 
-  // Replace this with your real tests.
-  (0, _emberQunit.test)('it serializes records', function (assert) {
-    var record = this.subject();
-
-    var serializedRecord = record.serialize();
-
-    assert.ok(serializedRecord);
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var route = this.subject();
+    assert.ok(route);
   });
 });
-define('client/tests/unit/serializers/poblacio-test.jshint', ['exports'], function (exports) {
+define('client/tests/unit/routes/index-test.jshint', ['exports'], function (exports) {
   'use strict';
 
-  QUnit.module('JSHint - unit/serializers/poblacio-test.js');
+  QUnit.module('JSHint - unit/routes/index-test.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'unit/serializers/poblacio-test.js should pass jshint.');
+    assert.ok(true, 'unit/routes/index-test.js should pass jshint.');
   });
 });
 /* jshint ignore:start */
