@@ -4,7 +4,9 @@
   "description": "Barcelona dashboard. End-of-degree project for UOC.",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.13.4"
+    "body-parser": "^1.15.0",
+    "express": "^4.13.4",
+    "massive": "^2.2.0"
   },
   "devDependencies": {},
   "scripts": {

@@ -4,7 +4,7 @@
 	},
 
 	"postgres": {
-		"db"				: "postgres", 		
+		"db"				: "test", 		
 		"user"			:	"ElXaxe",
 		"password"  : "elcuervo10",
 		"host"			: "localhost",

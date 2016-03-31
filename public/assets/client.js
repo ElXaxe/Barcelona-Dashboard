@@ -6,6 +6,11 @@
 
 /* jshint ignore:end */
 
+define('client/adapters/application', ['exports', 'ember-data'], function (exports, _emberData) {
+	exports['default'] = _emberData['default'].JSONAPIAdapter.extend({
+		namespace: 'api/v1'
+	});
+});
 define('client/app', ['exports', 'ember', 'client/resolver', 'ember-load-initializers', 'client/config/environment'], function (exports, _ember, _clientResolver, _emberLoadInitializers, _clientConfigEnvironment) {
 
   var App = undefined;
@@ -201,6 +206,13 @@ define("client/instance-initializers/ember-data", ["exports", "ember-data/-priva
     initialize: _emberDataPrivateInstanceInitializersInitializeStoreService["default"]
   };
 });
+define('client/models/poblacio', ['exports', 'ember-data'], function (exports, _emberData) {
+  exports['default'] = _emberData['default'].Model.extend({
+    anny: _emberData['default'].attr('number'),
+    districte: _emberData['default'].attr('number'),
+    barri: _emberData['default'].attr('string')
+  });
+});
 define('client/resolver', ['exports', 'ember-resolver'], function (exports, _emberResolver) {
   exports['default'] = _emberResolver['default'];
 });
@@ -213,6 +225,31 @@ define('client/router', ['exports', 'ember', 'client/config/environment'], funct
   Router.map(function () {});
 
   exports['default'] = Router;
+});
+define('client/routes/application', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Route.extend({
+		model: function model() {
+			return this.store.findAll('poblacio');
+		}
+	});
+});
+define('client/serializers/poblacio', ['exports', 'ember-data'], function (exports, _emberData) {
+	exports['default'] = _emberData['default'].JSONAPISerializer.extend({
+		primaryKey: 'id',
+		normalizeFindAllResponse: function normalizeFindAllResponse(store, type, payload) {
+			return {
+				data: {
+					id: payload.id,
+					type: type.modelName,
+					attributes: {
+						anny: payload.anny,
+						districte: payload.districte,
+						barri: payload.barri
+					}
+				}
+			};
+		}
+	});
 });
 define('client/services/ajax', ['exports', 'ember-ajax/services/ajax'], function (exports, _emberAjaxServicesAjax) {
   Object.defineProperty(exports, 'default', {
@@ -252,10 +289,16 @@ define("client/templates/application", ["exports"], function (exports) {
         var el0 = dom.createDocumentFragment();
         var el1 = dom.createElement("h2");
         dom.setAttribute(el1, "id", "title");
-        var el2 = dom.createTextNode("Welcome to Ember, bitches");
+        var el2 = dom.createTextNode("Welcome to Ember");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\nEsto es tan solo una prueba\n\n");
+        var el1 = dom.createTextNode("\n\nEsto es tan solo una ");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("strong");
+        var el2 = dom.createTextNode("prueba");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
         dom.appendChild(el0, el1);
         var el1 = dom.createComment("");
         dom.appendChild(el0, el1);
@@ -265,7 +308,7 @@ define("client/templates/application", ["exports"], function (exports) {
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var morphs = new Array(1);
-        morphs[0] = dom.createMorphAt(fragment, 2, 2, contextualElement);
+        morphs[0] = dom.createMorphAt(fragment, 4, 4, contextualElement);
         return morphs;
       },
       statements: [["content", "outlet", ["loc", [null, [5, 0], [5, 10]]]]],
@@ -306,7 +349,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+dfecd897"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+7d6de7bd"});
 }
 
 /* jshint ignore:end */
