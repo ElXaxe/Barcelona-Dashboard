@@ -1,14 +1,32 @@
-.navbar-brand {
-  padding-top: 0px;
-  padding-right: 15px;
-  padding-bottom: 0px;
-  padding-left: 15px; }
-
-.navbar-brand img {
-  width: 50px;
-  height: 50px; }
-
-.main-content {
-  margin: 15px; }
+html, body {
+  height: 100%; }
+  html .navbar-brand, body .navbar-brand {
+    padding-top: 0px;
+    padding-right: 15px;
+    padding-bottom: 0px;
+    padding-left: 15px; }
+  html .navbar-brand img, body .navbar-brand img {
+    width: 50px;
+    height: 50px; }
+  html .main-content, body .main-content {
+    margin: 15px; }
+    html .main-content svg, body .main-content svg {
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      height: 80vh; }
+  html div.map-tooltip, body div.map-tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 2px;
+    background: ivory;
+    border: 1px solid black;
+    border-radius: 8px;
+    pointer-events: none;
+    -webkit-box-shadow: 10px 10px 5px 2px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 10px 10px 5px 2px rgba(0, 0, 0, 0.75);
+    box-shadow: 10px 10px 5px 2px rgba(0, 0, 0, 0.75); }
+    html div.map-tooltip p, body div.map-tooltip p {
+      font: 12px sans-serif; }
 
 /*# sourceMappingURL=app.css.map */

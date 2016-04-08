@@ -219,6 +219,167 @@ define('client/components/bs-textarea', ['exports', 'ember-bootstrap/components/
     }
   });
 });
+define('client/components/data-map', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Component.extend({
+		// SVG Config
+		tagName: 'svg',
+		width: 500,
+		height: 500,
+		margin: { top: 20, right: 20, bottom: 30, left: 40 },
+		w: (function () {
+			return this.get('width') - this.get('margin.left') - this.get('margin.right');
+		}).property('width'),
+		h: (function () {
+			return this.get('height') - this.get('margin.top') - this.get('margin.bottom');
+		}).property('height'),
+
+		// Barcelona Lat and Lng
+		latitude: '41.39506389999999',
+		longitude: '2.1534034999999494',
+
+		// Map config
+		districtView: true,
+		jsonURL: _ember['default'].computed('districtView', function () {
+
+			if (this.get('districtView')) {
+				return "assets/districtes.json";
+			}
+			return "assets/barris.json";
+		}),
+		year: null,
+		mapData: null,
+		iniColor: '#C1D1FF',
+		endColor: '#000050',
+		colorScale: _ember['default'].computed('iniColor', 'endColor', 'mapData', function () {
+			var first = this.get('iniColor'),
+			    last = this.get('endColor');
+			var data = crossfilter(this.get('mapData'));
+			var values = data.dimension(function (d) {
+				return d.value;
+			});
+
+			var color = d3.scale.linear().domain([values.bottom(1)[0].value, values.top(1)[0].value]).range([first, last]);
+
+			return color;
+		}),
+		tip: d3.select('body').append('div').attr('class', 'map-tooltip').style('opacity', 0),
+
+		didInsertElement: function didInsertElement() {
+			var newWidth = this.$().css('width');
+			var newHeigth = this.$().css('height');
+			this.set('width', newWidth.slice(0, newWidth.indexOf('p')));
+			this.set('height', newHeigth.slice(0, newHeigth.indexOf('p')));
+
+			var width = this.get('w'),
+			    height = this.get('h');
+
+			var minSize = Math.min(width, height);
+			var lat = this.get('latitude');
+			var lng = this.get('longitude');
+			var jsonURL = this.get('jsonURL');
+			var districtView = this.get('districtView');
+			var colorScale = this.get('colorScale');
+			var mapData = this.get('mapData');
+			var tip = this.get('tip');
+
+			var svg = d3.select('#' + this.get('elementId'));
+			svg.attr('width', width).attr('height', height);
+
+			var projection = d3.geo.mercator().center([lng, lat]).scale(minSize * 300).translate([width / 1.75, height / 2]);
+
+			var path = d3.geo.path().projection(projection);
+
+			d3.json(jsonURL, function (error, custom) {
+				var objects = undefined,
+				    aux = undefined,
+				    i = undefined;
+				var _mapData = mapData;
+				var tooltip = tip;
+
+				if (error) {
+					return console.error(error);
+				}
+
+				if (districtView) {
+					// Data must be grouped by districts and change color domain
+					objects = custom.objects.districtes_geo;
+					aux = crossfilter(_mapData).dimension(function (d) {
+						return d.districte;
+					}).group().reduceSum(function (d) {
+						return d.value;
+					}).all();
+					i = crossfilter(aux).dimension(function (d) {
+						return d.value;
+					});
+					colorScale.domain([i.bottom(1)[0].value, i.top(1)[0].value]);
+				} else {
+					objects = custom.objects.barris_geo;
+					aux = _mapData;
+				}
+
+				svg.selectAll('.districte').data(topojson.feature(custom, objects).features).enter().append('path').attr('class', function (d) {
+					return 'zone' + d.properties.codi;
+				}).attr('d', path).attr('stroke-width', 1).attr('stroke', 'black');
+
+				aux.forEach(function (el) {
+					var code;
+					var property;
+
+					if (districtView) {
+						code = el.key;
+						property = 'districte';
+					} else {
+						code = el.barri.slice(0, el.barri.indexOf('.'));
+						property = 'barri';
+					}
+
+					if (code < 10) {
+						code = '0' + code;
+					} else {
+						code = '' + code;
+					}
+
+					svg.select('.zone' + code).attr('fill', function (d) {
+						return colorScale(el.value);
+					}).on('mouseover', function (d) {
+
+						tip.transition().duration(350).style('opacity', .9);
+
+						tip.html('<h5>' + d.properties[property] + '</h5><p>' + el.value + '</p>').style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 50 + "px");
+					}).on('mouseout', function (d) {
+						tip.transition().duration(500).style('opacity', 0);
+					});
+				});
+			});
+		},
+
+		changeMap: (function () {
+			// IN PROGRESS
+			debugger;
+			var districtView = this.get('districtView');
+			var jsonURL = this.get('jsonURL');
+
+			d3.json(jsonURL, function (error, custom) {
+				var objects = custom.objects.districtes_geo;
+
+				if (error) {
+					return console.error(error);
+				}
+
+				if (!districtView) {
+					objects = custom.objects.barris_geo;
+				}
+
+				svg.selectAll('.districte').data(topojson.feature(custom, objects).features).enter().append('path').attr('class', function (d) {
+					return 'districte ' + d.properties.codi;
+				}).attr('d', path).attr('fill', 'teal').attr('stroke-width', 2).attr('stroke', 'black');
+			});
+		}).property('jsonURL'),
+
+		actions: {}
+
+	});
+});
 define('client/components/ember-wormhole', ['exports', 'ember-wormhole/components/ember-wormhole'], function (exports, _emberWormholeComponentsEmberWormhole) {
   Object.defineProperty(exports, 'default', {
     enumerable: true,
@@ -232,6 +393,41 @@ define('client/controllers/array', ['exports', 'ember'], function (exports, _emb
 });
 define('client/controllers/object', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller;
+});
+define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Controller.extend({
+		districtView: true,
+		year: 2015,
+		mapData: _ember['default'].computed('content.[]', 'year', function () {
+			var data = _ember['default'].A([]);
+			var year = this.get('year');
+			this.get('content.content').forEach(function (el) {
+				var element = {};
+
+				if (el._data.anny === year) {
+					element.districte = el._data.districte;
+					element.barri = el._data.barri;
+					element.value = el._data.donesAnys.reduce(getSum) + el._data.homesAnys.reduce(getSum);
+					data.pushObject(element);
+				}
+			});
+
+			return data;
+		}),
+		actions: {
+			changeView: function changeView() {
+				if (this.get('districtView')) {
+					this.set('districtView', false);
+				} else {
+					this.set('districtView', true);
+				}
+			}
+		}
+	});
+
+	function getSum(total, num) {
+		return total + num;
+	}
 });
 define('client/helpers/is-equal', ['exports', 'ember-bootstrap/helpers/is-equal'], function (exports, _emberBootstrapHelpersIsEqual) {
   Object.defineProperty(exports, 'default', {
@@ -457,7 +653,9 @@ define('client/models/poblacio', ['exports', 'ember-data'], function (exports, _
   exports['default'] = _emberData['default'].Model.extend({
     anny: _emberData['default'].attr('number'),
     districte: _emberData['default'].attr('number'),
-    barri: _emberData['default'].attr('string')
+    barri: _emberData['default'].attr('string'),
+    donesAnys: _emberData['default'].attr('array'),
+    homesAnys: _emberData['default'].attr('array')
   });
 });
 define('client/resolver', ['exports', 'ember-resolver'], function (exports, _emberResolver) {
@@ -473,11 +671,12 @@ define('client/router', ['exports', 'ember', 'client/config/environment'], funct
     this.route('index', { path: '/' });
     this.route('not-found');
     this.route('not-found', { path: '/*path' });
+    this.route('poblacio');
   });
 
   exports['default'] = Router;
 });
-define('client/routes/application', ['exports', 'ember'], function (exports, _ember) {
+define('client/routes/poblacio', ['exports', 'ember'], function (exports, _ember) {
 	exports['default'] = _ember['default'].Route.extend({
 		model: function model() {
 			return this.store.findAll('poblacio');
@@ -525,6 +724,42 @@ define("client/templates/application", ["exports"], function (exports) {
           dom.setAttribute(el1, "src", "assets/escutBcn.png");
           dom.appendChild(el0, el1);
           var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() {
+          return [];
+        },
+        statements: [],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.3",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 19,
+              "column": 12
+            },
+            "end": {
+              "line": 19,
+              "column": 43
+            }
+          },
+          "moduleName": "client/templates/application.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("Població");
           dom.appendChild(el0, el1);
           return el0;
         },
@@ -632,13 +867,7 @@ define("client/templates/application", ["exports"], function (exports) {
         var el5 = dom.createTextNode("\n        ");
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("li");
-        var el6 = dom.createElement("a");
-        dom.setAttribute(el6, "href", "#");
-        var el7 = dom.createTextNode("Població ");
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("span");
-        dom.setAttribute(el7, "class", "sr-only");
-        dom.appendChild(el6, el7);
+        var el6 = dom.createComment("");
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
         var el5 = dom.createTextNode("\n        ");
@@ -696,14 +925,16 @@ define("client/templates/application", ["exports"], function (exports) {
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-        var morphs = new Array(2);
-        morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0, 1, 3]), 3, 3);
-        morphs[1] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
+        var element0 = dom.childAt(fragment, [0, 1]);
+        var morphs = new Array(3);
+        morphs[0] = dom.createMorphAt(dom.childAt(element0, [3]), 3, 3);
+        morphs[1] = dom.createMorphAt(dom.childAt(element0, [7, 1, 1]), 0, 0);
+        morphs[2] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
         return morphs;
       },
-      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [11, 6], [13, 18]]]], ["content", "outlet", ["loc", [null, [30, 1], [30, 11]]]]],
+      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [11, 6], [13, 18]]]], ["block", "link-to", ["poblacio"], [], 1, null, ["loc", [null, [19, 12], [19, 55]]]], ["content", "outlet", ["loc", [null, [30, 1], [30, 11]]]]],
       locals: [],
-      templates: [child0]
+      templates: [child0, child1]
     };
   })());
 });
@@ -2736,6 +2967,50 @@ define("client/templates/components/bs-select", ["exports"], function (exports) 
     };
   })());
 });
+define("client/templates/components/data-map", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "triple-curlies"
+        },
+        "revision": "Ember@2.4.3",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 4,
+            "column": 0
+          }
+        },
+        "moduleName": "client/templates/components/data-map.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "map-canvas");
+        dom.setAttribute(el1, "id", "map-canvas");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() {
+        return [];
+      },
+      statements: [],
+      locals: [],
+      templates: []
+    };
+  })());
+});
 define("client/templates/components/form-element/errors", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
@@ -4751,6 +5026,173 @@ define("client/templates/not-found", ["exports"], function (exports) {
     };
   })());
 });
+define("client/templates/poblacio", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.3",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 12,
+              "column": 1
+            },
+            "end": {
+              "line": 14,
+              "column": 1
+            }
+          },
+          "moduleName": "client/templates/poblacio.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("		Mostrem districtes\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() {
+          return [];
+        },
+        statements: [],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.3",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 14,
+              "column": 1
+            },
+            "end": {
+              "line": 16,
+              "column": 1
+            }
+          },
+          "moduleName": "client/templates/poblacio.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("		Mostrem barris\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() {
+          return [];
+        },
+        statements: [],
+        locals: [],
+        templates: []
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.4.3",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 20,
+            "column": 0
+          }
+        },
+        "moduleName": "client/templates/poblacio.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("h1");
+        var el2 = dom.createTextNode("Població");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "row");
+        var el2 = dom.createTextNode("\n	\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("button");
+        dom.setAttribute(el2, "class", "btn btn-info");
+        var el3 = dom.createTextNode("Mostrar barris");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment("");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "id", "yearSelector");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element0 = dom.childAt(fragment, [2]);
+        var element1 = dom.childAt(element0, [3]);
+        var morphs = new Array(3);
+        morphs[0] = dom.createMorphAt(element0, 1, 1);
+        morphs[1] = dom.createElementMorph(element1);
+        morphs[2] = dom.createMorphAt(element0, 5, 5);
+        return morphs;
+      },
+      statements: [["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "districtView", ["loc", [null, [5, 15], [5, 27]]]]], [], []], "year", ["subexpr", "@mut", [["get", "year", ["loc", [null, [6, 7], [6, 11]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "mapData", ["loc", [null, [7, 10], [7, 17]]]]], [], []], "class", "col-md-5 col-xs-12"], ["loc", [null, [4, 1], [9, 3]]]], ["element", "action", ["changeView"], [], ["loc", [null, [11, 30], [11, 53]]]], ["block", "if", [["get", "districtView", ["loc", [null, [12, 7], [12, 19]]]]], [], 0, 1, ["loc", [null, [12, 1], [16, 8]]]]],
+      locals: [],
+      templates: [child0, child1]
+    };
+  })());
+});
+define('client/transforms/array', ['exports', 'ember', 'ember-data'], function (exports, _ember, _emberData) {
+  exports['default'] = _emberData['default'].Transform.extend({
+    deserialize: function deserialize(serialized) {
+      if (_ember['default'].isArray(serialized)) {
+        return _ember['default'].A(serialized);
+      } else {
+        return _ember['default'].A();
+      }
+    },
+
+    serialize: function serialize(deserialized) {
+      if (_ember['default'].isArray(deserialized)) {
+        return _ember['default'].A(deserialized);
+      } else {
+        return _ember['default'].A();
+      }
+    }
+  });
+});
 /* jshint ignore:start */
 
 
@@ -4783,7 +5225,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+584e02a2"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+b49d4a3c"});
 }
 
 /* jshint ignore:end */

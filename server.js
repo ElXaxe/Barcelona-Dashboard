@@ -2,6 +2,7 @@
 var config = require ('./server/config.json');
 var express = require('express');
 var app = express();
+var favicon = require('serve-favicon');
 var http = require('http');
 var bodyParser = require('body-parser');
 
@@ -19,8 +20,6 @@ var massiveInstance = massive.connectSync({connectionString: connection});
 
 app.set('db', massiveInstance);
 
-
-
 // Configure routes
 var router = express.Router();
 
@@ -28,9 +27,13 @@ require('./server/routes')(app, router);
 
 app.use('/api/v1/', router);
 
-
 // Set the static files location
 app.use(express.static(__dirname + '/public'));
+app.use(favicon(__dirname + '/public/assets/favicon.ico'));
+
+app.get('/', function(req, res) {
+	return res.render('index');
+});
 
 // Create the server
 http.createServer(app).listen(3000, function() {

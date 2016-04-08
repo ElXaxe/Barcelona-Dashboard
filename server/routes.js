@@ -15,19 +15,30 @@ module.exports = function(app, router) {
 			
 			response.json({
 				data: res.map( (el) => {
+					var donesAnys = [];
+					var homesAnys = [];
+					
+					for (var i = 0; i <= 95; i++) {
+						donesAnys.push(el['donesanys' + i]);
+						homesAnys.push(el['homesanys' + i]);
+					}
+
 					return {
 						id: el.id,
 						type: 'poblacios',
 						attributes: {
 							anny: el.anny,
 							districte: el.districte,
-							barri: el.barri
+							barri: el.barri,
+							'dones-anys': donesAnys,
+							'homes-anys': homesAnys
 						}
 					};	
 				})
 			});
 		});
 	});
+
 }
 
 // Handle connection errors
