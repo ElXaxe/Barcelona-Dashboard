@@ -1,0 +1,100 @@
+html, body {
+	height: 100%;
+
+	.navbar-brand {
+		padding-top: 0px;
+		padding-right: 15px;
+		padding-bottom: 0px;
+		padding-left: 15px;
+	}
+
+	.navbar-brand img {
+		width: 50px;
+		height: 50px;
+	}
+
+	.main-content {
+		margin: 15px;
+
+		.population {
+
+			#info {
+				
+				// border-width: 2px;
+				// border-style: solid;
+
+				h4 {
+					line-height: 1.8em;
+				}
+
+				.infoText {
+					color: steelblue;
+				}
+			}
+
+			#map{
+				height: 75vh;
+				
+			}
+			
+			.data-content {
+				margin: 10px;
+			}
+
+			#pieGender {
+				height: 25vh;
+
+				.donut-arc {
+					opacity: 0.2;
+
+					&._selected_ {
+						opacity: 1;
+					}
+				}
+			}
+
+			#lineYears {
+				height: 15vh;
+
+				.bar {
+					opacity: 0.1;
+
+					&._selected_ {
+						opacity: 0.7;
+						fill: orange;
+					}
+				}
+
+			}
+
+			#rangeSelector {
+				height: 15vh;
+
+				.tick line {
+					stroke: cornflowerblue;
+					opacity: 0.5;
+				}
+			}
+
+		}
+	}
+
+	div.map-tooltip {
+  	position: absolute;           
+	  text-align: center;                            
+	  padding: 2px;             
+	  background: ivory;   
+	  border: 1px solid black;      
+	  border-radius: 8px;           
+	  pointer-events: none;
+	  -webkit-box-shadow: 10px 10px 5px 2px rgba(0,0,0,0.75);
+		-moz-box-shadow: 10px 10px 5px 2px rgba(0,0,0,0.75);
+		box-shadow: 10px 10px 5px 2px rgba(0,0,0,0.75);
+
+	  p {
+	  	font: 12px sans-serif;	
+	  } 
+	}
+}
+
+
