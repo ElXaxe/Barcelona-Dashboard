@@ -16,11 +16,65 @@ html, body {
 	.main-content {
 		margin: 15px;
 
-		svg {
-			-webkit-border-radius: 10px;
-			-moz-border-radius: 10px;
-			border-radius: 10px;
-			height: 80vh;
+		.population {
+
+			#info {
+				
+				// border-width: 2px;
+				// border-style: solid;
+
+				h4 {
+					line-height: 1.8em;
+				}
+
+				.infoText {
+					color: steelblue;
+				}
+			}
+
+			#map{
+				height: 75vh;
+				
+			}
+			
+			.data-content {
+				margin: 10px;
+			}
+
+			#pieGender {
+				height: 25vh;
+
+				.donut-arc {
+					opacity: 0.2;
+
+					&._selected_ {
+						opacity: 1;
+					}
+				}
+			}
+
+			#lineYears {
+				height: 15vh;
+
+				.bar {
+					opacity: 0.1;
+
+					&._selected_ {
+						opacity: 0.7;
+						fill: orange;
+					}
+				}
+
+			}
+
+			#rangeSelector {
+				height: 15vh;
+
+				.tick line {
+					stroke: cornflowerblue;
+					opacity: 0.5;
+				}
+			}
 
 		}
 	}

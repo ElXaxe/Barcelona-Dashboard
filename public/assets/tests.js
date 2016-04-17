@@ -22,7 +22,34 @@ define('client/tests/components/data-map.jshint', ['exports'], function (exports
   QUnit.module('JSHint - components/data-map.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/data-map.js should pass jshint.\ncomponents/data-map.js: line 131, col 54, A leading decimal point can be confused with a dot: \'.9\'.\ncomponents/data-map.js: line 126, col 48, \'d\' is defined but never used.\ncomponents/data-map.js: line 137, col 50, \'d\' is defined but never used.\ncomponents/data-map.js: line 78, col 19, \'tooltip\' is defined but never used.\ncomponents/data-map.js: line 151, col 9, Forgotten \'debugger\' statement?\ncomponents/data-map.js: line 36, col 22, \'crossfilter\' is not defined.\ncomponents/data-map.js: line 85, col 23, \'crossfilter\' is not defined.\ncomponents/data-map.js: line 90, col 21, \'crossfilter\' is not defined.\ncomponents/data-map.js: line 164, col 13, \'svg\' is not defined.\ncomponents/data-map.js: line 169, col 28, \'path\' is not defined.\n\n10 errors');
+    assert.ok(false, 'components/data-map.js should pass jshint.\ncomponents/data-map.js: line 120, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 274, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 308, col 50, \'d\' is defined but never used.\ncomponents/data-map.js: line 68, col 37, \'$\' is not defined.\ncomponents/data-map.js: line 220, col 38, \'$\' is not defined.\ncomponents/data-map.js: line 314, col 35, \'mapData\' is not defined.\n\n6 errors');
+  });
+});
+define('client/tests/components/pie-chart.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/pie-chart.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'components/pie-chart.js should pass jshint.\ncomponents/pie-chart.js: line 76, col 44, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 94, col 43, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 94, col 40, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 153, col 29, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 153, col 26, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 32, col 13, \'iniColor\' is defined but never used.\ncomponents/pie-chart.js: line 33, col 13, \'endColor\' is defined but never used.\ncomponents/pie-chart.js: line 45, col 15, \'_this\' is defined but never used.\ncomponents/pie-chart.js: line 39, col 22, \'$\' is not defined.\ncomponents/pie-chart.js: line 40, col 26, \'$\' is not defined.\n\n10 errors');
+  });
+});
+define('client/tests/components/range-selector.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/range-selector.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'components/range-selector.js should pass jshint.\ncomponents/range-selector.js: line 46, col 54, \'i\' is defined but never used.\ncomponents/range-selector.js: line 86, col 13, \'gy\' is defined but never used.\ncomponents/range-selector.js: line 149, col 54, \'i\' is defined but never used.\ncomponents/range-selector.js: line 126, col 15, \'lineColor\' is defined but never used.\n\n4 errors');
+  });
+});
+define('client/tests/components/year-evolution.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/year-evolution.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'components/year-evolution.js should pass jshint.\ncomponents/year-evolution.js: line 109, col 31, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 125, col 32, \'d\' is defined but never used.\ncomponents/year-evolution.js: line 206, col 33, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 162, col 11, \'currentYear\' is defined but never used.\ncomponents/year-evolution.js: line 163, col 11, \'lineColor\' is defined but never used.\ncomponents/year-evolution.js: line 25, col 21, \'$\' is not defined.\ncomponents/year-evolution.js: line 26, col 26, \'$\' is not defined.\ncomponents/year-evolution.js: line 166, col 17, \'$\' is not defined.\ncomponents/year-evolution.js: line 167, col 18, \'$\' is not defined.\n\n9 errors');
   });
 });
 define('client/tests/controllers/poblacio.jshint', ['exports'], function (exports) {
@@ -31,7 +58,7 @@ define('client/tests/controllers/poblacio.jshint', ['exports'], function (export
   QUnit.module('JSHint - controllers/poblacio.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'controllers/poblacio.js should pass jshint.');
+    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 9, col 53, \'d\' is defined but never used.\ncontrollers/poblacio.js: line 57, col 19, \'isDistrict\' is defined but never used.\ncontrollers/poblacio.js: line 61, col 19, \'neighborDim\' is defined but never used.\ncontrollers/poblacio.js: line 124, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 153, col 13, Forgotten \'debugger\' statement?\ncontrollers/poblacio.js: line 152, col 20, \'zone\' is defined but never used.\ncontrollers/poblacio.js: line 69, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 71, col 19, \'$\' is not defined.\n\n8 errors');
   });
 });
 define('client/tests/helpers/destroy-app', ['exports', 'ember'], function (exports, _ember) {
@@ -278,6 +305,453 @@ define('client/tests/integration/components/data-map-test.jshint', ['exports'], 
     assert.ok(true, 'integration/components/data-map-test.js should pass jshint.');
   });
 });
+define('client/tests/integration/components/pie-chart-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('pie-chart', 'Integration | Component | pie chart', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
+
+    this.render(Ember.HTMLBars.template((function () {
+      return {
+        meta: {
+          'fragmentReason': {
+            'name': 'missing-wrapper',
+            'problems': ['wrong-type']
+          },
+          'revision': 'Ember@2.4.3',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 1,
+              'column': 13
+            }
+          }
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [['content', 'pie-chart', ['loc', [null, [1, 0], [1, 13]]]]],
+        locals: [],
+        templates: []
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:
+    this.render(Ember.HTMLBars.template((function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            'fragmentReason': false,
+            'revision': 'Ember@2.4.3',
+            'loc': {
+              'source': null,
+              'start': {
+                'line': 2,
+                'column': 4
+              },
+              'end': {
+                'line': 4,
+                'column': 4
+              }
+            }
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode('      template block text\n');
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+
+      return {
+        meta: {
+          'fragmentReason': {
+            'name': 'missing-wrapper',
+            'problems': ['wrong-type']
+          },
+          'revision': 'Ember@2.4.3',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 5,
+              'column': 2
+            }
+          }
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode('\n');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode('  ');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [['block', 'pie-chart', [], [], 0, null, ['loc', [null, [2, 4], [4, 18]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('client/tests/integration/components/pie-chart-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - integration/components/pie-chart-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/components/pie-chart-test.js should pass jshint.');
+  });
+});
+define('client/tests/integration/components/range-selector-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('range-selector', 'Integration | Component | range selector', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
+
+    this.render(Ember.HTMLBars.template((function () {
+      return {
+        meta: {
+          'fragmentReason': {
+            'name': 'missing-wrapper',
+            'problems': ['wrong-type']
+          },
+          'revision': 'Ember@2.4.3',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 1,
+              'column': 18
+            }
+          }
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [['content', 'range-selector', ['loc', [null, [1, 0], [1, 18]]]]],
+        locals: [],
+        templates: []
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:
+    this.render(Ember.HTMLBars.template((function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            'fragmentReason': false,
+            'revision': 'Ember@2.4.3',
+            'loc': {
+              'source': null,
+              'start': {
+                'line': 2,
+                'column': 4
+              },
+              'end': {
+                'line': 4,
+                'column': 4
+              }
+            }
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode('      template block text\n');
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+
+      return {
+        meta: {
+          'fragmentReason': {
+            'name': 'missing-wrapper',
+            'problems': ['wrong-type']
+          },
+          'revision': 'Ember@2.4.3',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 5,
+              'column': 2
+            }
+          }
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode('\n');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode('  ');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [['block', 'range-selector', [], [], 0, null, ['loc', [null, [2, 4], [4, 23]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('client/tests/integration/components/range-selector-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - integration/components/range-selector-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/components/range-selector-test.js should pass jshint.');
+  });
+});
+define('client/tests/integration/components/year-evolution-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('year-evolution', 'Integration | Component | year evolution', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
+
+    this.render(Ember.HTMLBars.template((function () {
+      return {
+        meta: {
+          'fragmentReason': {
+            'name': 'missing-wrapper',
+            'problems': ['wrong-type']
+          },
+          'revision': 'Ember@2.4.3',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 1,
+              'column': 18
+            }
+          }
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [['content', 'year-evolution', ['loc', [null, [1, 0], [1, 18]]]]],
+        locals: [],
+        templates: []
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:
+    this.render(Ember.HTMLBars.template((function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            'fragmentReason': false,
+            'revision': 'Ember@2.4.3',
+            'loc': {
+              'source': null,
+              'start': {
+                'line': 2,
+                'column': 4
+              },
+              'end': {
+                'line': 4,
+                'column': 4
+              }
+            }
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode('      template block text\n');
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+
+      return {
+        meta: {
+          'fragmentReason': {
+            'name': 'missing-wrapper',
+            'problems': ['wrong-type']
+          },
+          'revision': 'Ember@2.4.3',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 5,
+              'column': 2
+            }
+          }
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode('\n');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode('  ');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [['block', 'year-evolution', [], [], 0, null, ['loc', [null, [2, 4], [4, 23]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('client/tests/integration/components/year-evolution-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - integration/components/year-evolution-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/components/year-evolution-test.js should pass jshint.');
+  });
+});
 define('client/tests/models/poblacio.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -311,7 +785,16 @@ define('client/tests/routes/poblacio.jshint', ['exports'], function (exports) {
   QUnit.module('JSHint - routes/poblacio.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(true, 'routes/poblacio.js should pass jshint.');
+    assert.ok(false, 'routes/poblacio.js should pass jshint.\nroutes/poblacio.js: line 16, col 42, Expected an assignment or function call and instead saw an expression.\nroutes/poblacio.js: line 22, col 42, Expected an assignment or function call and instead saw an expression.\nroutes/poblacio.js: line 28, col 33, \'transition\' is defined but never used.\nroutes/poblacio.js: line 14, col 27, \'Promise\' is not defined.\nroutes/poblacio.js: line 20, col 27, \'Promise\' is not defined.\n\n5 errors');
+  });
+});
+define('client/tests/services/data-service.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - services/data-service.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'services/data-service.js should pass jshint.\nservices/data-service.js: line 4, col 9, Redefinition of \'crossfilter\'.\n\n1 error');
   });
 });
 define('client/tests/test-helper', ['exports', 'client/tests/helpers/resolver', 'ember-qunit'], function (exports, _clientTestsHelpersResolver, _emberQunit) {
@@ -463,6 +946,28 @@ define('client/tests/unit/routes/poblacio-test.jshint', ['exports'], function (e
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/routes/poblacio-test.js should pass jshint.');
+  });
+});
+define('client/tests/unit/services/data-service-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('service:data-service', 'Unit | Service | data service', {
+    // Specify the other units that are required for this test.
+    // needs: ['service:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var service = this.subject();
+    assert.ok(service);
+  });
+});
+define('client/tests/unit/services/data-service-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/services/data-service-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/services/data-service-test.js should pass jshint.');
   });
 });
 define('client/tests/unit/transforms/array-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {

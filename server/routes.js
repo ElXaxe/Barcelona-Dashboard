@@ -7,7 +7,7 @@ module.exports = function(app, router) {
 	});
 
 	// Demography
-	router.get('/poblacios', function(request, response) {
+	router.get('/population', function(request, response) {
 		db.poblacio.find({}, function(err, res){
 			if (err) {
 				handleError(err);
@@ -15,23 +15,30 @@ module.exports = function(app, router) {
 			
 			response.json({
 				data: res.map( (el) => {
-					var donesAnys = [];
-					var homesAnys = [];
-					
+					var womenYears = [];
+					var menYears = [];
+					var womenTotal = 0
+					var menTotal = 0;
 					for (var i = 0; i <= 95; i++) {
-						donesAnys.push(el['donesanys' + i]);
-						homesAnys.push(el['homesanys' + i]);
+						var women = el['donesanys' + i];
+						var men = el['homesanys' + i];
+						womenTotal += women;
+						menTotal += men;
+						womenYears.push(women);
+						menYears.push(men);
 					}
 
 					return {
 						id: el.id,
 						type: 'poblacios',
 						attributes: {
-							anny: el.anny,
-							districte: el.districte,
-							barri: el.barri,
-							'dones-anys': donesAnys,
-							'homes-anys': homesAnys
+							year: el.anny,
+							district: el.districte,
+							neighbor: el.barri,
+							womenYears: womenYears,
+							menYears: menYears,
+							womenTotal: womenTotal,
+							menTotal: menTotal
 						}
 					};	
 				})

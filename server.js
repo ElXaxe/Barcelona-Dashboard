@@ -5,6 +5,7 @@ var app = express();
 var favicon = require('serve-favicon');
 var http = require('http');
 var bodyParser = require('body-parser');
+var path = require('path');
 
 // Require MassiveJS to connect to PostgreSQL
 var massive = require('massive');
@@ -31,8 +32,8 @@ app.use('/api/v1/', router);
 app.use(express.static(__dirname + '/public'));
 app.use(favicon(__dirname + '/public/assets/favicon.ico'));
 
-app.get('/', function(req, res) {
-	return res.render('index');
+app.get('/*', function(req, res) {
+	res.sendFile(path.join(__dirname + '/public/' + '/index.html'));
 });
 
 // Create the server

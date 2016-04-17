@@ -10,11 +10,32 @@ html, body {
     height: 50px; }
   html .main-content, body .main-content {
     margin: 15px; }
-    html .main-content svg, body .main-content svg {
-      -webkit-border-radius: 10px;
-      -moz-border-radius: 10px;
-      border-radius: 10px;
-      height: 80vh; }
+    html .main-content .population #info h4, body .main-content .population #info h4 {
+      line-height: 1.8em; }
+    html .main-content .population #info .infoText, body .main-content .population #info .infoText {
+      color: steelblue; }
+    html .main-content .population #map, body .main-content .population #map {
+      height: 75vh; }
+    html .main-content .population .data-content, body .main-content .population .data-content {
+      margin: 10px; }
+    html .main-content .population #pieGender, body .main-content .population #pieGender {
+      height: 25vh; }
+      html .main-content .population #pieGender .donut-arc, body .main-content .population #pieGender .donut-arc {
+        opacity: 0.2; }
+        html .main-content .population #pieGender .donut-arc._selected_, body .main-content .population #pieGender .donut-arc._selected_ {
+          opacity: 1; }
+    html .main-content .population #lineYears, body .main-content .population #lineYears {
+      height: 15vh; }
+      html .main-content .population #lineYears .bar, body .main-content .population #lineYears .bar {
+        opacity: 0.1; }
+        html .main-content .population #lineYears .bar._selected_, body .main-content .population #lineYears .bar._selected_ {
+          opacity: 0.7;
+          fill: orange; }
+    html .main-content .population #rangeSelector, body .main-content .population #rangeSelector {
+      height: 15vh; }
+      html .main-content .population #rangeSelector .tick line, body .main-content .population #rangeSelector .tick line {
+        stroke: cornflowerblue;
+        opacity: 0.5; }
   html div.map-tooltip, body div.map-tooltip {
     position: absolute;
     text-align: center;
