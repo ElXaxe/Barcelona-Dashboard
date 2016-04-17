@@ -3,8 +3,17 @@ Business Intelligence end-of-degree project based on data from the city of Barce
 
 **This is meant to be run with a postgreSQL database with the correct tables.**
 
-Just run the next command at the root folder:
+Technologies used in this app:
+
+- HTML5
+- CSS + [Sass] (http://sass-lang.com/)
+- Javascript
+- [Ember.JS] (http://emberjs.com/)
+- [Crossfilter] (http://square.github.io/crossfilter/) by [Square] (http://squareup.com/)
+- [D3.js] (https://d3js.org/) by [Mike Bostock] (http://bost.ocks.org/mike/)
+
+To enjoy this web app, just run the next command at the root folder:
 
 `> node server`
 
-Then, you can access the dashboard throught your web explorer at url *http://localhost:3000/*.
+Then, you can access the dashboard through your web explorer at url *http://localhost:3000/*.

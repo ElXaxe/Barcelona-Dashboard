@@ -1,0 +1,75 @@
+<h1>
+	Població
+	<small>Dades del padró</small>
+</h1>
+
+<div class="row population">
+	<div class="col-md-5 col-xs-12">
+		<button class="btn btn-xs btn-info" {{action 'changeView'}}>
+				Mostrar 
+				{{#if viewDistricts}}
+				barris
+				{{else}}
+				districtes
+				{{/if}}
+		</button>
+		{{#if selectedZone}}
+			<button class='btn btn-xs btn-warning' {{action 'reset'}}>Deseleccionar</button>
+		{{/if}}
+		{{data-map
+			districtView = viewDistricts
+			mapData = dataMap
+			mapPaths = paths
+			units='persones'
+			reseted=resetMap
+			class = "col-xs-12"
+			id = "map"
+		}}
+	</div> <!-- Map -->
+
+	<div class="col-md-7 col-xs-12" id="data-content">
+		<div class="row">
+			<div class="col-md-6 col-xs-12" id="info">
+				<h3>{{scope}}</h3>
+				<h4>Any: <span class='infoText'>{{year}}</span> </h4>
+				<h4>Rang edats: <span class='infoText'>{{minAge}} - {{maxAge}} {{#if isMax}}o més{{/if}}</span></h4>
+				<h4>Sexe: <span class='infoText'>{{gender}}</span></h4>
+			</div>
+			{{pie-chart
+			class="col-md-6 col-xs-12"
+			iniColor='darkblue'
+			endColor='purple'
+			pieData = genderData
+			title='Sexe'
+			units='persones'
+			setPie=(action 'changeGender')
+			id="pieGender"}}
+		</div>
+		<hr>
+		<div class="row">	
+				<h4>
+					Evolució població per anys<br/>
+					<small>Fes click sobre un any per seleccionar-ho</small>
+				</h4>
+				{{year-evolution 
+				data = yearData 
+				currentYear = year
+				units = 'persones'
+				class ="col-md-12 col-xs-12"
+				id="lineYears"}}
+		</div>
+		<hr>
+		<div class="row">
+				<h4>
+					Població per edats a l'any {{year}}<br/>
+					<small>Arrosega sobre el gràfic per seleccionar un rang d'edats</small>
+				</h4>
+				{{range-selector
+					data = rangeData
+					class="col-md-12 col-xs-12"
+					id="rangeSelector"}}
+		</div>
+	</div><!-- Map info -->
+</div>
+
+

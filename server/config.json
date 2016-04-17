@@ -6,7 +6,7 @@
 	"postgres": {
 		"db"				: "test", 		
 		"user"			:	"ElXaxe",
-		"password"  : "elcuervo10",
+		"password"  : "barcelona",
 		"host"			: "localhost",
 		"port"			: 5432
 	}
