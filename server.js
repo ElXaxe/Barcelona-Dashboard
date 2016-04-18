@@ -38,7 +38,7 @@ app.get('/*', function(req, res) {
 });
 
 // Create the server
-http.createServer(app).listen(3000, function() {
+http.createServer(app).listen(process.env.PORT || 3000, function() {
 	console.log('Server listening on port 3000!');
 });
 
