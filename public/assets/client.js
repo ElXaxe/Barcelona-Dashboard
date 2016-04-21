@@ -1358,7 +1358,7 @@ define("client/templates/application", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -1400,7 +1400,7 @@ define("client/templates/application", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -1438,7 +1438,7 @@ define("client/templates/application", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -1605,7 +1605,7 @@ define("client/templates/components/bs-accordion-item", ["exports"], function (e
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -1656,7 +1656,7 @@ define("client/templates/components/bs-accordion-item", ["exports"], function (e
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -1728,7 +1728,7 @@ define("client/templates/components/bs-alert", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -1781,7 +1781,7 @@ define("client/templates/components/bs-alert", ["exports"], function (exports) {
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -1827,7 +1827,7 @@ define("client/templates/components/bs-alert", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -1872,7 +1872,7 @@ define("client/templates/components/bs-button", ["exports"], function (exports) 
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -1915,7 +1915,7 @@ define("client/templates/components/bs-button", ["exports"], function (exports) 
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -1966,7 +1966,7 @@ define("client/templates/components/bs-form-element", ["exports"], function (exp
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -2009,7 +2009,7 @@ define("client/templates/components/bs-form-group", ["exports"], function (expor
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2055,7 +2055,7 @@ define("client/templates/components/bs-form-group", ["exports"], function (expor
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -2105,7 +2105,7 @@ define("client/templates/components/bs-form", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -2148,7 +2148,7 @@ define("client/templates/components/bs-modal-dialog", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2191,7 +2191,7 @@ define("client/templates/components/bs-modal-dialog", ["exports"], function (exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -2232,7 +2232,7 @@ define("client/templates/components/bs-modal-dialog", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2272,7 +2272,7 @@ define("client/templates/components/bs-modal-dialog", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2314,7 +2314,7 @@ define("client/templates/components/bs-modal-dialog", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2357,7 +2357,7 @@ define("client/templates/components/bs-modal-dialog", ["exports"], function (exp
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -2425,7 +2425,7 @@ define("client/templates/components/bs-modal-footer", ["exports"], function (exp
             "name": "missing-wrapper",
             "problems": ["wrong-type"]
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2469,7 +2469,7 @@ define("client/templates/components/bs-modal-footer", ["exports"], function (exp
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.4.3",
+              "revision": "Ember@2.4.5",
               "loc": {
                 "source": null,
                 "start": {
@@ -2509,7 +2509,7 @@ define("client/templates/components/bs-modal-footer", ["exports"], function (exp
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.4.3",
+              "revision": "Ember@2.4.5",
               "loc": {
                 "source": null,
                 "start": {
@@ -2548,7 +2548,7 @@ define("client/templates/components/bs-modal-footer", ["exports"], function (exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -2596,7 +2596,7 @@ define("client/templates/components/bs-modal-footer", ["exports"], function (exp
           return {
             meta: {
               "fragmentReason": false,
-              "revision": "Ember@2.4.3",
+              "revision": "Ember@2.4.5",
               "loc": {
                 "source": null,
                 "start": {
@@ -2635,7 +2635,7 @@ define("client/templates/components/bs-modal-footer", ["exports"], function (exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -2676,7 +2676,7 @@ define("client/templates/components/bs-modal-footer", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2718,7 +2718,7 @@ define("client/templates/components/bs-modal-footer", ["exports"], function (exp
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -2764,7 +2764,7 @@ define("client/templates/components/bs-modal-header", ["exports"], function (exp
             "name": "modifiers",
             "modifiers": ["action"]
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2815,7 +2815,7 @@ define("client/templates/components/bs-modal-header", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2857,7 +2857,7 @@ define("client/templates/components/bs-modal-header", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -2904,7 +2904,7 @@ define("client/templates/components/bs-modal-header", ["exports"], function (exp
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -2951,7 +2951,7 @@ define("client/templates/components/bs-modal", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -2993,7 +2993,7 @@ define("client/templates/components/bs-modal", ["exports"], function (exports) {
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -3039,7 +3039,7 @@ define("client/templates/components/bs-modal", ["exports"], function (exports) {
             "name": "missing-wrapper",
             "problems": ["wrong-type", "multiple-nodes"]
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -3088,7 +3088,7 @@ define("client/templates/components/bs-modal", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -3132,7 +3132,7 @@ define("client/templates/components/bs-progress-bar", ["exports"], function (exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -3174,7 +3174,7 @@ define("client/templates/components/bs-progress-bar", ["exports"], function (exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -3215,7 +3215,7 @@ define("client/templates/components/bs-progress-bar", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -3256,7 +3256,7 @@ define("client/templates/components/bs-progress-bar", ["exports"], function (exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -3301,7 +3301,7 @@ define("client/templates/components/bs-progress-bar", ["exports"], function (exp
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -3347,7 +3347,7 @@ define("client/templates/components/bs-progress-bar", ["exports"], function (exp
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -3390,7 +3390,7 @@ define("client/templates/components/bs-progress-bar", ["exports"], function (exp
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -3436,7 +3436,7 @@ define("client/templates/components/bs-progress", ["exports"], function (exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -3482,7 +3482,7 @@ define("client/templates/components/bs-select", ["exports"], function (exports) 
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -3533,7 +3533,7 @@ define("client/templates/components/bs-select", ["exports"], function (exports) 
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -3586,7 +3586,7 @@ define("client/templates/components/bs-select", ["exports"], function (exports) 
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -3635,7 +3635,7 @@ define("client/templates/components/data-map", ["exports"], function (exports) {
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -3680,7 +3680,7 @@ define("client/templates/components/form-element/errors", ["exports"], function 
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -3727,7 +3727,7 @@ define("client/templates/components/form-element/errors", ["exports"], function 
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -3772,7 +3772,7 @@ define("client/templates/components/form-element/feedback-icon", ["exports"], fu
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -3818,7 +3818,7 @@ define("client/templates/components/form-element/feedback-icon", ["exports"], fu
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -3862,7 +3862,7 @@ define("client/templates/components/form-element/horizontal/checkbox", ["exports
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -3936,7 +3936,7 @@ define("client/templates/components/form-element/horizontal/default", ["exports"
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -3978,7 +3978,7 @@ define("client/templates/components/form-element/horizontal/default", ["exports"
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -4022,7 +4022,7 @@ define("client/templates/components/form-element/horizontal/default", ["exports"
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4093,7 +4093,7 @@ define("client/templates/components/form-element/horizontal/default", ["exports"
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -4135,7 +4135,7 @@ define("client/templates/components/form-element/horizontal/default", ["exports"
         return {
           meta: {
             "fragmentReason": false,
-            "revision": "Ember@2.4.3",
+            "revision": "Ember@2.4.5",
             "loc": {
               "source": null,
               "start": {
@@ -4176,7 +4176,7 @@ define("client/templates/components/form-element/horizontal/default", ["exports"
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4238,7 +4238,7 @@ define("client/templates/components/form-element/horizontal/default", ["exports"
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -4284,7 +4284,7 @@ define("client/templates/components/form-element/horizontal/select", ["exports"]
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4354,7 +4354,7 @@ define("client/templates/components/form-element/horizontal/select", ["exports"]
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4416,7 +4416,7 @@ define("client/templates/components/form-element/horizontal/select", ["exports"]
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -4462,7 +4462,7 @@ define("client/templates/components/form-element/horizontal/textarea", ["exports
             "name": "missing-wrapper",
             "problems": ["multiple-nodes"]
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4532,7 +4532,7 @@ define("client/templates/components/form-element/horizontal/textarea", ["exports
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4594,7 +4594,7 @@ define("client/templates/components/form-element/horizontal/textarea", ["exports
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -4638,7 +4638,7 @@ define("client/templates/components/form-element/inline/checkbox", ["exports"], 
         "fragmentReason": {
           "name": "triple-curlies"
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -4700,7 +4700,7 @@ define("client/templates/components/form-element/inline/default", ["exports"], f
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4747,7 +4747,7 @@ define("client/templates/components/form-element/inline/default", ["exports"], f
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4789,7 +4789,7 @@ define("client/templates/components/form-element/inline/default", ["exports"], f
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4833,7 +4833,7 @@ define("client/templates/components/form-element/inline/default", ["exports"], f
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -4885,7 +4885,7 @@ define("client/templates/components/form-element/inline/select", ["exports"], fu
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -4934,7 +4934,7 @@ define("client/templates/components/form-element/inline/select", ["exports"], fu
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -4988,7 +4988,7 @@ define("client/templates/components/form-element/inline/textarea", ["exports"], 
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5037,7 +5037,7 @@ define("client/templates/components/form-element/inline/textarea", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5095,7 +5095,7 @@ define("client/templates/components/form-element/vertical/checkbox", ["exports"]
           "name": "missing-wrapper",
           "problems": ["multiple-nodes", "wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5163,7 +5163,7 @@ define("client/templates/components/form-element/vertical/default", ["exports"],
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5210,7 +5210,7 @@ define("client/templates/components/form-element/vertical/default", ["exports"],
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5252,7 +5252,7 @@ define("client/templates/components/form-element/vertical/default", ["exports"],
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5296,7 +5296,7 @@ define("client/templates/components/form-element/vertical/default", ["exports"],
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5352,7 +5352,7 @@ define("client/templates/components/form-element/vertical/select", ["exports"], 
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5401,7 +5401,7 @@ define("client/templates/components/form-element/vertical/select", ["exports"], 
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5455,7 +5455,7 @@ define("client/templates/components/form-element/vertical/textarea", ["exports"]
           "fragmentReason": {
             "name": "triple-curlies"
           },
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5504,7 +5504,7 @@ define("client/templates/components/form-element/vertical/textarea", ["exports"]
           "name": "missing-wrapper",
           "problems": ["wrong-type", "multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5562,7 +5562,7 @@ define("client/templates/components/pie-chart", ["exports"], function (exports) 
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5608,7 +5608,7 @@ define("client/templates/components/range-selector", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["empty-body"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5649,7 +5649,7 @@ define("client/templates/components/year-evolution", ["exports"], function (expo
           "name": "missing-wrapper",
           "problems": ["wrong-type"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5695,7 +5695,7 @@ define("client/templates/index", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5780,7 +5780,7 @@ define("client/templates/not-found", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -5832,7 +5832,7 @@ define("client/templates/poblacio", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5868,7 +5868,7 @@ define("client/templates/poblacio", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5904,7 +5904,7 @@ define("client/templates/poblacio", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5950,7 +5950,7 @@ define("client/templates/poblacio", ["exports"], function (exports) {
       return {
         meta: {
           "fragmentReason": false,
-          "revision": "Ember@2.4.3",
+          "revision": "Ember@2.4.5",
           "loc": {
             "source": null,
             "start": {
@@ -5988,7 +5988,7 @@ define("client/templates/poblacio", ["exports"], function (exports) {
           "name": "missing-wrapper",
           "problems": ["multiple-nodes"]
         },
-        "revision": "Ember@2.4.3",
+        "revision": "Ember@2.4.5",
         "loc": {
           "source": null,
           "start": {
@@ -6284,7 +6284,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+7f3f1244"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+664a1767"});
 }
 
 /* jshint ignore:end */

@@ -47,6 +47,7 @@ export default Ember.Component.extend({
 		const colorScale = this.get('colorScale');
 		const tooltip = this.get('tip');
 		const units = this.get('units');
+		
 		let svg = d3.select('#'+this.get('elementId'));
 		
 		svg.attr('width', width).attr('height', height);

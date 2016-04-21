@@ -173,7 +173,7 @@ define('client/tests/integration/components/data-map-test', ['exports', 'ember-q
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -217,7 +217,7 @@ define('client/tests/integration/components/data-map-test', ['exports', 'ember-q
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.4.3',
+            'revision': 'Ember@2.4.5',
             'loc': {
               'source': null,
               'start': {
@@ -255,7 +255,7 @@ define('client/tests/integration/components/data-map-test', ['exports', 'ember-q
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -322,7 +322,7 @@ define('client/tests/integration/components/pie-chart-test', ['exports', 'ember-
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -366,7 +366,7 @@ define('client/tests/integration/components/pie-chart-test', ['exports', 'ember-
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.4.3',
+            'revision': 'Ember@2.4.5',
             'loc': {
               'source': null,
               'start': {
@@ -404,7 +404,7 @@ define('client/tests/integration/components/pie-chart-test', ['exports', 'ember-
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -471,7 +471,7 @@ define('client/tests/integration/components/range-selector-test', ['exports', 'e
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -515,7 +515,7 @@ define('client/tests/integration/components/range-selector-test', ['exports', 'e
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.4.3',
+            'revision': 'Ember@2.4.5',
             'loc': {
               'source': null,
               'start': {
@@ -553,7 +553,7 @@ define('client/tests/integration/components/range-selector-test', ['exports', 'e
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -620,7 +620,7 @@ define('client/tests/integration/components/year-evolution-test', ['exports', 'e
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -664,7 +664,7 @@ define('client/tests/integration/components/year-evolution-test', ['exports', 'e
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.4.3',
+            'revision': 'Ember@2.4.5',
             'loc': {
               'source': null,
               'start': {
@@ -702,7 +702,7 @@ define('client/tests/integration/components/year-evolution-test', ['exports', 'e
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
