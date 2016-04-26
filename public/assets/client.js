@@ -6719,7 +6719,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+1a779352"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+23d275e5"});
 }
 
 /* jshint ignore:end */

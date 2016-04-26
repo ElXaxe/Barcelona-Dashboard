@@ -9,6 +9,7 @@ var path = require('path');
 
 // Require MassiveJS to connect to PostgreSQL
 var massive = require('massive');
+
 var connection;
 
 console.log(process.env.NODE_ENV);
@@ -27,6 +28,7 @@ else if ( process.env.NODE_ENV === 'production') {
 else {
 	console.log("Error on Node Environment: " + process.env.NODE_ENV);
 }
+
 
 // Connect to PostgreSQL Database
 var massiveInstance = massive.connectSync({connectionString: connection});
