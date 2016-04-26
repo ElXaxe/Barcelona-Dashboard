@@ -15,6 +15,7 @@ export default Ember.Component.extend({
 	districtView: true,
 	mapPaths: null,
 	mapData: null,
+	zoneCode: null,
 	iniColor: '#C1D1FF',
 	endColor: '#000050',
 	units: 'u.',
@@ -80,25 +81,12 @@ export default Ember.Component.extend({
 				return colorScale(mapData[d.properties.codi - 1	].value); 
 			})
 			.on('click', function(d ,i) {
-				let index = i;
 				let zoneName;
 				if (districtView) {
 					zoneName = d.properties.districte;
 				} else {
 					zoneName = d.properties.barri;
 				}
-				
-				svg.selectAll('path')
-					.attr('fill', function(d, i) {
-						if (i === index) { 
-							return 'orange'; 
-						} else {
-							return colorScale(mapData[d.properties.codi - 1	].value); 
-						}
-					})
-					.classed('_selected_', function(d, i) {
-						return i === index;
-					});
 
 				_this.sendAction('changeZone', d.properties.codi, zoneName);
 			})					
@@ -119,13 +107,10 @@ export default Ember.Component.extend({
            .style("top", (d3.event.pageY - 50) + "px");  
 			})
 			.on('mouseout', function(d) {
-	
 				d3.select(this)
-					.transition()
-					.attr("fill", function(d) {
-						if (! this.classList.contains('_selected')) {
-							return colorScale(mapData[d.properties.codi - 1].value);
-						}
+        	.transition()
+        	.attr("fill", function(d) { 
+						return colorScale(mapData[d.properties.codi - 1	].value);
 					});
 
 				tooltip.transition()
@@ -188,12 +173,11 @@ export default Ember.Component.extend({
 		const h = (this.$().css('height')).slice(0, (this.$().css('height')).indexOf('p'));
 		const width = w - this.get('margin.left') - this.get('margin.right');
   	const height = h - this.get('margin.top') - this.get('margin.bottom');
-		
+		const zoneCode = this.get('zoneCode');
 		const minSize = Math.min(width, height);
 		const lat = this.get('latitude');
 		const lng = this.get('longitude');
 		const districtView = this.get('districtView');
-		
 		const mapData = this.get('mapData');
 		const customMap = this.get('mapPaths');
 		const colorScale = this.get('colorScale');
@@ -201,8 +185,6 @@ export default Ember.Component.extend({
 		let svg = d3.select('#'+this.get('elementId'));
 		
 		svg.selectAll('path').remove();
-
-		svg.transition().attr('width', width).attr('height', height);
 		
 		let projection = d3.geo.mercator()
 							.center([lng, lat])
@@ -219,10 +201,6 @@ export default Ember.Component.extend({
 		}
 		
 		colorScale.domain( d3.extent($.map( mapData, function(el) { return el.value; }) ) );
-		
-		svg.selectAll('path')
-			.attr('stroke-width', 1)
-			.attr('stroke', 'black');
 
 		svg.selectAll('.zone')
 			.data(topojson.feature(customMap, objects).features)
@@ -234,6 +212,10 @@ export default Ember.Component.extend({
 			.attr('fill', function(d) { 
 				return colorScale(mapData[d.properties.codi - 1].value); 
 			})
+			.classed('_selected_', function(d) {
+				return d.properties.codi === zoneCode;
+			})
+			.style('cursor', 'pointer')
 			.on('click', function(d ,i) {
 				let index = i;
 				let zoneName;
@@ -242,18 +224,6 @@ export default Ember.Component.extend({
 				} else {
 					zoneName = d.properties.barri;
 				}
-
-				svg.selectAll('path')
-					.attr('fill', function(d, i) {
-						if (i === index) { 
-							return 'orange'; 
-						} else {
-							return colorScale(mapData[d.properties.codi - 1	].value); 
-						}
-					})
-					.classed('_selected_', function(d, i) {
-						return i === index;
-					});
 
 				_this.sendAction('changeZone', d.properties.codi, zoneName);
 			})					
@@ -268,23 +238,22 @@ export default Ember.Component.extend({
 					 .duration(350)
 					 .style('opacity', 0.9);
 
-				tooltip.html('<h5>' + d.properties[property] + '</h5><p>' + mapData[d.properties.codi - 1].value +'</p>')
+				tooltip.html('<h5>' + d.properties[property] + '</h5><p>' + mapData[d.properties.codi - 1].value.toLocaleString() +'</p>')
 					 .style("left", (d3.event.pageX) + "px")
            .style("top", (d3.event.pageY - 50) + "px");  
 			})
 			.on('mouseout', function(d) {
 				d3.select(this)
-					.transition()
-					.attr("fill", function(d) {
-						if (! this.classList.contains('_selected')) {
-							return colorScale(mapData[d.properties.codi - 1].value);
-						}
+        	.transition()
+        	.attr("fill", function(d) {
+						return colorScale(mapData[d.properties.codi - 1	].value);
 					});
 
 				tooltip.transition()
 					.duration(500)
 					.style('opacity', 0);
-			});
+			})
+			;
 
 			let colorDomain = [
 				colorScale.domain()[0],
@@ -304,21 +273,33 @@ export default Ember.Component.extend({
 				.transition()
 				.text( colorDomain[4]);
 
+			svg.transition().attr('width', width).attr('height', height);
+
 	}),
 
-	resetMap: Ember.observer('reseted', function(d) {
-		let svg = d3.select('#'+this.get('elementId'));
+	// resetMap: Ember.observer('reseted', function() {
+	// 	let svg = d3.select('#'+this.get('elementId'));
+	// 	const colorScale = this.get('colorScale');
+
+	// 	svg.selectAll('path')
+	// 		.attr('fill', function(d) { 
+	// 			return colorScale(mapData[d.properties.codi - 1	].value); 
+	// 		});
+	// }),
+
+	selectZone: Ember.observer('zoneCode', function() {
+		const svg = d3.select('#'+this.get('elementId'));
 		const colorScale = this.get('colorScale');
+		const zoneCode = this.get('zoneCode');
+		const mapData = this.get('mapData');
 
 		svg.selectAll('path')
-			.attr('fill', function(d) { 
-				return colorScale(mapData[d.properties.codi - 1	].value); 
+			.attr('class', function(d) { 
+				if ( d.properties.codi === zoneCode) {
+					return '_selected_';
+				}
 			});
 	}),
-
-	actions: {
-
-	}
 
 
 });

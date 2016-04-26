@@ -16,6 +16,8 @@ html, body {
       color: steelblue; }
     html .main-content .population #map, body .main-content .population #map {
       height: 75vh; }
+      html .main-content .population #map path._selected_, body .main-content .population #map path._selected_ {
+        fill: crimson; }
     html .main-content .population .data-content, body .main-content .population .data-content {
       margin: 10px; }
     html .main-content .population #pieGender, body .main-content .population #pieGender {

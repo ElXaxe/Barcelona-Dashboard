@@ -235,6 +235,7 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 		districtView: true,
 		mapPaths: null,
 		mapData: null,
+		zoneCode: null,
 		iniColor: '#C1D1FF',
 		endColor: '#000050',
 		units: 'u.',
@@ -266,6 +267,7 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 			var colorScale = this.get('colorScale');
 			var tooltip = this.get('tip');
 			var units = this.get('units');
+
 			var svg = d3.select('#' + this.get('elementId'));
 
 			svg.attr('width', width).attr('height', height);
@@ -288,23 +290,12 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 			svg.selectAll('.zone').data(topojson.feature(customMap, objects).features).enter().append('path').attr('d', path).style('cursor', 'pointer').attr('stroke-width', 1).attr('stroke', 'black').attr('fill', function (d) {
 				return colorScale(mapData[d.properties.codi - 1].value);
 			}).on('click', function (d, i) {
-				var index = i;
 				var zoneName = undefined;
 				if (districtView) {
 					zoneName = d.properties.districte;
 				} else {
 					zoneName = d.properties.barri;
 				}
-
-				svg.selectAll('path').attr('fill', function (d, i) {
-					if (i === index) {
-						return 'orange';
-					} else {
-						return colorScale(mapData[d.properties.codi - 1].value);
-					}
-				}).classed('_selected_', function (d, i) {
-					return i === index;
-				});
 
 				_this.sendAction('changeZone', d.properties.codi, zoneName);
 			}).on('mouseover', function (d) {
@@ -316,11 +307,8 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 
 				tooltip.html('<h5>' + d.properties[property] + '</h5><p>' + mapData[d.properties.codi - 1].value.toLocaleString() + ' ' + units + '</p>').style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 50 + "px");
 			}).on('mouseout', function (d) {
-
 				d3.select(this).transition().attr("fill", function (d) {
-					if (!this.classList.contains('_selected')) {
-						return colorScale(mapData[d.properties.codi - 1].value);
-					}
+					return colorScale(mapData[d.properties.codi - 1].value);
 				});
 
 				tooltip.transition().duration(500).style('opacity', 0);
@@ -366,12 +354,11 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 			var h = this.$().css('height').slice(0, this.$().css('height').indexOf('p'));
 			var width = w - this.get('margin.left') - this.get('margin.right');
 			var height = h - this.get('margin.top') - this.get('margin.bottom');
-
+			var zoneCode = this.get('zoneCode');
 			var minSize = Math.min(width, height);
 			var lat = this.get('latitude');
 			var lng = this.get('longitude');
 			var districtView = this.get('districtView');
-
 			var mapData = this.get('mapData');
 			var customMap = this.get('mapPaths');
 			var colorScale = this.get('colorScale');
@@ -379,8 +366,6 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 			var svg = d3.select('#' + this.get('elementId'));
 
 			svg.selectAll('path').remove();
-
-			svg.transition().attr('width', width).attr('height', height);
 
 			var projection = d3.geo.mercator().center([lng, lat]).scale(minSize * 290).translate([width / 1.75, height / 2]);
 
@@ -397,11 +382,11 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 				return el.value;
 			})));
 
-			svg.selectAll('path').attr('stroke-width', 1).attr('stroke', 'black');
-
 			svg.selectAll('.zone').data(topojson.feature(customMap, objects).features).enter().append('path').attr('d', path).attr('stroke-width', 1).attr('stroke', 'black').attr('fill', function (d) {
 				return colorScale(mapData[d.properties.codi - 1].value);
-			}).on('click', function (d, i) {
+			}).classed('_selected_', function (d) {
+				return d.properties.codi === zoneCode;
+			}).style('cursor', 'pointer').on('click', function (d, i) {
 				var index = i;
 				var zoneName = undefined;
 				if (districtView) {
@@ -409,16 +394,6 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 				} else {
 					zoneName = d.properties.barri;
 				}
-
-				svg.selectAll('path').attr('fill', function (d, i) {
-					if (i === index) {
-						return 'orange';
-					} else {
-						return colorScale(mapData[d.properties.codi - 1].value);
-					}
-				}).classed('_selected_', function (d, i) {
-					return i === index;
-				});
 
 				_this.sendAction('changeZone', d.properties.codi, zoneName);
 			}).on('mouseover', function (d) {
@@ -428,12 +403,10 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 
 				tooltip.transition().duration(350).style('opacity', 0.9);
 
-				tooltip.html('<h5>' + d.properties[property] + '</h5><p>' + mapData[d.properties.codi - 1].value + '</p>').style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 50 + "px");
+				tooltip.html('<h5>' + d.properties[property] + '</h5><p>' + mapData[d.properties.codi - 1].value.toLocaleString() + '</p>').style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 50 + "px");
 			}).on('mouseout', function (d) {
 				d3.select(this).transition().attr("fill", function (d) {
-					if (!this.classList.contains('_selected')) {
-						return colorScale(mapData[d.properties.codi - 1].value);
-					}
+					return colorScale(mapData[d.properties.codi - 1].value);
 				});
 
 				tooltip.transition().duration(500).style('opacity', 0);
@@ -446,18 +419,32 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 			legend.select('text.min').transition().text(colorDomain[0]);
 
 			legend.select('text.max').transition().text(colorDomain[4]);
+
+			svg.transition().attr('width', width).attr('height', height);
 		}),
 
-		resetMap: _ember['default'].observer('reseted', function (d) {
+		// resetMap: Ember.observer('reseted', function() {
+		// 	let svg = d3.select('#'+this.get('elementId'));
+		// 	const colorScale = this.get('colorScale');
+
+		// 	svg.selectAll('path')
+		// 		.attr('fill', function(d) {
+		// 			return colorScale(mapData[d.properties.codi - 1	].value);
+		// 		});
+		// }),
+
+		selectZone: _ember['default'].observer('zoneCode', function () {
 			var svg = d3.select('#' + this.get('elementId'));
 			var colorScale = this.get('colorScale');
+			var zoneCode = this.get('zoneCode');
+			var mapData = this.get('mapData');
 
-			svg.selectAll('path').attr('fill', function (d) {
-				return colorScale(mapData[d.properties.codi - 1].value);
+			svg.selectAll('path').attr('class', function (d) {
+				if (d.properties.codi === zoneCode) {
+					return '_selected_';
+				}
 			});
-		}),
-
-		actions: {}
+		})
 
 	});
 });
@@ -481,6 +468,7 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 		endColor: '#000050',
 		selectColor: 'crimson',
 		units: 'u.',
+		reset: false,
 		colorScale: _ember['default'].computed('iniColor', 'endColor', function () {
 			var first = this.get('iniColor'),
 			    last = this.get('endColor');
@@ -492,7 +480,7 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 		tip: d3.select('body').append('div').attr('class', 'map-tooltip').style('opacity', 0),
 
 		didInsertElement: function didInsertElement() {
-			var _this2 = this;
+			var _this = this;
 
 			var w = this.$().css('width').slice(0, this.$().css('width').indexOf('p'));
 			var h = this.$().css('height').slice(0, this.$().css('height').indexOf('p'));
@@ -519,7 +507,7 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 			var total = values.reduce(function (a, b) {
 				return a + b;
 			});
-			var _this = this;
+
 			color.domain(labels[0], labels[labels.length - 1]);
 
 			var svg = d3.select('#' + this.get('elementId'));
@@ -558,7 +546,7 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 				svg.selectAll('.donut-arc').classed('_selected_', function (d, i) {
 					return i === index;
 				});
-				_this2.sendAction('setPie', labels[i]);
+				_this.sendAction('setPie', labels[i]);
 			});
 
 			svg.selectAll('.donut-arc').append('text').attr('class', 'labelText').attr("x", function (d) {
@@ -586,9 +574,101 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 
 			svg.select('.donut-chart').append('text').attr('class', 'title').attr('transform', 'translate(0,10)').style('text-anchor', 'middle').style('font-size', '2rem').style('font-weight', 400).style('cursor', 'pointer').text(title).on('click', function (d, i) {
 				svg.selectAll('.donut-arc').classed('_selected_', true);
-				_this2.sendAction('setPie', null);
+				_this.sendAction('setPie', null);
 			});
+
+			svg.selectAll('path').transition().attrTween("d", arcTween);
+
+			function arcTween(a) {
+				var i = d3.interpolate(this._current, a);
+				this._current = i(0);
+				return function (t) {
+					return arc(i(t));
+				};
+			}
 		},
+
+		changePie: _ember['default'].observer('pieData', function () {
+
+			var svg = d3.select('#' + this.get('elementId'));
+			var pieData = this.get('pieData');
+			var w = this.$().css('width').slice(0, this.$().css('width').indexOf('p'));
+			var h = this.$().css('height').slice(0, this.$().css('height').indexOf('p'));
+			var margin = this.get('margin');
+			var width = w - margin.left - margin.right;
+			var height = h - margin.top - margin.bottom;
+			var radius = Math.min(width, height) / 2;
+			var innRadius = radius * 0.5,
+			    outRadius = radius * 0.9;
+			var labels = $.map(pieData, function (el) {
+				return el.key;
+			}),
+			    values = $.map(pieData, function (el) {
+				return el.value;
+			});
+			var total = values.reduce(function (a, b) {
+				return a + b;
+			});
+			var tooltip = this.get('tip');
+			var units = this.get('units');
+			var selectColor = this.get('selectColor');
+
+			var pie = d3.layout.pie().value(function (d) {
+				return d;
+			}).sort(null);
+
+			var arc = d3.svg.arc().innerRadius(innRadius).outerRadius(outRadius);
+
+			svg.selectAll('path').data(pie(values)).transition().duration(1000).attrTween('d', arcTween);
+
+			svg.selectAll('path').on('mouseover', function (d, i) {
+				var percentage = d.value / total * 100;
+
+				d3.select(this).transition().attr('stroke', selectColor).attr('stroke-width', '2px');
+
+				tooltip.transition().duration(350).style('opacity', 0.9);
+
+				tooltip.html('<h3>' + d3.round(percentage, 2) + '%</h3><p>' + d.value.toLocaleString() + ' ' + units + '</p>').style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 100 + "px");
+			});
+
+			svg.selectAll('.labelText').data(pie(values)).transition().duration(1250).attr("x", function (d) {
+				var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
+				d.cx = Math.cos(a) * (outRadius + 75);
+				return d.x = Math.cos(a) * (outRadius + 30);
+			}).attr("y", function (d) {
+				var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
+				d.cy = Math.sin(a) * (outRadius + 75);
+				return d.y = Math.sin(a) * (outRadius + 20);
+			}).style("text-anchor", function (d) {
+				var rads = (d.endAngle - d.startAngle) / 2 + d.startAngle + 10;
+				if (rads > 7 * Math.PI / 4 && rads < Math.PI / 4 || rads > 3 * Math.PI / 4 && rads < 5 * Math.PI / 4) {
+					return "middle";
+				} else if (rads >= Math.PI / 4 && rads <= 3 * Math.PI / 4) {
+					return "start";
+				} else if (rads >= 5 * Math.PI / 4 && rads <= 7 * Math.PI / 4) {
+					return "end";
+				} else {
+					return "middle";
+				}
+			});
+
+			svg.transition().attr({ width: width, height: height });
+
+			function arcTween(a) {
+				var i = d3.interpolate(this._current, a);
+				this._current = i(0);
+				return function (t) {
+					return arc(i(t));
+				};
+			}
+		}),
+
+		resetPie: _ember['default'].observer('reset', function () {
+			var svg = d3.select('#' + this.get('elementId'));
+
+			svg.selectAll('.donut-arc').classed('_selected_', true);
+			this.sendAction('setPie', null);
+		}),
 
 		actions: {}
 	});
@@ -599,10 +679,14 @@ define('client/components/range-selector', ['exports', 'ember'], function (expor
 		tagName: 'svg',
 		margin: { top: 20, right: 30, bottom: 30, left: 40 },
 		color: 'steelblue',
+		minValue: 0,
+		maxValue: 100,
+		reset: false,
 		data: null,
+		brush: d3.svg.brush(),
 
 		didInsertElement: function didInsertElement() {
-
+			var self = this;
 			var margin = this.get('margin');
 			var w = this.$().css('width').slice(0, this.$().css('width').indexOf('p'));
 			var h = this.$().css('height').slice(0, this.$().css('height').indexOf('p'));
@@ -610,8 +694,11 @@ define('client/components/range-selector', ['exports', 'ember'], function (expor
 			var height = h - margin.top - margin.bottom;
 			var lineColor = this.get('color'),
 			    lineData = this.get('data');
+			var minValue = this.get('minValue'),
+			    maxValue = this.get('maxValue');
+			var brush = this.get('brush');
 
-			var x = d3.scale.linear().domain([0, 95]).range([0, width]);
+			var x = d3.scale.linear().domain([minValue, maxValue]).range([0, width]);
 
 			var y = d3.scale.linear().domain(d3.extent(lineData)).range([height, 0]);
 
@@ -621,7 +708,7 @@ define('client/components/range-selector', ['exports', 'ember'], function (expor
 				return d3.round(d, 0).toLocaleString();
 			});
 
-			var brush = d3.svg.brush().x(x).extent(d3.extent(lineData)).on('brushend', brushended);
+			brush.x(x).extent(d3.extent(lineData)).on('brushend', brushended);
 
 			var area = d3.svg.area().interpolate('monotone').x(function (d, i) {
 				return x(i);
@@ -660,6 +747,8 @@ define('client/components/range-selector', ['exports', 'ember'], function (expor
 				}
 
 				d3.select(this).transition().call(brush.extent(extent1)).call(brush.event);
+
+				self.sendAction('setAges', extent1[0], extent1[1]);
 			}
 		},
 
@@ -691,8 +780,17 @@ define('client/components/range-selector', ['exports', 'ember'], function (expor
 			svg.select('.area').datum(lineData).transition().duration(1000).attr('d', area);
 
 			svg.select('.y.axis').transition().duration(750).call(yAxis).selectAll('line').attr('x2', width);
-		})
+		}),
 
+		resetBrush: _ember['default'].observer('reset', function () {
+
+			var svg = d3.select('#' + this.get('elementId'));
+			var minValue = this.get('minValue'),
+			    maxValue = this.get('maxValue');
+			var brush = this.get('brush');
+
+			svg.select('g.brush').transition().duration(1000).call(brush.clear()).call(brush.event);
+		})
 	});
 });
 define('client/components/year-evolution', ['exports', 'ember'], function (exports, _ember) {
@@ -707,6 +805,8 @@ define('client/components/year-evolution', ['exports', 'ember'], function (expor
     units: 'u.',
 
     didInsertElement: function didInsertElement() {
+      var _this = this;
+
       var margin = this.get('margin');
       var w = this.$().css('width').slice(0, this.$().css('width').indexOf('p'));
       var h = this.$().css('height').slice(0, this.$().css('height').indexOf('p'));
@@ -734,7 +834,13 @@ define('client/components/year-evolution', ['exports', 'ember'], function (expor
       var xAxis = d3.svg.axis().scale(x).orient("bottom").outerTickSize(1);
 
       var yd = y.domain();
-      var yAxis = d3.svg.axis().scale(y).orient("left").ticks(3).tickPadding(1).tickSize(1).tickFormat(d3.format(".4s")).tickValues([yd[0], (yd[0] + yd[1]) * 0.5, yd[1]]);
+      var yAxis = d3.svg.axis().scale(y).orient("left").ticks(3).tickPadding(1).tickSize(1).tickFormat(function (d) {
+        var prefix = d3.formatPrefix(d, 0);
+        if (d < 10000) {
+          return d3.round(d, 0);
+        }
+        return d3.round(prefix.scale(d), 3) + prefix.symbol;
+      }).tickValues([yd[0], (yd[0] + yd[1]) * 0.5, yd[1]]);
 
       var line = d3.svg.line().x(function (d, i) {
         return x(years[i]);
@@ -758,6 +864,7 @@ define('client/components/year-evolution', ['exports', 'ember'], function (expor
         svg.selectAll('.bar').classed('_selected_', function (d, i) {
           return i === index;
         });
+        _this.sendAction('setYear', years[i]);
       });
 
       container.append("path").attr("class", "line").attr("d", line(values)).attr('transform', 'translate(' + barWidth / 2 + ',0)').style('stroke-width', '2').style('stroke', lineColor).style('fill', 'none');
@@ -814,7 +921,13 @@ define('client/components/year-evolution', ['exports', 'ember'], function (expor
       var y = d3.scale.linear().domain(d3.extent(values)).range([height, 0]);
 
       var yd = y.domain();
-      var yAxis = d3.svg.axis().scale(y).orient("left").ticks(3).tickPadding(1).tickSize(1).tickFormat(d3.format(".4s")).tickValues([yd[0], (yd[0] + yd[1]) * 0.5, yd[1]]);
+      var yAxis = d3.svg.axis().scale(y).orient("left").ticks(3).tickPadding(1).tickSize(1).tickFormat(function (d) {
+        var prefix = d3.formatPrefix(d, 0);
+        if (d < 10000) {
+          return d3.round(d, 0);
+        }
+        return d3.round(prefix.scale(d), 3) + prefix.symbol;
+      }).tickValues([yd[0], (yd[0] + yd[1]) * 0.5, yd[1]]);
 
       var line = d3.svg.line().x(function (d, i) {
         return x(years[i]);
@@ -856,21 +969,24 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 		}),
 		year: 2015,
 		scope: 'Barcelona',
+		zoneCode: null,
 		minAge: 0,
 		maxAge: 95,
 		gender: 'Tots',
 		isMax: _ember['default'].computed('maxAge', function () {
 			return this.get('maxAge') === 95;
 		}),
-		resetMap: false,
-		selectedZone: false,
-		dataMap: _ember['default'].computed('viewDistricts', 'populYearDim', 'districtDimension', 'neighborDimension', 'year', 'gender', function () {
+		showReset: false,
+		reseted: false,
+		dataMap: _ember['default'].computed('viewDistricts', 'populYearDim', 'districtDimension', 'neighborDimension', 'year', 'gender', 'minAge', 'maxAge', function () {
 			var isDistrict = this.get('viewDistricts');
 			var yearDim = this.get('populYearDim');
 			var districtDim = this.get('districtDimension');
 			var neighborDim = this.get('neighborDimension');
 			var year = this.get('year');
 			var gender = this.get('gender');
+			var minAge = this.get('minAge'),
+			    maxAge = this.get('maxAge');
 			var group = undefined,
 			    data = undefined;
 
@@ -884,24 +1000,39 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 					return d;
 				});
 			}
+
 			data = group.reduceSum(function (d) {
-				if (gender === 'Dones') {
-					return d.attributes.womenTotal;
-				} else if (gender === 'Homes') {
-					return d.attributes.menTotal;
+				var w = undefined,
+				    m = undefined;
+
+				if (minAge === 0 && maxAge === 95) {
+					w = d.attributes.womenTotal;
+					m = d.attributes.menTotal;
+				} else {
+					w = d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
+					m = d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
 				}
-				return d.attributes.womenTotal + d.attributes.menTotal;
+
+				if (gender === 'Dones') {
+					return w;
+				} else if (gender === 'Homes') {
+					return m;
+				}
+				return w + m;
 			});
 
 			return data.all();
 		}),
 
-		genderData: _ember['default'].computed('viewDistricts', 'year', 'populYearDim', 'districtDimension', 'neighborDimension', function () {
+		genderData: _ember['default'].computed('viewDistricts', 'year', 'populYearDim', 'districtDimension', 'neighborDimension', 'scope', 'minAge', 'maxAge', function () {
 			var isDistrict = this.get('viewDistricts');
 			var year = this.get('year');
 			var yearDim = this.get('populYearDim');
 			var districtDim = this.get('districtDimension');
 			var neighborDim = this.get('neighborDimension');
+			var zoneCode = this.get('zoneCode');
+			var minAge = this.get('minAge'),
+			    maxAge = this.get('maxAge');
 			var data = _ember['default'].A([]);
 			var group = undefined,
 			    women = undefined,
@@ -909,17 +1040,27 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 
 			yearDim.filter(year);
 
-			group = districtDim.group(function (d) {
-				return d;
-			});
+			if (!isDistrict) {
+				group = districtDim.group();
+			} else {
+				group = neighborDim.group();
+			}
 
 			women = $.map(group.reduceSum(function (d) {
-				return d.attributes.womenTotal;
+				if (minAge === 0 && maxAge === 95) {
+					return d.attributes.womenTotal;
+				} else {
+					return d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
+				}
 			}).all(), function (el) {
 				return el.value;
 			});
 			men = $.map(group.reduceSum(function (d) {
-				return d.attributes.menTotal;
+				if (minAge === 0 && maxAge === 95) {
+					return d.attributes.menTotal;
+				} else {
+					return d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+				}
 			}).all(), function (el) {
 				return el.value;
 			});
@@ -937,14 +1078,19 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 			return data;
 		}),
 
-		yearData: _ember['default'].computed('populYearDim', 'neighborDimension', 'gender', function () {
+		yearData: _ember['default'].computed('populYearDim', 'neighborDimension', 'gender', 'scope', 'minAge', 'maxAge', function () {
 			var yearDim = this.get('populYearDim');
 			var gender = this.get('gender');
+			var minAge = this.get('minAge');
+			var maxAge = this.get('maxAge');
 			var data = undefined;
 
 			data = yearDim.group().reduceSum(function (d) {
-				var w = d.attributes.womenYears.reduce(getSum);
-				var m = d.attributes.menYears.reduce(getSum);
+
+				var women = d.attributes.womenYears.slice(minAge, maxAge + 1);
+				var men = d.attributes.menYears.slice(minAge, maxAge + 1);
+				var w = women.reduce(getSum);
+				var m = men.reduce(getSum);
 
 				if (gender === 'Dones') {
 					return w;
@@ -971,7 +1117,7 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 			aux = yearDim.top(Infinity);
 
 			aux.forEach(function (d, i) {
-				for (var j = minAge; j < maxAge + 1; j++) {
+				for (var j = 0; j < 96; j++) {
 					old = data[j] ? data[j] : 0;
 					if (gender === 'Dones') {
 						data[j] = d.attributes.womenYears[j] + old;
@@ -988,31 +1134,71 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 
 		actions: {
 			changeView: function changeView() {
-
+				this.set('zoneCode', null);
+				this.set('scope', 'Barcelona');
 				if (this.get('viewDistricts')) {
 					this.set('viewDistricts', false);
+					this.get('districtDimension').filterAll();
 				} else {
 					this.set('viewDistricts', true);
+					this.get('neighborDimension').filterAll();
+				}
+				this.set('showReset', this.get('showReset') || false);
+			},
+
+			changeZone: function changeZone(code, name) {
+				var isDistrict = this.get('viewDistricts');
+				var districtDim = this.get('districtDimension');
+				var neighborDim = this.get('neighborDimension');
+				this.set('scope', name);
+				this.set('zoneCode', code);
+				this.set('showReset', true);
+				if (code) {
+					if (isDistrict) {
+						neighborDim.filterAll();
+						districtDim.filter(+code);
+					} else {
+						districtDim.filterAll();
+						neighborDim.filter(+code);
+					}
+				} else {
+					districtDim.filterAll();
+					neighborDim.filterAll();
 				}
 			},
 
-			changeZone: function changeZone(zone) {
-				debugger;
-				this.set('selectedZone', true);
-			},
-
 			reset: function reset() {
-				this.toggleProperty('resetMap');
 				this.set('scope', 'Barcelona');
-				this.set('selectedZone', false);
+				this.set('zoneCode', null);
+				if (this.get('viewDistricts')) {
+					this.get('districtDimension').filterAll();
+				} else {
+					this.get('neighborDimension').filterAll();
+				}
+				this.set('showReset', false);
+				this.toggleProperty('reseted');
+				this.set('minAge', 0);
+				this.set('maxAge', 95);
 			},
 
 			changeGender: function changeGender(gender) {
 				if (gender) {
 					this.set('gender', gender);
+					this.set('showReset', true);
 				} else {
 					this.set('gender', 'Tots');
+					this.set('showReset', this.get('showReset') || false);
 				}
+			},
+
+			changeYear: function changeYear(year) {
+				this.set('year', year);
+			},
+
+			changeAges: function changeAges(minAge, maxAge) {
+				this.set('minAge', d3.round(minAge, 0));
+				this.set('maxAge', d3.round(maxAge, 0));
+				this.set('showReset', true);
 			}
 
 		}
@@ -1267,6 +1453,7 @@ define('client/router', ['exports', 'ember', 'client/config/environment'], funct
     this.route('not-found');
     this.route('not-found', { path: '/*path' });
     this.route('poblacio');
+    this.route('informacio');
   });
 
   exports['default'] = Router;
@@ -1432,6 +1619,42 @@ define("client/templates/application", ["exports"], function (exports) {
         templates: []
       };
     })();
+    var child2 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 20,
+              "column": 12
+            },
+            "end": {
+              "line": 20,
+              "column": 47
+            }
+          },
+          "moduleName": "client/templates/application.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("Informació");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() {
+          return [];
+        },
+        statements: [],
+        locals: [],
+        templates: []
+      };
+    })();
     return {
       meta: {
         "fragmentReason": {
@@ -1534,10 +1757,7 @@ define("client/templates/application", ["exports"], function (exports) {
         var el5 = dom.createTextNode("\n        ");
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("li");
-        var el6 = dom.createElement("a");
-        dom.setAttribute(el6, "href", "#");
-        var el7 = dom.createTextNode("Informació");
-        dom.appendChild(el6, el7);
+        var el6 = dom.createComment("");
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
         var el5 = dom.createTextNode("\n      ");
@@ -1587,15 +1807,17 @@ define("client/templates/application", ["exports"], function (exports) {
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element0 = dom.childAt(fragment, [0, 1]);
-        var morphs = new Array(3);
+        var element1 = dom.childAt(element0, [7, 1]);
+        var morphs = new Array(4);
         morphs[0] = dom.createMorphAt(dom.childAt(element0, [3]), 3, 3);
-        morphs[1] = dom.createMorphAt(dom.childAt(element0, [7, 1, 1]), 0, 0);
-        morphs[2] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element1, [1]), 0, 0);
+        morphs[2] = dom.createMorphAt(dom.childAt(element1, [3]), 0, 0);
+        morphs[3] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
         return morphs;
       },
-      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [11, 6], [13, 18]]]], ["block", "link-to", ["poblacio"], [], 1, null, ["loc", [null, [19, 12], [19, 55]]]], ["content", "outlet", ["loc", [null, [30, 1], [30, 11]]]]],
+      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [11, 6], [13, 18]]]], ["block", "link-to", ["poblacio"], [], 1, null, ["loc", [null, [19, 12], [19, 55]]]], ["block", "link-to", ["informacio"], [], 2, null, ["loc", [null, [20, 12], [20, 59]]]], ["content", "outlet", ["loc", [null, [30, 1], [30, 11]]]]],
       locals: [],
-      templates: [child0, child1]
+      templates: [child0, child1, child2]
     };
   })());
 });
@@ -5728,7 +5950,13 @@ define("client/templates/index", ["exports"], function (exports) {
         var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
         var el1 = dom.createElement("p");
-        var el2 = dom.createTextNode("Aquest tauler no és pas cap eina oficial de l'Ajuntament de Barcelona sino que forma part d'un Treball de Final de Grau de la \n");
+        var el2 = dom.createTextNode("Aquest tauler no és pas cap eina oficial de l'Ajuntament de Barcelona sino que forma part d'un Treball de Final de Grau sobre ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("i");
+        var el3 = dom.createTextNode("Business Intelligence");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" de la \n");
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("a");
         dom.setAttribute(el2, "href", "http://www.uoc.edu/portal/ca/index.html");
@@ -5760,6 +5988,213 @@ define("client/templates/index", ["exports"], function (exports) {
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode(".");
         dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() {
+        return [];
+      },
+      statements: [],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("client/templates/informacio", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.4.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 42,
+            "column": 0
+          }
+        },
+        "moduleName": "client/templates/informacio.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createTextNode("\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h1");
+        var el2 = dom.createTextNode("Informació");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h5");
+        var el2 = dom.createTextNode("Tutor de l'assignatura: ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("bold");
+        var el3 = dom.createTextNode("Humberto Andrés Sanz");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" ");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h3");
+        var el2 = dom.createTextNode("Recursos utilitzats");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Front-end");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("HTML5 + CSS + Javascript");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "href", "http://sass-lang.com/");
+        dom.setAttribute(el3, "target", "_blank");
+        var el4 = dom.createTextNode("SaSS");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" per  Hampton Catlin, Natalie Weizenbaum, Chris Eppstein i altres.\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "href", "http://emberjs.com/");
+        dom.setAttribute(el3, "target", "_blank");
+        var el4 = dom.createTextNode("Ember.js");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" per Tilde Inc.\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "href", "http://square.github.io/crossfilter/");
+        dom.setAttribute(el3, "target", "_blank");
+        var el4 = dom.createTextNode("Crossfilter");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" per Square\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "href", "https://d3js.org/");
+        dom.setAttribute(el3, "target", "_blank");
+        var el4 = dom.createTextNode("D3.js");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" per Mike Bostock\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "href", "https://github.com/martgnz/bcn-geodata");
+        dom.setAttribute(el3, "target", "_blank");
+        var el4 = dom.createTextNode("Mapes de Barcelona");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" per Martín González\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("Back-end");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("ul");
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "href", "https://nodejs.org/en/");
+        dom.setAttribute(el3, "target", "_blank");
+        var el4 = dom.createTextNode("Node.js");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" per Node.js Foundation\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "href", "http://expressjs.com/");
+        dom.setAttribute(el3, "target", "_blank");
+        var el4 = dom.createTextNode("Express");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" per Node.js Foundation\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("li");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("a");
+        dom.setAttribute(el3, "href", "https://github.com/robconery/massive-js");
+        dom.setAttribute(el3, "target", "_blank");
+        var el4 = dom.createTextNode("Massive.js");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode(" per Rob Conery\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
         return el0;
       },
@@ -5908,52 +6343,6 @@ define("client/templates/poblacio", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 16,
-              "column": 2
-            },
-            "end": {
-              "line": 18,
-              "column": 2
-            }
-          },
-          "moduleName": "client/templates/poblacio.hbs"
-        },
-        isEmpty: false,
-        arity: 0,
-        cachedFragment: null,
-        hasRendered: false,
-        buildFragment: function buildFragment(dom) {
-          var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("			");
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("button");
-          dom.setAttribute(el1, "class", "btn btn-xs btn-warning");
-          var el2 = dom.createTextNode("Deseleccionar");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createTextNode("\n");
-          dom.appendChild(el0, el1);
-          return el0;
-        },
-        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [1]);
-          var morphs = new Array(1);
-          morphs[0] = dom.createElementMorph(element0);
-          return morphs;
-        },
-        statements: [["element", "action", ["reset"], [], ["loc", [null, [17, 42], [17, 60]]]]],
-        locals: [],
-        templates: []
-      };
-    })();
-    var child3 = (function () {
-      return {
-        meta: {
-          "fragmentReason": false,
-          "revision": "Ember@2.4.5",
-          "loc": {
-            "source": null,
-            "start": {
               "line": 35,
               "column": 67
             },
@@ -5982,6 +6371,52 @@ define("client/templates/poblacio", ["exports"], function (exports) {
         templates: []
       };
     })();
+    var child3 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 37,
+              "column": 4
+            },
+            "end": {
+              "line": 41,
+              "column": 4
+            }
+          },
+          "moduleName": "client/templates/poblacio.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("					");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("button");
+          dom.setAttribute(el1, "class", "btn btn-xs btn-danger");
+          var el2 = dom.createTextNode(" \n						Treure filtres\n					");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1]);
+          var morphs = new Array(1);
+          morphs[0] = dom.createElementMorph(element0);
+          return morphs;
+        },
+        statements: [["element", "action", ["reset"], [], ["loc", [null, [38, 43], [38, 61]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
     return {
       meta: {
         "fragmentReason": {
@@ -5996,7 +6431,7 @@ define("client/templates/poblacio", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 76,
+            "line": 87,
             "column": 0
           }
         },
@@ -6037,11 +6472,7 @@ define("client/templates/poblacio", ["exports"], function (exports) {
         var el4 = dom.createTextNode("		");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("\n");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createComment("");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode("		");
+        var el3 = dom.createTextNode("\n		\n		");
         dom.appendChild(el2, el3);
         var el3 = dom.createComment("");
         dom.appendChild(el2, el3);
@@ -6115,7 +6546,11 @@ define("client/templates/poblacio", ["exports"], function (exports) {
         dom.appendChild(el6, el7);
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
-        var el5 = dom.createTextNode("\n			");
+        var el5 = dom.createTextNode("\n");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("			");
         dom.appendChild(el4, el5);
         dom.appendChild(el3, el4);
         var el4 = dom.createTextNode("\n			");
@@ -6214,20 +6649,20 @@ define("client/templates/poblacio", ["exports"], function (exports) {
         morphs[0] = dom.createElementMorph(element3);
         morphs[1] = dom.createMorphAt(element3, 1, 1);
         morphs[2] = dom.createMorphAt(element2, 3, 3);
-        morphs[3] = dom.createMorphAt(element2, 5, 5);
-        morphs[4] = dom.createMorphAt(dom.childAt(element6, [1]), 0, 0);
-        morphs[5] = dom.createMorphAt(dom.childAt(element6, [3, 1]), 0, 0);
-        morphs[6] = dom.createMorphAt(element7, 0, 0);
-        morphs[7] = dom.createMorphAt(element7, 2, 2);
-        morphs[8] = dom.createMorphAt(element7, 4, 4);
-        morphs[9] = dom.createMorphAt(dom.childAt(element6, [7, 1]), 0, 0);
+        morphs[3] = dom.createMorphAt(dom.childAt(element6, [1]), 0, 0);
+        morphs[4] = dom.createMorphAt(dom.childAt(element6, [3, 1]), 0, 0);
+        morphs[5] = dom.createMorphAt(element7, 0, 0);
+        morphs[6] = dom.createMorphAt(element7, 2, 2);
+        morphs[7] = dom.createMorphAt(element7, 4, 4);
+        morphs[8] = dom.createMorphAt(dom.childAt(element6, [7, 1]), 0, 0);
+        morphs[9] = dom.createMorphAt(element6, 9, 9);
         morphs[10] = dom.createMorphAt(element5, 3, 3);
         morphs[11] = dom.createMorphAt(dom.childAt(element4, [5]), 3, 3);
         morphs[12] = dom.createMorphAt(dom.childAt(element8, [1]), 1, 1);
         morphs[13] = dom.createMorphAt(element8, 3, 3);
         return morphs;
       },
-      statements: [["element", "action", ["changeView"], [], ["loc", [null, [8, 38], [8, 61]]]], ["block", "if", [["get", "viewDistricts", ["loc", [null, [10, 10], [10, 23]]]]], [], 0, 1, ["loc", [null, [10, 4], [14, 11]]]], ["block", "if", [["get", "selectedZone", ["loc", [null, [16, 8], [16, 20]]]]], [], 2, null, ["loc", [null, [16, 2], [18, 9]]]], ["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "viewDistricts", ["loc", [null, [20, 18], [20, 31]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [21, 13], [21, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "paths", ["loc", [null, [22, 14], [22, 19]]]]], [], []], "units", "persones", "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [24, 11], [24, 19]]]]], [], []], "class", "col-xs-12", "id", "map"], ["loc", [null, [19, 2], [27, 4]]]], ["content", "scope", ["loc", [null, [33, 8], [33, 17]]]], ["content", "year", ["loc", [null, [34, 36], [34, 44]]]], ["content", "minAge", ["loc", [null, [35, 43], [35, 53]]]], ["content", "maxAge", ["loc", [null, [35, 56], [35, 66]]]], ["block", "if", [["get", "isMax", ["loc", [null, [35, 73], [35, 78]]]]], [], 3, null, ["loc", [null, [35, 67], [35, 92]]]], ["content", "gender", ["loc", [null, [36, 37], [36, 47]]]], ["inline", "pie-chart", [], ["class", "col-md-6 col-xs-12", "iniColor", "darkblue", "endColor", "purple", "pieData", ["subexpr", "@mut", [["get", "genderData", ["loc", [null, [42, 13], [42, 23]]]]], [], []], "title", "Sexe", "units", "persones", "setPie", ["subexpr", "action", ["changeGender"], [], ["loc", [null, [45, 10], [45, 33]]]], "id", "pieGender"], ["loc", [null, [38, 3], [46, 19]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [55, 11], [55, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [56, 18], [56, 22]]]]], [], []], "units", "persones", "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [54, 4], [59, 20]]]], ["content", "year", ["loc", [null, [64, 32], [64, 40]]]], ["inline", "range-selector", [], ["data", ["subexpr", "@mut", [["get", "rangeData", ["loc", [null, [68, 12], [68, 21]]]]], [], []], "class", "col-md-12 col-xs-12", "id", "rangeSelector"], ["loc", [null, [67, 4], [70, 25]]]]],
+      statements: [["element", "action", ["changeView"], [], ["loc", [null, [8, 38], [8, 61]]]], ["block", "if", [["get", "viewDistricts", ["loc", [null, [10, 10], [10, 23]]]]], [], 0, 1, ["loc", [null, [10, 4], [14, 11]]]], ["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "viewDistricts", ["loc", [null, [18, 18], [18, 31]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [19, 13], [19, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "paths", ["loc", [null, [20, 14], [20, 19]]]]], [], []], "units", "persones", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [22, 14], [22, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [23, 11], [23, 19]]]]], [], []], "class", "col-xs-12", "id", "map", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [26, 15], [26, 36]]]]], ["loc", [null, [17, 2], [27, 4]]]], ["content", "scope", ["loc", [null, [33, 8], [33, 17]]]], ["content", "year", ["loc", [null, [34, 36], [34, 44]]]], ["content", "minAge", ["loc", [null, [35, 43], [35, 53]]]], ["content", "maxAge", ["loc", [null, [35, 56], [35, 66]]]], ["block", "if", [["get", "isMax", ["loc", [null, [35, 73], [35, 78]]]]], [], 2, null, ["loc", [null, [35, 67], [35, 92]]]], ["content", "gender", ["loc", [null, [36, 37], [36, 47]]]], ["block", "if", [["get", "showReset", ["loc", [null, [37, 10], [37, 19]]]]], [], 3, null, ["loc", [null, [37, 4], [41, 11]]]], ["inline", "pie-chart", [], ["class", "col-md-6 col-xs-12", "iniColor", "darkblue", "endColor", "purple", "pieData", ["subexpr", "@mut", [["get", "genderData", ["loc", [null, [47, 13], [47, 23]]]]], [], []], "title", "Sexe", "units", "persones", "setPie", ["subexpr", "action", ["changeGender"], [], ["loc", [null, [50, 10], [50, 33]]]], "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [51, 9], [51, 16]]]]], [], []], "id", "pieGender"], ["loc", [null, [43, 3], [52, 19]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [61, 11], [61, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [62, 18], [62, 22]]]]], [], []], "units", "persones", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [64, 12], [64, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [60, 4], [66, 20]]]], ["content", "year", ["loc", [null, [71, 32], [71, 40]]]], ["inline", "range-selector", [], ["data", ["subexpr", "@mut", [["get", "rangeData", ["loc", [null, [75, 12], [75, 21]]]]], [], []], "minValue", 0, "maxValue", 95, "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [78, 11], [78, 18]]]]], [], []], "setAges", ["subexpr", "action", ["changeAges"], [], ["loc", [null, [79, 13], [79, 34]]]], "class", "col-md-12 col-xs-12", "id", "rangeSelector"], ["loc", [null, [74, 4], [81, 25]]]]],
       locals: [],
       templates: [child0, child1, child2, child3]
     };
@@ -6284,7 +6719,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+664a1767"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+23d275e5"});
 }
 
 /* jshint ignore:end */

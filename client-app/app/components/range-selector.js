@@ -5,10 +5,15 @@ export default Ember.Component.extend({
 	tagName: 'svg',
 	margin: {top: 20, right: 30, bottom: 30, left: 40},
   color: 'steelblue',
+  minValue: 0,
+  maxValue: 100,
+  reset: false,
   data: null,
- 
+ 	brush: d3.svg.brush(),
+					
+
   didInsertElement: function() {
-  	
+  	const self = this;
   	const margin = this.get('margin');
 		const w = (this.$().css('width')).slice(0, (this.$().css('width')).indexOf('p'));
 		const h = (this.$().css('height')).slice(0, (this.$().css('height')).indexOf('p'));
@@ -16,9 +21,14 @@ export default Ember.Component.extend({
   	const height = h - margin.top - margin.bottom;
 		const lineColor = this.get('color'),
 					lineData = this.get('data');
+		const minValue = this.get('minValue'),
+					maxValue = this.get('maxValue');
+		const brush = this.get('brush');
+
+		
 
 		let x = d3.scale.linear()
-							.domain([0, 95] )
+							.domain([minValue, maxValue] )
     					.range([0, width]);
 
     let	y = d3.scale.linear()
@@ -47,10 +57,9 @@ export default Ember.Component.extend({
 						      	return d3.round(d, 0).toLocaleString();
 						      });
 
-		let brush = d3.svg.brush()
-			.x(x)
-			.extent(d3.extent(lineData))
-			.on('brushend', brushended);
+		brush.x(x)
+				.extent(d3.extent(lineData))
+				.on('brushend', brushended);
 
     let area = d3.svg.area()
     	.interpolate('monotone')
@@ -103,7 +112,7 @@ export default Ember.Component.extend({
 		  if (!d3.event.sourceEvent) { return; }// only transition after input
 		  var extent0 = brush.extent(),
 		      extent1 = extent0.map(d3.round);
-
+		  
 		  // if empty when rounded, use floor & ceil instead
 		  if (extent1[0] >= extent1[1]) {
 		    extent1[0] = d3.floor(extent0[0]);
@@ -113,6 +122,8 @@ export default Ember.Component.extend({
 		  d3.select(this).transition()
 		      .call(brush.extent(extent1))
 		      .call(brush.event);
+
+		  self.sendAction('setAges', extent1[0], extent1[1]);
 		}
 
   },
@@ -172,4 +183,16 @@ export default Ember.Component.extend({
 			.attr('x2', width);
   }),
 
+  resetBrush: Ember.observer('reset', function(){
+  	
+  	let svg = d3.select('#'+this.get('elementId'));
+  	const minValue = this.get('minValue'),
+					maxValue = this.get('maxValue');
+  	const brush = this.get('brush');
+
+  	svg.select('g.brush').transition()
+  		.duration(1000)
+  		.call(brush.clear())
+  		.call(brush.event);
+  }),
 });

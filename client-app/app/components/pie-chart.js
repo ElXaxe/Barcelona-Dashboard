@@ -11,6 +11,7 @@ export default Ember.Component.extend({
 	endColor: '#000050',
 	selectColor: 'crimson',
 	units: 'u.',
+	reset: false,
 	colorScale: Ember.computed('iniColor', 'endColor', function(){
 		const first = this.get('iniColor'),
 					last = this.get('endColor');
@@ -42,10 +43,10 @@ export default Ember.Component.extend({
 		const tooltip = this.get('tip');
 		const units = this.get('units');
 		const total = values.reduce(function(a, b) { return a + b; });
-		const _this = this;
+		
   	color.domain(labels[0], labels[labels.length - 1]);
   	
-  	let svg = d3.select('#'+this.get('elementId'));
+  	const svg = d3.select('#'+this.get('elementId'));
 		svg.attr('width', width).attr('height', height);
 
 		let pie = d3.layout.pie()
@@ -155,7 +156,116 @@ export default Ember.Component.extend({
 			 			.classed('_selected_', true);
 			 		this.sendAction('setPie', null);
 			});
+
+	 	svg.selectAll('path').transition().attrTween("d", arcTween);
+
+	 	function arcTween(a) {
+      var i = d3.interpolate(this._current, a);
+      this._current = i(0);
+      return function(t) {
+        return arc(i(t));
+      };
+    }
 	},
+
+	changePie: Ember.observer('pieData', function() {
+		
+		const svg = d3.select('#'+this.get('elementId'));
+		const pieData = this.get('pieData');
+		const w = (this.$().css('width')).slice(0, (this.$().css('width')).indexOf('p'));
+		const h = (this.$().css('height')).slice(0, (this.$().css('height')).indexOf('p'));
+		const margin = this.get('margin');
+		const width = w - margin.left - margin.right;
+  	const height = h - margin.top - margin.bottom;
+  	const radius = Math.min(width, height) / 2;
+  	const innRadius = radius * 0.5,
+  				outRadius = radius * 0.9;
+  	const labels = $.map(pieData, function(el) { return el.key; }),
+				values = $.map(pieData, function(el) { return el.value; });
+		const total = values.reduce(function(a, b) { return a + b; });
+		const tooltip = this.get('tip');
+		const units = this.get('units');
+		const selectColor = this.get('selectColor');
+		
+		const pie = d3.layout.pie()
+								.value( function(d) { return d; })
+								.sort(null);
+
+		let arc = d3.svg.arc()
+								.innerRadius(innRadius)
+								.outerRadius(outRadius);
+		
+		svg.selectAll('path')
+			.data(pie(values))
+			.transition()
+			.duration(1000)
+			.attrTween('d', arcTween);
+
+		svg.selectAll('path')
+			.on('mouseover', function (d, i) { 
+			 		let percentage = d.value / total * 100;
+
+			 		d3.select(this)
+			 			.transition()
+			 			.attr('stroke', selectColor)
+			 			.attr('stroke-width', '2px');
+
+			 		tooltip.transition()
+						 .duration(350)
+						 .style('opacity', 0.9);
+					
+					tooltip.html('<h3>' +
+								  d3.round(percentage, 2) + 
+								  '%</h3><p>' + d.value.toLocaleString() + ' ' + units +'</p>')
+						 .style("left", (d3.event.pageX) + "px")
+	           .style("top", (d3.event.pageY - 100) + "px"); 
+			 });
+
+		svg.selectAll('.labelText')
+			.data(pie(values))
+			.transition()
+			.duration(1250)
+			.attr("x", function(d) {
+          var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+          d.cx = Math.cos(a) * (outRadius + 75);
+          return d.x = Math.cos(a) * (outRadius + 30);
+      })
+      .attr("y", function(d) {
+          var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+          d.cy = Math.sin(a) * (outRadius + 75);
+          return d.y = Math.sin(a) * (outRadius + 20);
+      })
+      .style("text-anchor", function(d) {
+	        var rads = ((d.endAngle - d.startAngle) / 2) + d.startAngle + 10;
+	        if ( (rads > 7 * Math.PI / 4 && rads < Math.PI / 4) || (rads > 3 * Math.PI / 4 && rads < 5 * Math.PI / 4) ) {
+	          return "middle";
+	        } else if (rads >= Math.PI / 4 && rads <= 3 * Math.PI / 4) {
+	            return "start";
+	        } else if (rads >= 5 * Math.PI / 4 && rads <= 7 * Math.PI / 4) {
+	            return "end";
+	        } else {
+	            return "middle";
+	        }
+	    });
+
+    svg.transition().attr({width: width, height: height});
+
+    function arcTween(a) {
+      var i = d3.interpolate(this._current, a);
+      this._current = i(0);
+      return function(t) {
+        return arc(i(t));
+      };
+    }
+	}),
+
+	resetPie: Ember.observer('reset', function(){
+		const svg = d3.select('#'+this.get('elementId'));
+
+		svg.selectAll('.donut-arc').classed('_selected_', true);
+		this.sendAction('setPie', null);
+
+	}),
 
 	actions: {
 
