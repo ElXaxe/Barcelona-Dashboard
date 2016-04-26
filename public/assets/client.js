@@ -267,6 +267,7 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 			var colorScale = this.get('colorScale');
 			var tooltip = this.get('tip');
 			var units = this.get('units');
+
 			var svg = d3.select('#' + this.get('elementId'));
 
 			svg.attr('width', width).attr('height', height);
@@ -6718,7 +6719,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+f01277c9"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+1a779352"});
 }
 
 /* jshint ignore:end */

@@ -22,7 +22,7 @@ define('client/tests/components/data-map.jshint', ['exports'], function (exports
   QUnit.module('JSHint - components/data-map.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/data-map.js should pass jshint.\ncomponents/data-map.js: line 82, col 38, \'i\' is defined but never used.\ncomponents/data-map.js: line 108, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 219, col 21, \'index\' is defined but never used.\ncomponents/data-map.js: line 244, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 291, col 15, \'colorScale\' is defined but never used.\ncomponents/data-map.js: line 293, col 15, \'mapData\' is defined but never used.\ncomponents/data-map.js: line 69, col 37, \'$\' is not defined.\ncomponents/data-map.js: line 202, col 38, \'$\' is not defined.\n\n8 errors');
+    assert.ok(false, 'components/data-map.js should pass jshint.\ncomponents/data-map.js: line 83, col 38, \'i\' is defined but never used.\ncomponents/data-map.js: line 109, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 220, col 21, \'index\' is defined but never used.\ncomponents/data-map.js: line 245, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 292, col 15, \'colorScale\' is defined but never used.\ncomponents/data-map.js: line 294, col 15, \'mapData\' is defined but never used.\ncomponents/data-map.js: line 70, col 37, \'$\' is not defined.\ncomponents/data-map.js: line 203, col 38, \'$\' is not defined.\n\n8 errors');
   });
 });
 define('client/tests/components/pie-chart.jshint', ['exports'], function (exports) {
