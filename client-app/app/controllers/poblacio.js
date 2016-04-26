@@ -14,16 +14,18 @@ export default Ember.Controller.extend({
 	}),
 	year: 2015,
 	scope: 'Barcelona',
+	zoneCode: null,
 	minAge: 0,
 	maxAge: 95,
 	gender: 'Tots',
 	isMax: Ember.computed('maxAge', function() {
 		return this.get('maxAge') === 95;
 	}),
-	resetMap: false,
-	selectedZone: false,
+	showReset: false,
+	reseted: false,
 	dataMap: Ember.computed(
 		'viewDistricts', 'populYearDim', 'districtDimension', 'neighborDimension', 'year', 'gender',
+		'minAge', 'maxAge',
 		function() {
 			const isDistrict = this.get('viewDistricts');
 			const yearDim = this.get('populYearDim');
@@ -31,6 +33,7 @@ export default Ember.Controller.extend({
 			const neighborDim = this.get('neighborDimension');
 			const year = this.get('year');
 			const gender = this.get('gender');
+			const minAge = this.get('minAge'), maxAge = this.get('maxAge');
 			let group, data;
 
 			yearDim.filter(year);
@@ -39,36 +42,66 @@ export default Ember.Controller.extend({
 			} else {
 				group = neighborDim.group(function(d) { return d; });
 			}
+
 			data = group.reduceSum( function(d) {
-				if (gender === 'Dones'){
-					return d.attributes.womenTotal;
-				} else if (gender === 'Homes') {
-					return d.attributes.menTotal;
+				let w, m;
+
+				if (minAge === 0 && maxAge === 95) {
+					w = d.attributes.womenTotal;
+					m = d.attributes.menTotal;
+				} else {
+					w = d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
+					m = d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
 				}
-				return d.attributes.womenTotal + d.attributes.menTotal;
+
+				if (gender === 'Dones'){
+					return w;
+				} else if (gender === 'Homes') {
+					return m;
+				}
+				return w + m;
 			});
 			
 			return data.all();
 	}),
 
 	genderData: Ember.computed(
-		'viewDistricts', 'year', 'populYearDim', 'districtDimension', 'neighborDimension',
+		'viewDistricts', 'year', 'populYearDim', 'districtDimension', 'neighborDimension', 'scope',
+		'minAge', 'maxAge',
 		function() {
 			const isDistrict = this.get('viewDistricts');
 			const year = this.get('year');
 			const yearDim = this.get('populYearDim');
 			const districtDim = this.get('districtDimension');
 			const neighborDim = this.get('neighborDimension');
+			const zoneCode = this.get('zoneCode');
+			const minAge = this.get('minAge'), maxAge = this.get('maxAge');
 			let data = Ember.A([]);
 			let group, women, men;
 
 			yearDim.filter(year);
+			
+			if (!isDistrict) {
+				group = districtDim.group();
+			} else {
+				group = neighborDim.group();
+			}
 
-			group = districtDim.group(function(d) { return d; });
-
-			women = $.map(group.reduceSum(function(d) { return d.attributes.womenTotal; }).all(), 
+			women = $.map(group.reduceSum(function(d) { 
+					if ( minAge === 0 && maxAge === 95) {
+						return d.attributes.womenTotal; 
+					} else {
+						return d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
+					}
+				}).all(), 
 				function(el) { return el.value; });
-			men = $.map(group.reduceSum(function(d) { return d.attributes.menTotal; }).all(), 
+			men = $.map(group.reduceSum(function(d) { 
+					if ( minAge === 0 && maxAge === 95) {
+						return d.attributes.menTotal; 
+					} else {
+						return d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+					}
+				}).all(), 
 				function(el) { return el.value; });
 
 			data.pushObject({
@@ -85,17 +118,22 @@ export default Ember.Controller.extend({
 	}),
 
 	yearData: Ember.computed(
-		'populYearDim', 'neighborDimension', 'gender',
+		'populYearDim', 'neighborDimension', 'gender', 'scope', 'minAge', 'maxAge',
 		function() {
 			const yearDim = this.get('populYearDim');
 			const gender = this.get('gender');
+			const minAge = this.get('minAge');
+			const maxAge = this.get('maxAge');
 			let data;
 
 			data = yearDim.group()
 							.reduceSum( function(d) { 
-								const w = d.attributes.womenYears.reduce(getSum);
-								const m = d.attributes.menYears.reduce(getSum);
 								
+								const women = d.attributes.womenYears.slice(minAge, maxAge + 1);
+								const men = d.attributes.menYears.slice(minAge, maxAge + 1);
+								const w = women.reduce(getSum);
+								const m = men.reduce(getSum);
+
 								if (gender === 'Dones') {
 									return w;
 								} else if (gender === 'Homes') {
@@ -122,7 +160,7 @@ export default Ember.Controller.extend({
 			aux = yearDim.top(Infinity);
 
 			aux.forEach( (d, i) => {
-				for( var j = minAge; j < maxAge + 1;  j++) {
+				for( var j = 0; j < 96;  j++) {
 					old = data[j] ? data[j] : 0;
 					if (gender === 'Dones') {
 						data[j] = d.attributes.womenYears[j] + old;
@@ -141,31 +179,72 @@ export default Ember.Controller.extend({
 
 	actions: {
 		changeView() {
-
+			this.set('zoneCode', null);
+			this.set('scope', 'Barcelona');
 			if (this.get('viewDistricts')) {
 				this.set('viewDistricts', false);
+				this.get('districtDimension').filterAll();
 			} else {
 				this.set('viewDistricts', true);
+				this.get('neighborDimension').filterAll();
+			}
+			this.set('showReset', this.get('showReset') || false);
+		},
+
+		changeZone(code, name) {
+			const isDistrict = this.get('viewDistricts');
+			const districtDim = this.get('districtDimension');
+			const neighborDim = this.get('neighborDimension');
+			this.set('scope', name);
+			this.set('zoneCode', code);
+			this.set('showReset', true);
+			if (code) {
+				if (isDistrict) {
+					neighborDim.filterAll();
+					districtDim.filter(+code);
+				} else {
+					districtDim.filterAll();
+					neighborDim.filter(+code);
+				}
+			} else {
+				districtDim.filterAll();
+				neighborDim.filterAll();
 			}
 		},
 
-		changeZone(zone) {
-			debugger;
-			this.set('selectedZone', true);
-		},
-
 		reset() {
-			this.toggleProperty('resetMap');
 			this.set('scope', 'Barcelona');
-			this.set('selectedZone', false);
+			this.set('zoneCode', null);
+			if (this.get('viewDistricts')) {
+				this.get('districtDimension').filterAll();
+			} else {
+				this.get('neighborDimension').filterAll();
+			}
+			this.set('showReset', false);
+			this.toggleProperty('reseted');
+			this.set('minAge', 0);
+			this.set('maxAge', 95);
 		},
 
 		changeGender(gender) {
 			if(gender) {
 				this.set('gender', gender);
+				this.set('showReset', true);
 			} else {
 				this.set('gender', 'Tots');
+				this.set('showReset', this.get('showReset') || false);
 			}
+			
+		},
+
+		changeYear(year) {
+			this.set('year', year);
+		},
+
+		changeAges(minAge, maxAge) {
+			this.set('minAge', d3.round(minAge, 0));
+			this.set('maxAge', d3.round(maxAge, 0));
+			this.set('showReset', true);
 		},
 
 	}

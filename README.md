@@ -13,6 +13,7 @@ Technologies used in this app:
 - [Ember.JS] (http://emberjs.com/)
 - [Crossfilter] (http://square.github.io/crossfilter/) by [Square] (http://squareup.com/)
 - [D3.js] (https://d3js.org/) by [Mike Bostock] (http://bost.ocks.org/mike/)
+- [Barcelona TopoJSON maps] (https://github.com/martgnz/bcn-geodata) by Martín González
 
 To enjoy this web app, just run the next command at the root folder:
 

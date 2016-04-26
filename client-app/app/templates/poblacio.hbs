@@ -13,17 +13,17 @@
 				districtes
 				{{/if}}
 		</button>
-		{{#if selectedZone}}
-			<button class='btn btn-xs btn-warning' {{action 'reset'}}>Deseleccionar</button>
-		{{/if}}
+		
 		{{data-map
 			districtView = viewDistricts
 			mapData = dataMap
 			mapPaths = paths
 			units='persones'
+			zoneCode = zoneCode
 			reseted=resetMap
 			class = "col-xs-12"
 			id = "map"
+			changeZone =(action 'changeZone')
 		}}
 	</div> <!-- Map -->
 
@@ -34,6 +34,11 @@
 				<h4>Any: <span class='infoText'>{{year}}</span> </h4>
 				<h4>Rang edats: <span class='infoText'>{{minAge}} - {{maxAge}} {{#if isMax}}o més{{/if}}</span></h4>
 				<h4>Sexe: <span class='infoText'>{{gender}}</span></h4>
+				{{#if showReset}}
+					<button class="btn btn-xs btn-danger" {{action 'reset'}}> 
+						Treure filtres
+					</button>
+				{{/if}}
 			</div>
 			{{pie-chart
 			class="col-md-6 col-xs-12"
@@ -43,6 +48,7 @@
 			title='Sexe'
 			units='persones'
 			setPie=(action 'changeGender')
+			reset=reseted
 			id="pieGender"}}
 		</div>
 		<hr>
@@ -55,6 +61,7 @@
 				data = yearData 
 				currentYear = year
 				units = 'persones'
+				setYear=(action 'changeYear')
 				class ="col-md-12 col-xs-12"
 				id="lineYears"}}
 		</div>
@@ -66,6 +73,10 @@
 				</h4>
 				{{range-selector
 					data = rangeData
+					minValue=0
+					maxValue=95
+					reset=reseted
+					setAges=(action 'changeAges')
 					class="col-md-12 col-xs-12"
 					id="rangeSelector"}}
 		</div>

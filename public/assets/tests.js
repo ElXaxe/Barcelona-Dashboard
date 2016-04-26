@@ -22,7 +22,7 @@ define('client/tests/components/data-map.jshint', ['exports'], function (exports
   QUnit.module('JSHint - components/data-map.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/data-map.js should pass jshint.\ncomponents/data-map.js: line 120, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 274, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 308, col 50, \'d\' is defined but never used.\ncomponents/data-map.js: line 68, col 37, \'$\' is not defined.\ncomponents/data-map.js: line 220, col 38, \'$\' is not defined.\ncomponents/data-map.js: line 314, col 35, \'mapData\' is not defined.\n\n6 errors');
+    assert.ok(false, 'components/data-map.js should pass jshint.\ncomponents/data-map.js: line 82, col 38, \'i\' is defined but never used.\ncomponents/data-map.js: line 108, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 219, col 21, \'index\' is defined but never used.\ncomponents/data-map.js: line 244, col 38, \'d\' is defined but never used.\ncomponents/data-map.js: line 291, col 15, \'colorScale\' is defined but never used.\ncomponents/data-map.js: line 293, col 15, \'mapData\' is defined but never used.\ncomponents/data-map.js: line 69, col 37, \'$\' is not defined.\ncomponents/data-map.js: line 202, col 38, \'$\' is not defined.\n\n8 errors');
   });
 });
 define('client/tests/components/pie-chart.jshint', ['exports'], function (exports) {
@@ -31,7 +31,7 @@ define('client/tests/components/pie-chart.jshint', ['exports'], function (export
   QUnit.module('JSHint - components/pie-chart.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/pie-chart.js should pass jshint.\ncomponents/pie-chart.js: line 76, col 44, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 94, col 43, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 94, col 40, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 153, col 29, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 153, col 26, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 32, col 13, \'iniColor\' is defined but never used.\ncomponents/pie-chart.js: line 33, col 13, \'endColor\' is defined but never used.\ncomponents/pie-chart.js: line 45, col 15, \'_this\' is defined but never used.\ncomponents/pie-chart.js: line 39, col 22, \'$\' is not defined.\ncomponents/pie-chart.js: line 40, col 26, \'$\' is not defined.\n\n10 errors');
+    assert.ok(false, 'components/pie-chart.js should pass jshint.\ncomponents/pie-chart.js: line 77, col 44, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 95, col 43, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 95, col 40, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 154, col 29, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 154, col 26, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 33, col 13, \'iniColor\' is defined but never used.\ncomponents/pie-chart.js: line 34, col 13, \'endColor\' is defined but never used.\ncomponents/pie-chart.js: line 205, col 43, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 183, col 13, \'labels\' is defined but never used.\ncomponents/pie-chart.js: line 40, col 22, \'$\' is not defined.\ncomponents/pie-chart.js: line 41, col 26, \'$\' is not defined.\ncomponents/pie-chart.js: line 183, col 22, \'$\' is not defined.\ncomponents/pie-chart.js: line 184, col 26, \'$\' is not defined.\n\n13 errors');
   });
 });
 define('client/tests/components/range-selector.jshint', ['exports'], function (exports) {
@@ -40,7 +40,7 @@ define('client/tests/components/range-selector.jshint', ['exports'], function (e
   QUnit.module('JSHint - components/range-selector.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/range-selector.js should pass jshint.\ncomponents/range-selector.js: line 46, col 54, \'i\' is defined but never used.\ncomponents/range-selector.js: line 86, col 13, \'gy\' is defined but never used.\ncomponents/range-selector.js: line 149, col 54, \'i\' is defined but never used.\ncomponents/range-selector.js: line 126, col 15, \'lineColor\' is defined but never used.\n\n4 errors');
+    assert.ok(false, 'components/range-selector.js should pass jshint.\ncomponents/range-selector.js: line 56, col 54, \'i\' is defined but never used.\ncomponents/range-selector.js: line 95, col 13, \'gy\' is defined but never used.\ncomponents/range-selector.js: line 160, col 54, \'i\' is defined but never used.\ncomponents/range-selector.js: line 137, col 15, \'lineColor\' is defined but never used.\ncomponents/range-selector.js: line 189, col 13, \'minValue\' is defined but never used.\ncomponents/range-selector.js: line 190, col 21, \'maxValue\' is defined but never used.\n\n6 errors');
   });
 });
 define('client/tests/components/year-evolution.jshint', ['exports'], function (exports) {
@@ -49,7 +49,7 @@ define('client/tests/components/year-evolution.jshint', ['exports'], function (e
   QUnit.module('JSHint - components/year-evolution.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/year-evolution.js should pass jshint.\ncomponents/year-evolution.js: line 109, col 31, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 125, col 32, \'d\' is defined but never used.\ncomponents/year-evolution.js: line 206, col 33, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 162, col 11, \'currentYear\' is defined but never used.\ncomponents/year-evolution.js: line 163, col 11, \'lineColor\' is defined but never used.\ncomponents/year-evolution.js: line 25, col 21, \'$\' is not defined.\ncomponents/year-evolution.js: line 26, col 26, \'$\' is not defined.\ncomponents/year-evolution.js: line 166, col 17, \'$\' is not defined.\ncomponents/year-evolution.js: line 167, col 18, \'$\' is not defined.\n\n9 errors');
+    assert.ok(false, 'components/year-evolution.js should pass jshint.\ncomponents/year-evolution.js: line 116, col 31, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 132, col 32, \'d\' is defined but never used.\ncomponents/year-evolution.js: line 219, col 33, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 169, col 11, \'currentYear\' is defined but never used.\ncomponents/year-evolution.js: line 170, col 11, \'lineColor\' is defined but never used.\ncomponents/year-evolution.js: line 25, col 21, \'$\' is not defined.\ncomponents/year-evolution.js: line 26, col 26, \'$\' is not defined.\ncomponents/year-evolution.js: line 173, col 17, \'$\' is not defined.\ncomponents/year-evolution.js: line 174, col 18, \'$\' is not defined.\n\n9 errors');
   });
 });
 define('client/tests/controllers/poblacio.jshint', ['exports'], function (exports) {
@@ -58,7 +58,7 @@ define('client/tests/controllers/poblacio.jshint', ['exports'], function (export
   QUnit.module('JSHint - controllers/poblacio.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 9, col 53, \'d\' is defined but never used.\ncontrollers/poblacio.js: line 57, col 19, \'isDistrict\' is defined but never used.\ncontrollers/poblacio.js: line 61, col 19, \'neighborDim\' is defined but never used.\ncontrollers/poblacio.js: line 124, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 153, col 13, Forgotten \'debugger\' statement?\ncontrollers/poblacio.js: line 152, col 20, \'zone\' is defined but never used.\ncontrollers/poblacio.js: line 69, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 71, col 19, \'$\' is not defined.\n\n8 errors');
+    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 9, col 53, \'d\' is defined but never used.\ncontrollers/poblacio.js: line 77, col 19, \'zoneCode\' is defined but never used.\ncontrollers/poblacio.js: line 162, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 153, col 19, \'minAge\' is defined but never used.\ncontrollers/poblacio.js: line 154, col 19, \'maxAge\' is defined but never used.\ncontrollers/poblacio.js: line 90, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 98, col 19, \'$\' is not defined.\n\n7 errors');
   });
 });
 define('client/tests/helpers/destroy-app', ['exports', 'ember'], function (exports, _ember) {
@@ -173,7 +173,7 @@ define('client/tests/integration/components/data-map-test', ['exports', 'ember-q
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -217,7 +217,7 @@ define('client/tests/integration/components/data-map-test', ['exports', 'ember-q
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.4.3',
+            'revision': 'Ember@2.4.5',
             'loc': {
               'source': null,
               'start': {
@@ -255,7 +255,7 @@ define('client/tests/integration/components/data-map-test', ['exports', 'ember-q
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -322,7 +322,7 @@ define('client/tests/integration/components/pie-chart-test', ['exports', 'ember-
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -366,7 +366,7 @@ define('client/tests/integration/components/pie-chart-test', ['exports', 'ember-
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.4.3',
+            'revision': 'Ember@2.4.5',
             'loc': {
               'source': null,
               'start': {
@@ -404,7 +404,7 @@ define('client/tests/integration/components/pie-chart-test', ['exports', 'ember-
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -471,7 +471,7 @@ define('client/tests/integration/components/range-selector-test', ['exports', 'e
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -515,7 +515,7 @@ define('client/tests/integration/components/range-selector-test', ['exports', 'e
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.4.3',
+            'revision': 'Ember@2.4.5',
             'loc': {
               'source': null,
               'start': {
@@ -553,7 +553,7 @@ define('client/tests/integration/components/range-selector-test', ['exports', 'e
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -620,7 +620,7 @@ define('client/tests/integration/components/year-evolution-test', ['exports', 'e
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -664,7 +664,7 @@ define('client/tests/integration/components/year-evolution-test', ['exports', 'e
         return {
           meta: {
             'fragmentReason': false,
-            'revision': 'Ember@2.4.3',
+            'revision': 'Ember@2.4.5',
             'loc': {
               'source': null,
               'start': {
@@ -702,7 +702,7 @@ define('client/tests/integration/components/year-evolution-test', ['exports', 'e
             'name': 'missing-wrapper',
             'problems': ['wrong-type']
           },
-          'revision': 'Ember@2.4.3',
+          'revision': 'Ember@2.4.5',
           'loc': {
             'source': null,
             'start': {
@@ -925,6 +925,27 @@ define('client/tests/unit/routes/index-test.jshint', ['exports'], function (expo
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/routes/index-test.js should pass jshint.');
+  });
+});
+define('client/tests/unit/routes/informacio-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('route:informacio', 'Unit | Route | informacio', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var route = this.subject();
+    assert.ok(route);
+  });
+});
+define('client/tests/unit/routes/informacio-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/routes/informacio-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/routes/informacio-test.js should pass jshint.');
   });
 });
 define('client/tests/unit/routes/poblacio-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {

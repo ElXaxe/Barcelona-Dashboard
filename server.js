@@ -9,13 +9,24 @@ var path = require('path');
 
 // Require MassiveJS to connect to PostgreSQL
 var massive = require('massive');
-var connection = "postgres://" +
+var connection;
+
+console.log(process.env.NODE_ENV);
+// Change connection string depending on the environment
+if ( process.env.NODE_ENV === 'development') {
+  connection = "postgres://" +
 								 config.postgres.user + ":" +
 								 config.postgres.password + "@" +
 								 config.postgres.host + ":" +
 								 config.postgres.port + "/" +
 								 config.postgres.db;
-// var connection = "postgres://crwprravrqaurn:OygTkfp6dgaztg2wS7VpF7YZuf@ec2-23-21-215-184.compute-1.amazonaws.com:5432/d42fo6nihcr2iu";
+} 
+else if ( process.env.NODE_ENV === 'production') {
+  connection = "postgres://crwprravrqaurn:OygTkfp6dgaztg2wS7VpF7YZuf@ec2-23-21-215-184.compute-1.amazonaws.com:5432/d42fo6nihcr2iu";
+}
+else {
+	console.log("Error on Node Environment: " + process.env.NODE_ENV);
+}
 
 // Connect to PostgreSQL Database
 var massiveInstance = massive.connectSync({connectionString: connection});
@@ -38,7 +49,7 @@ app.get('/*', function(req, res) {
 });
 
 // Create the server
-http.createServer(app).listen(3000, function() {
+http.createServer(app).listen(process.env.PORT || 3000, function() {
 	console.log('Server listening on port 3000!');
 });
 

@@ -45,7 +45,13 @@ export default Ember.Component.extend({
 		    					.ticks(3)
                   .tickPadding(1)
 						      .tickSize(1)
-						      .tickFormat(d3.format(".4s"))
+						      .tickFormat(function (d) {
+                    let prefix = d3.formatPrefix(d, 0);
+                    if ( d < 10000 ){ 
+                      return d3.round(d, 0); 
+                    }
+                    return d3.round(prefix.scale(d), 3) + prefix.symbol;
+                  })
                   .tickValues([yd[0], (yd[0] + yd[1]) * 0.5, yd[1]]);
     
     let line = d3.svg.line()
@@ -80,12 +86,13 @@ export default Ember.Component.extend({
     	.attr('height', height)
     	.attr('fill', 'grey')
     	.style('cursor', 'pointer')
-      .on('click', function (d,i) {
+      .on('click', (d,i) => {
         let index = i;
         svg.selectAll('.bar')
           .classed('_selected_', function(d, i) {
             return i === index;
           });
+        this.sendAction('setYear', years[i]);
       });
 
     container.append("path")
@@ -181,7 +188,13 @@ export default Ember.Component.extend({
                   .ticks(3)
                   .tickPadding(1)
                   .tickSize(1)
-                  .tickFormat(d3.format(".4s"))
+                  .tickFormat(function (d) {
+                    let prefix = d3.formatPrefix(d, 0);
+                    if ( d < 10000 ){ 
+                      return d3.round(d, 0); 
+                    }
+                    return d3.round(prefix.scale(d), 3) + prefix.symbol;
+                  })
                   .tickValues([yd[0], (yd[0] + yd[1]) * 0.5, yd[1]]);
 
     let line = d3.svg.line()

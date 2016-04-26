@@ -34,6 +34,10 @@ html, body {
 
 			#map{
 				height: 75vh;
+
+				path._selected_ {
+					fill: crimson;
+				}
 				
 			}
 			
@@ -77,6 +81,7 @@ html, body {
 			}
 
 		}
+
 	}
 
 	div.map-tooltip {
