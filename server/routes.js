@@ -8,7 +8,7 @@ module.exports = function(app, router) {
 
 	// Demography
 	router.get('/population', function(request, response) {
-		db.poblacio.find({}, function(err, res){
+		db.poblacio.find({}, function(err, res) {
 			if (err) {
 				handleError(err);
 			}
@@ -41,6 +41,33 @@ module.exports = function(app, router) {
 							menTotal: menTotal
 						}
 					};	
+				})
+			});
+		});
+	});
+
+	// Libraries
+	router.get('/libraries', function(request, response) {
+		db.biblioteques.find({}, function(err, res) {
+			if (err) {
+				handleError(err);
+			}
+
+			response.json({
+				data: res.map( (el) => {
+
+					return {
+						id: el.id,
+						type: 'librarys',
+						attributes: {
+							year: el.anny,
+							district: el.districte,
+							libraryName: el.nom,
+							visits: el.visites,
+							loans: el.prestecs
+						}
+					}
+
 				})
 			});
 		});

@@ -154,7 +154,7 @@ export default Ember.Component.extend({
 
     container.append('g')
     	.attr('class', 'y axis')
-      .style('font-size', '1em')
+      .style('font-size', '0.75em')
     	.call(yAxis);
 
   },

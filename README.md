@@ -20,3 +20,5 @@ To enjoy this web app, just run the next command at the root folder:
 `> node server`
 
 Then, you can access the dashboard through your web explorer at url *http://localhost:3000/*.
+
+**You can find a working demo [here] (https://barcelona-dashboard.herokuapp.com/) **
