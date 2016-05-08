@@ -1,0 +1,71 @@
+<h1>
+	Biblioteques
+	<small>Préstecs</small>
+</h1>
+
+<div class="row libraries">
+	<div class="col-md-5 col-xs-12">
+		
+		{{data-map
+			districtView = true
+			mapData = dataMap
+			mapPaths = model.district
+			units='préstecs'
+			zoneCode = zoneCode
+			reseted = resetMap
+			iniColor = '#FFD1C1'
+			endColor = '#500000'
+			class = "col-xs-12"
+			id = "libMap"
+			changeZone =(action 'changeZone')
+		}}
+	</div> <!-- Map -->
+
+	<div class="col-md-7 col-xs-12" id="data-content">
+		<div class="row">
+			<div class="col-md-6 col-xs-12" id="info">
+				<h3>{{scope}}</h3>
+				<h4>Any: <span class='infoText'>{{year}}</span> </h4>
+				{{#if showReset}}
+					<button class="btn btn-xs btn-danger" {{action 'reset'}}> 
+						Treure filtres
+					</button>
+				{{/if}}
+			</div>
+		</div>
+		<hr>
+		<div class="row pie">	
+				<h4>
+					Evolució dels préstecs per anys<br/>
+					<small>Fes click sobre un any per seleccionar-ho</small>
+				</h4>
+				{{year-evolution 
+				data = yearData 
+				currentYear = year
+				units = 'préstecs'
+				setYear=(action 'changeYear')
+				class ="col-md-12 col-xs-12"
+				id="lineYears"}}
+		</div>
+		<hr>
+		{{#if zoneCode}}
+		<div class="row">
+			<h4>
+				Préstecs de les biblioteques del districte de {{scope}}<br/>
+			</h4>
+			{{pie-chart
+			class="col-md-12 col-xs-12"
+			iniColor='#FFD1C1'
+			endColor='#500000'
+			pieData = pieData
+			title='Préstecs'
+			units='préstecs'
+			scale='linear'
+			reset=reseted
+			id="pieVisits"}}
+		</div>
+		{{/if}}
+	</div><!-- Map info -->
+</div>
+
+
