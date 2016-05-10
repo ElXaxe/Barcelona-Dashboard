@@ -31,7 +31,7 @@ define('client/tests/components/pie-chart.jshint', ['exports'], function (export
   QUnit.module('JSHint - components/pie-chart.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/pie-chart.js should pass jshint.\ncomponents/pie-chart.js: line 82, col 43, Expected \'{\' and instead saw \'return\'.\ncomponents/pie-chart.js: line 87, col 44, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 105, col 43, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 105, col 40, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 164, col 29, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 164, col 26, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 35, col 13, \'iniColor\' is defined but never used.\ncomponents/pie-chart.js: line 36, col 13, \'endColor\' is defined but never used.\ncomponents/pie-chart.js: line 216, col 43, Expected \'{\' and instead saw \'return\'.\ncomponents/pie-chart.js: line 225, col 44, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 42, col 22, \'$\' is not defined.\ncomponents/pie-chart.js: line 43, col 26, \'$\' is not defined.\ncomponents/pie-chart.js: line 193, col 22, \'$\' is not defined.\ncomponents/pie-chart.js: line 194, col 26, \'$\' is not defined.\n\n14 errors');
+    assert.ok(false, 'components/pie-chart.js should pass jshint.\ncomponents/pie-chart.js: line 85, col 44, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 103, col 43, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 103, col 40, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 162, col 29, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 162, col 26, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 238, col 44, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 256, col 42, \'i\' is defined but never used.\ncomponents/pie-chart.js: line 256, col 39, \'d\' is defined but never used.\ncomponents/pie-chart.js: line 297, col 34, Expected \'{\' and instead saw \'return\'.\ncomponents/pie-chart.js: line 40, col 22, \'$\' is not defined.\ncomponents/pie-chart.js: line 41, col 26, \'$\' is not defined.\ncomponents/pie-chart.js: line 191, col 22, \'$\' is not defined.\ncomponents/pie-chart.js: line 192, col 26, \'$\' is not defined.\n\n13 errors');
   });
 });
 define('client/tests/components/range-selector.jshint', ['exports'], function (exports) {
@@ -50,6 +50,15 @@ define('client/tests/components/year-evolution.jshint', ['exports'], function (e
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(false, 'components/year-evolution.js should pass jshint.\ncomponents/year-evolution.js: line 116, col 31, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 132, col 32, \'d\' is defined but never used.\ncomponents/year-evolution.js: line 219, col 33, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 169, col 11, \'currentYear\' is defined but never used.\ncomponents/year-evolution.js: line 170, col 11, \'lineColor\' is defined but never used.\ncomponents/year-evolution.js: line 25, col 21, \'$\' is not defined.\ncomponents/year-evolution.js: line 26, col 26, \'$\' is not defined.\ncomponents/year-evolution.js: line 173, col 17, \'$\' is not defined.\ncomponents/year-evolution.js: line 174, col 18, \'$\' is not defined.\n\n9 errors');
+  });
+});
+define('client/tests/controllers/libraries-loans.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - controllers/libraries-loans.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'controllers/libraries-loans.js should pass jshint.\ncontrollers/libraries-loans.js: line 45, col 19, \'year\' is defined but never used.\ncontrollers/libraries-loans.js: line 46, col 19, \'yearDim\' is defined but never used.\ncontrollers/libraries-loans.js: line 48, col 19, \'zoneCode\' is defined but never used.\ncontrollers/libraries-loans.js: line 49, col 17, \'data\' is defined but never used.\ncontrollers/libraries-loans.js: line 91, col 10, \'getSum\' is defined but never used.\n\n5 errors');
   });
 });
 define('client/tests/controllers/libraries-visits.jshint', ['exports'], function (exports) {
@@ -788,6 +797,15 @@ define('client/tests/router.jshint', ['exports'], function (exports) {
     assert.ok(true, 'router.js should pass jshint.');
   });
 });
+define('client/tests/routes/libraries-loans.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - routes/libraries-loans.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'routes/libraries-loans.js should pass jshint.\nroutes/libraries-loans.js: line 16, col 42, Expected an assignment or function call and instead saw an expression.\nroutes/libraries-loans.js: line 23, col 33, \'transition\' is defined but never used.\nroutes/libraries-loans.js: line 32, col 24, \'transition\' is defined but never used.\nroutes/libraries-loans.js: line 14, col 27, \'Promise\' is not defined.\n\n4 errors');
+  });
+});
 define('client/tests/routes/libraries-visits.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -866,6 +884,28 @@ define('client/tests/unit/adapters/application-test.jshint', ['exports'], functi
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/adapters/application-test.js should pass jshint.');
+  });
+});
+define('client/tests/unit/controllers/libraries-loans-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('controller:libraries-loans', 'Unit | Controller | libraries loans', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var controller = this.subject();
+    assert.ok(controller);
+  });
+});
+define('client/tests/unit/controllers/libraries-loans-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/controllers/libraries-loans-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/controllers/libraries-loans-test.js should pass jshint.');
   });
 });
 define('client/tests/unit/controllers/libraries-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
@@ -1017,6 +1057,27 @@ define('client/tests/unit/routes/informacio-test.jshint', ['exports'], function 
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/routes/informacio-test.js should pass jshint.');
+  });
+});
+define('client/tests/unit/routes/libraries-loans-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('route:libraries-loans', 'Unit | Route | libraries loans', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var route = this.subject();
+    assert.ok(route);
+  });
+});
+define('client/tests/unit/routes/libraries-loans-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/routes/libraries-loans-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/routes/libraries-loans-test.js should pass jshint.');
   });
 });
 define('client/tests/unit/routes/libraries-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {

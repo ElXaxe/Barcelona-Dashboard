@@ -1,3 +1,52 @@
+.population #info h4 {
+  line-height: 1.8em; }
+.population #info .infoText {
+  color: steelblue; }
+.population #map {
+  height: 75vh; }
+  .population #map path._selected_ {
+    fill: crimson; }
+.population .data-content {
+  margin: 10px; }
+.population #pieGender {
+  height: 25vh; }
+  .population #pieGender .donut-arc {
+    opacity: 0.2; }
+    .population #pieGender .donut-arc._selected_ {
+      opacity: 1; }
+.population #lineYears {
+  height: 15vh; }
+  .population #lineYears .bar {
+    opacity: 0.1; }
+    .population #lineYears .bar._selected_ {
+      opacity: 0.7;
+      fill: orange; }
+.population #rangeSelector {
+  height: 15vh; }
+  .population #rangeSelector .tick line {
+    stroke: cornflowerblue;
+    opacity: 0.5; }
+
+.libraries #libMap {
+  height: 75vh; }
+  .libraries #libMap path._selected_ {
+    fill: crimson; }
+.libraries #lineYears {
+  height: 15vh; }
+  .libraries #lineYears .bar {
+    opacity: 0.1; }
+    .libraries #lineYears .bar._selected_ {
+      opacity: 0.7;
+      fill: orange; }
+.libraries #pie-library {
+  height: 30vh;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px 0; }
+  .libraries #pie-library .labelText {
+    font-size: 0.75em; }
+
 html, body {
   height: 100%; }
   html .navbar-brand, body .navbar-brand {
@@ -10,51 +59,6 @@ html, body {
     height: 50px; }
   html .main-content, body .main-content {
     margin: 15px; }
-    html .main-content .population #info h4, body .main-content .population #info h4 {
-      line-height: 1.8em; }
-    html .main-content .population #info .infoText, body .main-content .population #info .infoText {
-      color: steelblue; }
-    html .main-content .population #map, body .main-content .population #map {
-      height: 75vh; }
-      html .main-content .population #map path._selected_, body .main-content .population #map path._selected_ {
-        fill: crimson; }
-    html .main-content .population .data-content, body .main-content .population .data-content {
-      margin: 10px; }
-    html .main-content .population #pieGender, body .main-content .population #pieGender {
-      height: 25vh; }
-      html .main-content .population #pieGender .donut-arc, body .main-content .population #pieGender .donut-arc {
-        opacity: 0.2; }
-        html .main-content .population #pieGender .donut-arc._selected_, body .main-content .population #pieGender .donut-arc._selected_ {
-          opacity: 1; }
-    html .main-content .population #lineYears, body .main-content .population #lineYears {
-      height: 15vh; }
-      html .main-content .population #lineYears .bar, body .main-content .population #lineYears .bar {
-        opacity: 0.1; }
-        html .main-content .population #lineYears .bar._selected_, body .main-content .population #lineYears .bar._selected_ {
-          opacity: 0.7;
-          fill: orange; }
-    html .main-content .population #rangeSelector, body .main-content .population #rangeSelector {
-      height: 15vh; }
-      html .main-content .population #rangeSelector .tick line, body .main-content .population #rangeSelector .tick line {
-        stroke: cornflowerblue;
-        opacity: 0.5; }
-    html .main-content .libraries #libMap, body .main-content .libraries #libMap {
-      height: 75vh; }
-      html .main-content .libraries #libMap path._selected_, body .main-content .libraries #libMap path._selected_ {
-        fill: crimson; }
-    html .main-content .libraries #lineYears, body .main-content .libraries #lineYears {
-      height: 15vh; }
-      html .main-content .libraries #lineYears .bar, body .main-content .libraries #lineYears .bar {
-        opacity: 0.1; }
-        html .main-content .libraries #lineYears .bar._selected_, body .main-content .libraries #lineYears .bar._selected_ {
-          opacity: 0.7;
-          fill: orange; }
-    html .main-content .libraries #pieVisits, body .main-content .libraries #pieVisits {
-      height: 35vh;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      padding-bottom: 50px; }
   html div.map-tooltip, body div.map-tooltip {
     position: absolute;
     text-align: center;

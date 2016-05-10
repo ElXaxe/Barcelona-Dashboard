@@ -6,7 +6,7 @@ export default Ember.Component.extend({
 	svg: null,
 	margin: {top: 20, right: 20, bottom: 20, left: 20},
 	pieData: null,
-	title: 'Title',
+	title: null,
 	iniColor: '#C1D1FF',
 	endColor: '#000050',
 	selectColor: 'crimson',
@@ -32,8 +32,6 @@ export default Ember.Component.extend({
 		const width = w - margin.left - margin.right;
   	const height = h - margin.top - margin.bottom;
   	const color = this.get('colorScale');
-  	const iniColor = this.get('iniColor');
-  	const endColor = this.get('endColor');
   	const selectColor = this.get('selectColor');
   	const pieData = this.get('pieData');
   	const radius = Math.min(width, height) / 2;
@@ -79,7 +77,7 @@ export default Ember.Component.extend({
 		svg.selectAll('.donut-arc')
 			 .append('path')
 			 .attr('fill', function(d, i) { 
-			 	if ( scale === 'linear') return color(d.value);
+			 	if ( scale === 'linear') {return color(d.value);}
 			 	return color(labels[i]); 
 			 })
 			 .attr('d', arc)
@@ -207,20 +205,35 @@ export default Ember.Component.extend({
 								.innerRadius(innRadius)
 								.outerRadius(outRadius);
 		
-		let paths = svg.datum(values).selectAll('path').data(pie);
-		let textLabels = svg.selectAll('.labelText').data(pie(values));
+		let chart = svg.select('.donut-chart').attr('transform', 'translate(' + (width / 2) + ',' + (height / 1.75) +')');
+		let paths = chart.datum(values).selectAll('path').data(pie);
+		let textLabels = chart.datum(values).selectAll('.labelText').data(pie);
+
+		if (scale === 'linear') {
+			color.domain(d3.extent(values));
+		} else {
+			color.domain(labels[0], labels[labels.length - 1]);
+		}
 
 		paths.enter()
 			.append('path')
-			.attr('fill', function(d, i) { 
-			 	if ( scale === 'linear') return color(d.value);
-			 	return color(labels[i]); 
-			 })
-			 .attr('d', arc)
+			.attr('d', arc)
 			 .each(function(d) { this._current = d; });
 
+		paths.transition()
+			.duration(1000)	
+			.attr('fill', function(d, i) { 
+			 	if ( scale === 'linear'){ 
+			 		console.log("Valor: " + d.value + " - Rang de color: " + color(d.value));
+			 		return color(d.value);
+			  }
+			 	return color(labels[i]); 
+			 }) 
+			 .attrTween('d', arcTween);
+
 		textLabels.enter()
-			.append('text');
+			.append('text')
+			.attr('class', 'labelText');
 
 		paths.on('mouseover', function (d, i) { 
 			 		let percentage = d.value / total * 100;
@@ -239,11 +252,22 @@ export default Ember.Component.extend({
 								  '%</h3><p>' + d.value.toLocaleString() + ' ' + units +'</p>')
 						 .style("left", (d3.event.pageX) + "px")
 	           .style("top", (d3.event.pageY - 100) + "px"); 
-			});
+			})
+			.on('mouseout', function (d, i) {
+			 		d3.select(this)
+			 			.transition()
+			 			.attr('stroke', 'none');
 
-		paths.transition()
-			.duration(1000)
-			.attrTween('d', arcTween);
+			 		tooltip.transition()
+						.duration(500)
+						.style('opacity', 0);
+			 });
+
+		chart.transition();
+
+		
+
+		textLabels.exit().remove();
 
 		textLabels.transition()
 			.duration(1250)
@@ -270,12 +294,11 @@ export default Ember.Component.extend({
 	        }
 	    })
 	    .text(function(d, i) {
-	    		console.log(labels[i]);
-          return labels[i];
+	    		if (d.value > 0) return labels[i];
       });
 
 	  paths.exit().remove();
-	  textLabels.exit().remove();
+	  
 
     svg.transition().attr({width: width, height: height});
 
@@ -300,3 +323,5 @@ export default Ember.Component.extend({
 
 	}
 });
+
+

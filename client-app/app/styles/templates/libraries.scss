@@ -1,0 +1,39 @@
+.libraries {
+
+	#libMap{
+		height: 75vh;
+
+		path._selected_ {
+			fill: crimson;
+		}
+		
+	}
+
+	#lineYears {
+		height: 15vh;
+
+		.bar {
+			opacity: 0.1;
+
+			&._selected_ {
+				opacity: 0.7;
+				fill: orange;
+			}
+		}
+
+	}
+
+	#pie-library {
+		height: 30vh;
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+		padding: 10px 0;
+
+		
+		.labelText {
+			font-size: 0.75em;
+		}
+	}
+	
+}

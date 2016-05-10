@@ -1,0 +1,30 @@
+.population #info h4 {
+  line-height: 1.8em; }
+.population #info .infoText {
+  color: steelblue; }
+.population #map {
+  height: 75vh; }
+  .population #map path._selected_ {
+    fill: crimson; }
+.population .data-content {
+  margin: 10px; }
+.population #pieGender {
+  height: 25vh; }
+  .population #pieGender .donut-arc {
+    opacity: 0.2; }
+    .population #pieGender .donut-arc._selected_ {
+      opacity: 1; }
+.population #lineYears {
+  height: 15vh; }
+  .population #lineYears .bar {
+    opacity: 0.1; }
+    .population #lineYears .bar._selected_ {
+      opacity: 0.7;
+      fill: orange; }
+.population #rangeSelector {
+  height: 15vh; }
+  .population #rangeSelector .tick line {
+    stroke: cornflowerblue;
+    opacity: 0.5; }
+
+/*# sourceMappingURL=population.css.map */
