@@ -21,7 +21,17 @@ export default Ember.Controller.extend({
 	isMax: Ember.computed('maxAge', function() {
 		return this.get('maxAge') === 95;
 	}),
-	showReset: false,
+	filteredMap: false,
+	filteredPie: false,
+	filteredRange: false,
+	showReset: Ember.computed( 'filteredMap', 'filteredPie', 'filteredRange',
+		function() {
+			const map = this.get('filteredMap'),
+						pie = this.get('filteredPie'),
+						range = this.get('filteredRange');
+
+			return (map || pie || range);
+	}),
 	reseted: false,
 	dataMap: Ember.computed(
 		'viewDistricts', 'populYearDim', 'districtDimension', 'neighborDimension', 'year', 'gender',
@@ -188,7 +198,7 @@ export default Ember.Controller.extend({
 				this.set('viewDistricts', true);
 				this.get('neighborDimension').filterAll();
 			}
-			this.set('showReset', this.get('showReset') || false);
+			this.set('filteredMap', false);
 		},
 
 		changeZone(code, name) {
@@ -197,7 +207,7 @@ export default Ember.Controller.extend({
 			const neighborDim = this.get('neighborDimension');
 			this.set('scope', name);
 			this.set('zoneCode', code);
-			this.set('showReset', true);
+			this.set('filteredMap', true);
 			if (code) {
 				if (isDistrict) {
 					neighborDim.filterAll();
@@ -220,7 +230,9 @@ export default Ember.Controller.extend({
 			} else {
 				this.get('neighborDimension').filterAll();
 			}
-			this.set('showReset', false);
+			this.set('filteredMap', false);
+			this.set('filteredRange', false);
+			this.set('filteredPie', false);
 			this.toggleProperty('reseted');
 			this.set('minAge', 0);
 			this.set('maxAge', 95);
@@ -229,10 +241,10 @@ export default Ember.Controller.extend({
 		changeGender(gender) {
 			if(gender) {
 				this.set('gender', gender);
-				this.set('showReset', true);
+				this.set('filteredPie', true);
 			} else {
 				this.set('gender', 'Tots');
-				this.set('showReset', this.get('showReset') || false);
+				this.set('filteredPie', false);
 			}
 			
 		},
@@ -244,7 +256,7 @@ export default Ember.Controller.extend({
 		changeAges(minAge, maxAge) {
 			this.set('minAge', d3.round(minAge, 0));
 			this.set('maxAge', d3.round(maxAge, 0));
-			this.set('showReset', true);
+			this.set('filteredRange', true);
 		},
 
 	}

@@ -1,6 +1,19 @@
 import Ember from 'ember';
 
 export default Ember.Controller.extend({
+	init: function () {
+    this._super();
+    Ember.run.schedule("afterRender", this, function() {
+      $('[data-toggle="tooltip"]').tooltip({
+      	html: true,
+      	title: "<strong>Estudis primaris</strong>: Certificat d'escolaritat / EGB<br/>" +
+      		"<strong>Estudis secundaris</strong>: Batxillerat elemental / graduat escolar / ESO / FP I<br/>" +
+      		"<strong>Estudis mitjans</strong>: Batxillerat superior / BUP / COU / FP II / CFGM grau mitjà<br/>" +
+      		"<strong>Estudis superiors</strong>: Estudis universitaris / CFGS grau superior"
+      });   
+    });
+  },
+
 	dataService: Ember.inject.service('data-service'),
 	yearDim: Ember.computed.alias('dataService.acadYearDim'),
 	districtDimension: Ember.computed.alias('dataService.acadDistrictDimension'),
@@ -17,11 +30,21 @@ export default Ember.Controller.extend({
 	zoneCode: null,
 	level: 'Tots',
 	gender: 'Tots',
-	showReset: false,
+	filteredMap: false,
+	filteredPie: false,
+	filteredBars: false,
+	showReset: Ember.computed( 'filteredMap', 'filteredPie', 'filteredBars',
+		function() {
+			const map = this.get('filteredMap'),
+						pie = this.get('filteredPie'),
+						bars = this.get('filteredBars');
+
+			return (map || pie || bars);
+	}),
 	reseted: false,
 	dataMap: Ember.computed(
 		'viewDistricts', 'yearDim', 'districtDimension', 'neighborDimension', 
-		'year', 'gender', //'minAge', 'maxAge',
+		'year', 'gender', 'level',
 		function() {
 			const isDistrict = this.get('viewDistricts');
 			const yearDim = this.get('yearDim');
@@ -29,7 +52,7 @@ export default Ember.Controller.extend({
 			const neighborDim = this.get('neighborDimension');
 			const year = this.get('year');
 			const gender = this.get('gender');
-			//const minAge = this.get('minAge'), maxAge = this.get('maxAge');
+			const level = this.get('level');
 			let group, data;
 
 			yearDim.filter(year);
@@ -40,15 +63,16 @@ export default Ember.Controller.extend({
 			}
 
 			data = group.reduceSum( function(d) {
-				let w, m;
+				let w, m, field;
 
-				// if (minAge === 0 && maxAge === 95) {
+				if (level === 'Tots') {
 					w = d.attributes.women.total;
 					m = d.attributes.men.total;
-				// } else {
-				// 	w = d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
-				// 	m = d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
-				// }
+				} else {
+					field = getField(level);
+					w = d.attributes.women[field];
+					m = d.attributes.men[field];
+				}
 
 				if (gender === 'Dones'){
 					return w;
@@ -62,8 +86,8 @@ export default Ember.Controller.extend({
 	}),
 
 	genderData: Ember.computed(
-		'viewDistricts', 'year', 'yearDim', 'districtDimension', 'neighborDimension', 'scope',
-		// 'minAge', 'maxAge',
+		'viewDistricts', 'year', 'yearDim', 'districtDimension', 'neighborDimension', 
+		'scope', 'level',
 		function() {
 			const isDistrict = this.get('viewDistricts');
 			const year = this.get('year');
@@ -71,9 +95,9 @@ export default Ember.Controller.extend({
 			const districtDim = this.get('districtDimension');
 			const neighborDim = this.get('neighborDimension');
 			const zoneCode = this.get('zoneCode');
-			// const minAge = this.get('minAge'), maxAge = this.get('maxAge');
+			const level = this.get('level');
 			let data = Ember.A([]);
-			let group, women, men;
+			let group, women, men, field;
 
 			yearDim.filter(year);
 			
@@ -84,22 +108,23 @@ export default Ember.Controller.extend({
 			}
 
 			women = $.map(group.reduceSum(function(d) { 
-					// if ( minAge === 0 && maxAge === 95) {
+					if (level === 'Tots') {
 						return d.attributes.women.total; 
-					// } else {
-					// 	return d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
-					// }
+					} else {
+						field = getField(level);
+						return d.attributes.women[field];
+					}
 				}).all(), 
 				function(el) { return el.value; });
 			men = $.map(group.reduceSum(function(d) { 
-					// if ( minAge === 0 && maxAge === 95) {
+					if (level === 'Tots') {
 						return d.attributes.men.total; 
-					// } else {
-					// 	return d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
-					// }
+					} else {
+						field = getField(level);
+						return d.attributes.men[field];
+					}
 				}).all(), 
 				function(el) { return el.value; });
-
 			data.pushObject({
 				key: 'Dones',
 				value: women.reduce(getSum)
@@ -109,26 +134,28 @@ export default Ember.Controller.extend({
 				key: 'Homes',
 				value: men.reduce(getSum)
 			});
-			
 			return data;
 	}),
 
 	yearData: Ember.computed(
-		'yearDim', 'neighborDimension', 'gender', 'scope', //'minAge', 'maxAge',
+		'yearDim', 'neighborDimension', 'gender', 'scope', 'level',
 		function() {
 			const yearDim = this.get('yearDim');
 			const gender = this.get('gender');
-			//const minAge = this.get('minAge');
-			//const maxAge = this.get('maxAge');
-			let data;
+			const level = this.get('level');
+			let data, w, m, field;
 
 			data = yearDim.group()
 							.reduceSum( function(d) { 
-								// const women = d.attributes.womenYears.slice(minAge, maxAge + 1);
-								// const men = d.attributes.menYears.slice(minAge, maxAge + 1);
-								const w = d.attributes.women.total;
-								const m = d.attributes.men.total;
-
+								if (level === 'Tots') {
+									w = d.attributes.women.total;
+									m = d.attributes.men.total;	
+								} else {
+									field = getField(level);
+									w = d.attributes.women[field];
+									m = d.attributes.men[field];	
+								}
+								
 								if (gender === 'Dones') {
 									return w;
 								} else if (gender === 'Homes') {
@@ -199,7 +226,7 @@ export default Ember.Controller.extend({
 				this.set('viewDistricts', true);
 				this.get('neighborDimension').filterAll();
 			}
-			this.set('showReset', this.get('showReset') || false);
+			this.set('filteredMap', false);
 		},
 
 		changeZone(code, name) {
@@ -208,7 +235,7 @@ export default Ember.Controller.extend({
 			const neighborDim = this.get('neighborDimension');
 			this.set('scope', name);
 			this.set('zoneCode', code);
-			this.set('showReset', true);
+			this.set('filteredMap', true);
 			if (code) {
 				if (isDistrict) {
 					neighborDim.filterAll();
@@ -231,7 +258,9 @@ export default Ember.Controller.extend({
 			} else {
 				this.get('neighborDimension').filterAll();
 			}
-			this.set('showReset', false);
+			this.set('filteredMap', false);
+			this.set('filteredBars', false);
+			this.set('filteredPie', false);
 			this.toggleProperty('reseted');
 			this.set('level', 'Tots');
 		},
@@ -239,10 +268,10 @@ export default Ember.Controller.extend({
 		changeGender(gender) {
 			if(gender) {
 				this.set('gender', gender);
-				this.set('showReset', true);
+				this.set('filteredPie', true);
 			} else {
 				this.set('gender', 'Tots');
-				this.set('showReset', this.get('showReset') || false);
+				this.set('filteredPie', false);
 			}
 			
 		},
@@ -252,8 +281,14 @@ export default Ember.Controller.extend({
 		},
 
 		changeLevel(level) {
-			this.set('level', level);
-			this.set('showReset', true);
+			if (level) {
+				this.set('level', level);
+				this.set('filteredBars', true);
+			} else {
+				this.set('level', 'Tots');
+				this.set('filteredBars', false);
+			}
+			
 		},
 
 	}
@@ -261,4 +296,20 @@ export default Ember.Controller.extend({
 
 function getSum(total, num) {
 	return total + num;
+}
+
+function getField(level) {
+
+	switch (level) {
+		case 'Sense estudis': 
+			return 'none';
+		case 'Estudis primaris':
+			return 'primary';
+		case 'Estudis secundaris':
+			return 'secondary';
+		case 'Estudis mitjans':
+			return 'average';
+		case 'Estudis superiors':
+			return 'superior';
+	}
 }

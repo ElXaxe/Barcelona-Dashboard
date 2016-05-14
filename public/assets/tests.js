@@ -22,7 +22,7 @@ define('client/tests/components/bar-chart.jshint', ['exports'], function (export
   QUnit.module('JSHint - components/bar-chart.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'components/bar-chart.js should pass jshint.\ncomponents/bar-chart.js: line 86, col 32, \'d\' is defined but never used.\ncomponents/bar-chart.js: line 19, col 13, \'selection\' is defined but never used.\ncomponents/bar-chart.js: line 38, col 9, \'yd\' is defined but never used.\ncomponents/bar-chart.js: line 113, col 11, \'selection\' is defined but never used.\ncomponents/bar-chart.js: line 116, col 9, \'x\' is defined but never used.\ncomponents/bar-chart.js: line 124, col 9, \'yd\' is defined but never used.\n\n6 errors');
+    assert.ok(false, 'components/bar-chart.js should pass jshint.\ncomponents/bar-chart.js: line 87, col 32, \'d\' is defined but never used.\ncomponents/bar-chart.js: line 20, col 13, \'selection\' is defined but never used.\ncomponents/bar-chart.js: line 39, col 9, \'yd\' is defined but never used.\ncomponents/bar-chart.js: line 114, col 11, \'selection\' is defined but never used.\ncomponents/bar-chart.js: line 117, col 9, \'x\' is defined but never used.\ncomponents/bar-chart.js: line 125, col 9, \'yd\' is defined but never used.\n\n6 errors');
   });
 });
 define('client/tests/components/data-map.jshint', ['exports'], function (exports) {
@@ -67,7 +67,7 @@ define('client/tests/controllers/academics.jshint', ['exports'], function (expor
   QUnit.module('JSHint - controllers/academics.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'controllers/academics.js should pass jshint.\ncontrollers/academics.js: line 73, col 19, \'zoneCode\' is defined but never used.\ncontrollers/academics.js: line 159, col 30, \'i\' is defined but never used.\ncontrollers/academics.js: line 86, col 21, \'$\' is not defined.\ncontrollers/academics.js: line 94, col 19, \'$\' is not defined.\n\n4 errors');
+    assert.ok(false, 'controllers/academics.js should pass jshint.\ncontrollers/academics.js: line 97, col 19, \'zoneCode\' is defined but never used.\ncontrollers/academics.js: line 186, col 30, \'i\' is defined but never used.\ncontrollers/academics.js: line 7, col 7, \'$\' is not defined.\ncontrollers/academics.js: line 110, col 21, \'$\' is not defined.\ncontrollers/academics.js: line 119, col 19, \'$\' is not defined.\n\n5 errors');
   });
 });
 define('client/tests/controllers/libraries-loans.jshint', ['exports'], function (exports) {
@@ -103,7 +103,7 @@ define('client/tests/controllers/poblacio.jshint', ['exports'], function (export
   QUnit.module('JSHint - controllers/poblacio.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 77, col 19, \'zoneCode\' is defined but never used.\ncontrollers/poblacio.js: line 162, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 153, col 19, \'minAge\' is defined but never used.\ncontrollers/poblacio.js: line 154, col 19, \'maxAge\' is defined but never used.\ncontrollers/poblacio.js: line 90, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 98, col 19, \'$\' is not defined.\n\n6 errors');
+    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 87, col 19, \'zoneCode\' is defined but never used.\ncontrollers/poblacio.js: line 172, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 163, col 19, \'minAge\' is defined but never used.\ncontrollers/poblacio.js: line 164, col 19, \'maxAge\' is defined but never used.\ncontrollers/poblacio.js: line 100, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 108, col 19, \'$\' is not defined.\n\n6 errors');
   });
 });
 define('client/tests/helpers/destroy-app', ['exports', 'ember'], function (exports, _ember) {

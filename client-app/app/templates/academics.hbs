@@ -3,7 +3,7 @@
 	<small>Nivell acadèmic</small>
 </h1>
 
-<div class="row population">
+<div class="row academics">
 	<div class="col-md-5 col-xs-12">
 		<button class="btn btn-xs btn-info" {{action 'changeView'}}>
 				Mostrar 
@@ -19,6 +19,8 @@
 			mapData = dataMap
 			mapPaths = paths
 			units='persones'
+			iniColor = '#A2FA9D'
+			endColor = '#055E00'
 			zoneCode = zoneCode
 			reseted=resetMap
 			class = "col-xs-12"
@@ -32,7 +34,7 @@
 			<div class="col-md-6 col-xs-12" id="info">
 				<h3>{{scope}}</h3>
 				<h4>Any: <span class='infoText'>{{year}}</span> </h4>
-				<h4>Nivell acadèmic: <span class="academicLevel">{{level}}</span></h4>
+				<h4>Nivell acadèmic: <span class="infoText">{{level}}</span></h4>
 				<h4>Sexe: <span class='infoText'>{{gender}}</span></h4>
 				{{#if showReset}}
 					<button class="btn btn-xs btn-danger" {{action 'reset'}}> 
@@ -68,9 +70,16 @@
 		<hr>
 		<div class="row">
 				<h4>
-					Població per nivell acadèmic a l'any {{year}}<br/>
-					<small>Arrosega sobre el gràfic per seleccionar un rang</small>
+					Població per nivell acadèmic a l'any {{year}}
+					<a href="javascript:void(0)" data-toggle="tooltip" data-placement="left" class="tip pull-right">
+						<span class="glyphicon glyphicon-question-sign"></span>
+					</a>
+					<br/>
+					<small>
+						Fes clic sobre una barra per seleccionar el nivell acadèmic
+					</small>
 				</h4>
+
 				{{bar-chart
 					data = barData
 					currentSelection = level

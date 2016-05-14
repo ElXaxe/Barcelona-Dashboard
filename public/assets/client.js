@@ -47,6 +47,7 @@ define('client/components/bar-chart', ['exports', 'ember'], function (exports, _
     data: null,
     tip: d3.select('body').append('div').attr('class', 'map-tooltip').style('opacity', 0),
     units: 'u.',
+    reset: false,
 
     didInsertElement: function didInsertElement() {
       var _this = this;
@@ -128,7 +129,7 @@ define('client/components/bar-chart', ['exports', 'ember'], function (exports, _
       })]).range([height, 0]);
 
       var yd = y.domain();
-      var yAxis = d3.svg.axis().scale(y).orient("left").outerTickSize(1);
+      var yAxis = d3.svg.axis().scale(y).orient("left").ticks(5).outerTickSize(1);
 
       var svg = d3.select('#' + this.get('elementId'));
 
@@ -139,6 +140,13 @@ define('client/components/bar-chart', ['exports', 'ember'], function (exports, _
       });
 
       svg.select('.y.axis').transition().duration(750).call(yAxis);
+    }),
+
+    resetPie: _ember['default'].observer('reset', function () {
+      var svg = d3.select('#' + this.get('elementId'));
+
+      svg.selectAll('.bar').classed('_selected_', true);
+      this.sendAction('setLevel', null);
     })
 
   });
@@ -1101,6 +1109,16 @@ define('client/components/year-evolution', ['exports', 'ember'], function (expor
 });
 define('client/controllers/academics', ['exports', 'ember'], function (exports, _ember) {
 	exports['default'] = _ember['default'].Controller.extend({
+		init: function init() {
+			this._super();
+			_ember['default'].run.schedule("afterRender", this, function () {
+				$('[data-toggle="tooltip"]').tooltip({
+					html: true,
+					title: "<strong>Estudis primaris</strong>: Certificat d'escolaritat / EGB<br/>" + "<strong>Estudis secundaris</strong>: Batxillerat elemental / graduat escolar / ESO / FP I<br/>" + "<strong>Estudis mitjans</strong>: Batxillerat superior / BUP / COU / FP II / CFGM grau mitjà<br/>" + "<strong>Estudis superiors</strong>: Estudis universitaris / CFGS grau superior"
+				});
+			});
+		},
+
 		dataService: _ember['default'].inject.service('data-service'),
 		yearDim: _ember['default'].computed.alias('dataService.acadYearDim'),
 		districtDimension: _ember['default'].computed.alias('dataService.acadDistrictDimension'),
@@ -1117,17 +1135,25 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 		zoneCode: null,
 		level: 'Tots',
 		gender: 'Tots',
-		showReset: false,
+		filteredMap: false,
+		filteredPie: false,
+		filteredBars: false,
+		showReset: _ember['default'].computed('filteredMap', 'filteredPie', 'filteredBars', function () {
+			var map = this.get('filteredMap'),
+			    pie = this.get('filteredPie'),
+			    bars = this.get('filteredBars');
+
+			return map || pie || bars;
+		}),
 		reseted: false,
-		dataMap: _ember['default'].computed('viewDistricts', 'yearDim', 'districtDimension', 'neighborDimension', 'year', 'gender', //'minAge', 'maxAge',
-		function () {
+		dataMap: _ember['default'].computed('viewDistricts', 'yearDim', 'districtDimension', 'neighborDimension', 'year', 'gender', 'level', function () {
 			var isDistrict = this.get('viewDistricts');
 			var yearDim = this.get('yearDim');
 			var districtDim = this.get('districtDimension');
 			var neighborDim = this.get('neighborDimension');
 			var year = this.get('year');
 			var gender = this.get('gender');
-			//const minAge = this.get('minAge'), maxAge = this.get('maxAge');
+			var level = this.get('level');
 			var group = undefined,
 			    data = undefined;
 
@@ -1144,15 +1170,17 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 
 			data = group.reduceSum(function (d) {
 				var w = undefined,
-				    m = undefined;
+				    m = undefined,
+				    field = undefined;
 
-				// if (minAge === 0 && maxAge === 95) {
-				w = d.attributes.women.total;
-				m = d.attributes.men.total;
-				// } else {
-				// 	w = d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
-				// 	m = d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
-				// }
+				if (level === 'Tots') {
+					w = d.attributes.women.total;
+					m = d.attributes.men.total;
+				} else {
+					field = getField(level);
+					w = d.attributes.women[field];
+					m = d.attributes.men[field];
+				}
 
 				if (gender === 'Dones') {
 					return w;
@@ -1165,20 +1193,19 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 			return data.all();
 		}),
 
-		genderData: _ember['default'].computed('viewDistricts', 'year', 'yearDim', 'districtDimension', 'neighborDimension', 'scope',
-		// 'minAge', 'maxAge',
-		function () {
+		genderData: _ember['default'].computed('viewDistricts', 'year', 'yearDim', 'districtDimension', 'neighborDimension', 'scope', 'level', function () {
 			var isDistrict = this.get('viewDistricts');
 			var year = this.get('year');
 			var yearDim = this.get('yearDim');
 			var districtDim = this.get('districtDimension');
 			var neighborDim = this.get('neighborDimension');
 			var zoneCode = this.get('zoneCode');
-			// const minAge = this.get('minAge'), maxAge = this.get('maxAge');
+			var level = this.get('level');
 			var data = _ember['default'].A([]);
 			var group = undefined,
 			    women = undefined,
-			    men = undefined;
+			    men = undefined,
+			    field = undefined;
 
 			yearDim.filter(year);
 
@@ -1189,24 +1216,25 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 			}
 
 			women = $.map(group.reduceSum(function (d) {
-				// if ( minAge === 0 && maxAge === 95) {
-				return d.attributes.women.total;
-				// } else {
-				// 	return d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
-				// }
+				if (level === 'Tots') {
+					return d.attributes.women.total;
+				} else {
+					field = getField(level);
+					return d.attributes.women[field];
+				}
 			}).all(), function (el) {
 				return el.value;
 			});
 			men = $.map(group.reduceSum(function (d) {
-				// if ( minAge === 0 && maxAge === 95) {
-				return d.attributes.men.total;
-				// } else {
-				// 	return d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
-				// }
+				if (level === 'Tots') {
+					return d.attributes.men.total;
+				} else {
+					field = getField(level);
+					return d.attributes.men[field];
+				}
 			}).all(), function (el) {
 				return el.value;
 			});
-
 			data.pushObject({
 				key: 'Dones',
 				value: women.reduce(getSum)
@@ -1216,23 +1244,27 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 				key: 'Homes',
 				value: men.reduce(getSum)
 			});
-
 			return data;
 		}),
 
-		yearData: _ember['default'].computed('yearDim', 'neighborDimension', 'gender', 'scope', //'minAge', 'maxAge',
-		function () {
+		yearData: _ember['default'].computed('yearDim', 'neighborDimension', 'gender', 'scope', 'level', function () {
 			var yearDim = this.get('yearDim');
 			var gender = this.get('gender');
-			//const minAge = this.get('minAge');
-			//const maxAge = this.get('maxAge');
-			var data = undefined;
+			var level = this.get('level');
+			var data = undefined,
+			    w = undefined,
+			    m = undefined,
+			    field = undefined;
 
 			data = yearDim.group().reduceSum(function (d) {
-				// const women = d.attributes.womenYears.slice(minAge, maxAge + 1);
-				// const men = d.attributes.menYears.slice(minAge, maxAge + 1);
-				var w = d.attributes.women.total;
-				var m = d.attributes.men.total;
+				if (level === 'Tots') {
+					w = d.attributes.women.total;
+					m = d.attributes.men.total;
+				} else {
+					field = getField(level);
+					w = d.attributes.women[field];
+					m = d.attributes.men[field];
+				}
 
 				if (gender === 'Dones') {
 					return w;
@@ -1301,7 +1333,7 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 					this.set('viewDistricts', true);
 					this.get('neighborDimension').filterAll();
 				}
-				this.set('showReset', this.get('showReset') || false);
+				this.set('filteredMap', false);
 			},
 
 			changeZone: function changeZone(code, name) {
@@ -1310,7 +1342,7 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 				var neighborDim = this.get('neighborDimension');
 				this.set('scope', name);
 				this.set('zoneCode', code);
-				this.set('showReset', true);
+				this.set('filteredMap', true);
 				if (code) {
 					if (isDistrict) {
 						neighborDim.filterAll();
@@ -1333,7 +1365,9 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 				} else {
 					this.get('neighborDimension').filterAll();
 				}
-				this.set('showReset', false);
+				this.set('filteredMap', false);
+				this.set('filteredBars', false);
+				this.set('filteredPie', false);
 				this.toggleProperty('reseted');
 				this.set('level', 'Tots');
 			},
@@ -1341,10 +1375,10 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 			changeGender: function changeGender(gender) {
 				if (gender) {
 					this.set('gender', gender);
-					this.set('showReset', true);
+					this.set('filteredPie', true);
 				} else {
 					this.set('gender', 'Tots');
-					this.set('showReset', this.get('showReset') || false);
+					this.set('filteredPie', false);
 				}
 			},
 
@@ -1353,8 +1387,13 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 			},
 
 			changeLevel: function changeLevel(level) {
-				this.set('level', level);
-				this.set('showReset', true);
+				if (level) {
+					this.set('level', level);
+					this.set('filteredBars', true);
+				} else {
+					this.set('level', 'Tots');
+					this.set('filteredBars', false);
+				}
 			}
 
 		}
@@ -1362,6 +1401,22 @@ define('client/controllers/academics', ['exports', 'ember'], function (exports, 
 
 	function getSum(total, num) {
 		return total + num;
+	}
+
+	function getField(level) {
+
+		switch (level) {
+			case 'Sense estudis':
+				return 'none';
+			case 'Estudis primaris':
+				return 'primary';
+			case 'Estudis secundaris':
+				return 'secondary';
+			case 'Estudis mitjans':
+				return 'average';
+			case 'Estudis superiors':
+				return 'superior';
+		}
 	}
 });
 define('client/controllers/array', ['exports', 'ember'], function (exports, _ember) {
@@ -1653,7 +1708,16 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 		isMax: _ember['default'].computed('maxAge', function () {
 			return this.get('maxAge') === 95;
 		}),
-		showReset: false,
+		filteredMap: false,
+		filteredPie: false,
+		filteredRange: false,
+		showReset: _ember['default'].computed('filteredMap', 'filteredPie', 'filteredRange', function () {
+			var map = this.get('filteredMap'),
+			    pie = this.get('filteredPie'),
+			    range = this.get('filteredRange');
+
+			return map || pie || range;
+		}),
 		reseted: false,
 		dataMap: _ember['default'].computed('viewDistricts', 'populYearDim', 'districtDimension', 'neighborDimension', 'year', 'gender', 'minAge', 'maxAge', function () {
 			var isDistrict = this.get('viewDistricts');
@@ -1820,7 +1884,7 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 					this.set('viewDistricts', true);
 					this.get('neighborDimension').filterAll();
 				}
-				this.set('showReset', this.get('showReset') || false);
+				this.set('filteredMap', false);
 			},
 
 			changeZone: function changeZone(code, name) {
@@ -1829,7 +1893,7 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 				var neighborDim = this.get('neighborDimension');
 				this.set('scope', name);
 				this.set('zoneCode', code);
-				this.set('showReset', true);
+				this.set('filteredMap', true);
 				if (code) {
 					if (isDistrict) {
 						neighborDim.filterAll();
@@ -1852,7 +1916,9 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 				} else {
 					this.get('neighborDimension').filterAll();
 				}
-				this.set('showReset', false);
+				this.set('filteredMap', false);
+				this.set('filteredRange', false);
+				this.set('filteredPie', false);
 				this.toggleProperty('reseted');
 				this.set('minAge', 0);
 				this.set('maxAge', 95);
@@ -1861,10 +1927,10 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 			changeGender: function changeGender(gender) {
 				if (gender) {
 					this.set('gender', gender);
-					this.set('showReset', true);
+					this.set('filteredPie', true);
 				} else {
 					this.set('gender', 'Tots');
-					this.set('showReset', this.get('showReset') || false);
+					this.set('filteredPie', false);
 				}
 			},
 
@@ -1875,7 +1941,7 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 			changeAges: function changeAges(minAge, maxAge) {
 				this.set('minAge', d3.round(minAge, 0));
 				this.set('maxAge', d3.round(maxAge, 0));
-				this.set('showReset', true);
+				this.set('filteredRange', true);
 			}
 
 		}
@@ -2507,11 +2573,11 @@ define("client/templates/academics", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 37,
+              "line": 39,
               "column": 4
             },
             "end": {
-              "line": 41,
+              "line": 43,
               "column": 4
             }
           },
@@ -2540,7 +2606,7 @@ define("client/templates/academics", ["exports"], function (exports) {
           morphs[0] = dom.createElementMorph(element0);
           return morphs;
         },
-        statements: [["element", "action", ["reset"], [], ["loc", [null, [38, 43], [38, 61]]]]],
+        statements: [["element", "action", ["reset"], [], ["loc", [null, [40, 43], [40, 61]]]]],
         locals: [],
         templates: []
       };
@@ -2559,7 +2625,7 @@ define("client/templates/academics", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 87,
+            "line": 96,
             "column": 0
           }
         },
@@ -2584,7 +2650,7 @@ define("client/templates/academics", ["exports"], function (exports) {
         var el1 = dom.createTextNode("\n\n");
         dom.appendChild(el0, el1);
         var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "row population");
+        dom.setAttribute(el1, "class", "row academics");
         var el2 = dom.createTextNode("\n	");
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("div");
@@ -2650,7 +2716,7 @@ define("client/templates/academics", ["exports"], function (exports) {
         var el6 = dom.createTextNode("Nivell acadèmic: ");
         dom.appendChild(el5, el6);
         var el6 = dom.createElement("span");
-        dom.setAttribute(el6, "class", "academicLevel");
+        dom.setAttribute(el6, "class", "infoText");
         var el7 = dom.createComment("");
         dom.appendChild(el6, el7);
         dom.appendChild(el5, el6);
@@ -2726,18 +2792,35 @@ define("client/templates/academics", ["exports"], function (exports) {
         dom.appendChild(el4, el5);
         var el5 = dom.createComment("");
         dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n					");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("a");
+        dom.setAttribute(el5, "href", "javascript:void(0)");
+        dom.setAttribute(el5, "data-toggle", "tooltip");
+        dom.setAttribute(el5, "data-placement", "left");
+        dom.setAttribute(el5, "class", "tip pull-right");
+        var el6 = dom.createTextNode("\n						");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("span");
+        dom.setAttribute(el6, "class", "glyphicon glyphicon-question-sign");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n					");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n					");
+        dom.appendChild(el4, el5);
         var el5 = dom.createElement("br");
         dom.appendChild(el4, el5);
         var el5 = dom.createTextNode("\n					");
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("small");
-        var el6 = dom.createTextNode("Arrosega sobre el gràfic per seleccionar un rang");
+        var el6 = dom.createTextNode("\n						Fes clic sobre una barra per seleccionar el nivell acadèmic\n					");
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
         var el5 = dom.createTextNode("\n				");
         dom.appendChild(el4, el5);
         dom.appendChild(el3, el4);
-        var el4 = dom.createTextNode("\n				");
+        var el4 = dom.createTextNode("\n\n				");
         dom.appendChild(el3, el4);
         var el4 = dom.createComment("");
         dom.appendChild(el3, el4);
@@ -2779,7 +2862,7 @@ define("client/templates/academics", ["exports"], function (exports) {
         morphs[11] = dom.createMorphAt(element7, 3, 3);
         return morphs;
       },
-      statements: [["element", "action", ["changeView"], [], ["loc", [null, [8, 38], [8, 61]]]], ["block", "if", [["get", "viewDistricts", ["loc", [null, [10, 10], [10, 23]]]]], [], 0, 1, ["loc", [null, [10, 4], [14, 11]]]], ["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "viewDistricts", ["loc", [null, [18, 18], [18, 31]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [19, 13], [19, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "paths", ["loc", [null, [20, 14], [20, 19]]]]], [], []], "units", "persones", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [22, 14], [22, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [23, 11], [23, 19]]]]], [], []], "class", "col-xs-12", "id", "map", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [26, 15], [26, 36]]]]], ["loc", [null, [17, 2], [27, 4]]]], ["content", "scope", ["loc", [null, [33, 8], [33, 17]]]], ["content", "year", ["loc", [null, [34, 36], [34, 44]]]], ["content", "level", ["loc", [null, [35, 53], [35, 62]]]], ["content", "gender", ["loc", [null, [36, 37], [36, 47]]]], ["block", "if", [["get", "showReset", ["loc", [null, [37, 10], [37, 19]]]]], [], 2, null, ["loc", [null, [37, 4], [41, 11]]]], ["inline", "pie-chart", [], ["class", "col-md-6 col-xs-12", "iniColor", "darkblue", "endColor", "purple", "pieData", ["subexpr", "@mut", [["get", "genderData", ["loc", [null, [47, 13], [47, 23]]]]], [], []], "title", "Sexe", "units", "persones", "setPie", ["subexpr", "action", ["changeGender"], [], ["loc", [null, [50, 10], [50, 33]]]], "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [51, 9], [51, 16]]]]], [], []], "id", "pieGender"], ["loc", [null, [43, 3], [52, 19]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [61, 11], [61, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [62, 18], [62, 22]]]]], [], []], "units", "persones", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [64, 12], [64, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [60, 4], [66, 20]]]], ["content", "year", ["loc", [null, [71, 42], [71, 50]]]], ["inline", "bar-chart", [], ["data", ["subexpr", "@mut", [["get", "barData", ["loc", [null, [75, 12], [75, 19]]]]], [], []], "currentSelection", ["subexpr", "@mut", [["get", "level", ["loc", [null, [76, 24], [76, 29]]]]], [], []], "units", "persones", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [78, 11], [78, 18]]]]], [], []], "setLevel", ["subexpr", "action", ["changeLevel"], [], ["loc", [null, [79, 14], [79, 36]]]], "class", "col-md-12 col-xs-12", "id", "levelSelector"], ["loc", [null, [74, 4], [81, 25]]]]],
+      statements: [["element", "action", ["changeView"], [], ["loc", [null, [8, 38], [8, 61]]]], ["block", "if", [["get", "viewDistricts", ["loc", [null, [10, 10], [10, 23]]]]], [], 0, 1, ["loc", [null, [10, 4], [14, 11]]]], ["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "viewDistricts", ["loc", [null, [18, 18], [18, 31]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [19, 13], [19, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "paths", ["loc", [null, [20, 14], [20, 19]]]]], [], []], "units", "persones", "iniColor", "#A2FA9D", "endColor", "#055E00", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [24, 14], [24, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [25, 11], [25, 19]]]]], [], []], "class", "col-xs-12", "id", "map", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [28, 15], [28, 36]]]]], ["loc", [null, [17, 2], [29, 4]]]], ["content", "scope", ["loc", [null, [35, 8], [35, 17]]]], ["content", "year", ["loc", [null, [36, 36], [36, 44]]]], ["content", "level", ["loc", [null, [37, 48], [37, 57]]]], ["content", "gender", ["loc", [null, [38, 37], [38, 47]]]], ["block", "if", [["get", "showReset", ["loc", [null, [39, 10], [39, 19]]]]], [], 2, null, ["loc", [null, [39, 4], [43, 11]]]], ["inline", "pie-chart", [], ["class", "col-md-6 col-xs-12", "iniColor", "darkblue", "endColor", "purple", "pieData", ["subexpr", "@mut", [["get", "genderData", ["loc", [null, [49, 13], [49, 23]]]]], [], []], "title", "Sexe", "units", "persones", "setPie", ["subexpr", "action", ["changeGender"], [], ["loc", [null, [52, 10], [52, 33]]]], "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [53, 9], [53, 16]]]]], [], []], "id", "pieGender"], ["loc", [null, [45, 3], [54, 19]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [63, 11], [63, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [64, 18], [64, 22]]]]], [], []], "units", "persones", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [66, 12], [66, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [62, 4], [68, 20]]]], ["content", "year", ["loc", [null, [73, 42], [73, 50]]]], ["inline", "bar-chart", [], ["data", ["subexpr", "@mut", [["get", "barData", ["loc", [null, [84, 12], [84, 19]]]]], [], []], "currentSelection", ["subexpr", "@mut", [["get", "level", ["loc", [null, [85, 24], [85, 29]]]]], [], []], "units", "persones", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [87, 11], [87, 18]]]]], [], []], "setLevel", ["subexpr", "action", ["changeLevel"], [], ["loc", [null, [88, 14], [88, 36]]]], "class", "col-md-12 col-xs-12", "id", "levelSelector"], ["loc", [null, [83, 4], [90, 25]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };

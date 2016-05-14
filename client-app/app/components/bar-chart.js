@@ -9,6 +9,7 @@ export default Ember.Component.extend({
   data: null,
   tip: d3.select('body').append('div').attr('class', 'map-tooltip').style('opacity', 0),
   units: 'u.',
+  reset: false,
 
   didInsertElement: function() {
   	const margin = this.get('margin');
@@ -125,6 +126,7 @@ export default Ember.Component.extend({
     let yAxis = d3.svg.axis()
                   .scale(y)
                   .orient("left")
+                  .ticks(5)
                   .outerTickSize(1);
 
     let svg = d3.select('#'+this.get('elementId'));
@@ -143,5 +145,13 @@ export default Ember.Component.extend({
        .call(yAxis);
 
   }),
+
+  resetPie: Ember.observer('reset', function(){
+		const svg = d3.select('#'+this.get('elementId'));
+
+		svg.selectAll('.bar').classed('_selected_', true);
+		this.sendAction('setLevel', null);
+
+	}),
 
 });
