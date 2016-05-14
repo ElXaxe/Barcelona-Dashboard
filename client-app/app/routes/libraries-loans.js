@@ -6,8 +6,8 @@ export default Ember.Route.extend({
 
 	model() {
 		return Ember.RSVP.hash({
-			population: ajax({
-				url: '/api/v1/population',
+			libraries: ajax({
+				url: '/api/v1/libraries',
 				type: 'get'
 			}),
 
@@ -17,16 +17,11 @@ export default Ember.Route.extend({
 			  });
 			}),
 
-			neighbor: new Promise((res, rej) => {
-			  d3.json('assets/barris.json', function(err, data) {
-			    err ? rej(err) : res(data);
-			  });
-			})
 		});
 	},
 
 	afterModel: function(model, transition) {
-		this.get('dataService').initPopulation(model.population.data);
+		this.get('dataService').initLibraries(model.libraries.data);
 	},
 
 	setupController: function(controller, model) {

@@ -336,7 +336,7 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 				return 5 + i * 20 + 40;
 			}).attr('y', height - 11).text(function (d, i) {
 				if (i === 0 || i === colorDomain.length - 1) {
-					return d;
+					return d.toLocaleString();
 				}
 			}).style('font-size', '10px').style('text-align', function (d, i) {
 				if (i === 0) {
@@ -416,9 +416,9 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 
 			var legend = svg.selectAll('g.legend').data(colorDomain);
 
-			legend.select('text.min').transition().text(colorDomain[0]);
+			legend.select('text.min').transition().text(colorDomain[0].toLocaleString());
 
-			legend.select('text.max').transition().text(colorDomain[4]);
+			legend.select('text.max').transition().text(colorDomain[4].toLocaleString());
 
 			svg.transition().attr('width', width).attr('height', height);
 		}),
@@ -463,18 +463,21 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 		svg: null,
 		margin: { top: 20, right: 20, bottom: 20, left: 20 },
 		pieData: null,
-		title: 'Title',
+		title: null,
 		iniColor: '#C1D1FF',
 		endColor: '#000050',
 		selectColor: 'crimson',
 		units: 'u.',
 		reset: false,
+		scale: 'ordinal',
 		colorScale: _ember['default'].computed('iniColor', 'endColor', function () {
 			var first = this.get('iniColor'),
-			    last = this.get('endColor');
-
+			    last = this.get('endColor'),
+			    scale = this.get('scale');
 			var color = d3.scale.ordinal().range([first, last]);
-
+			if (scale === 'linear') {
+				color = d3.scale.linear().range([first, last]);
+			}
 			return color;
 		}),
 		tip: d3.select('body').append('div').attr('class', 'map-tooltip').style('opacity', 0),
@@ -488,8 +491,6 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 			var width = w - margin.left - margin.right;
 			var height = h - margin.top - margin.bottom;
 			var color = this.get('colorScale');
-			var iniColor = this.get('iniColor');
-			var endColor = this.get('endColor');
 			var selectColor = this.get('selectColor');
 			var pieData = this.get('pieData');
 			var radius = Math.min(width, height) / 2;
@@ -507,8 +508,13 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 			var total = values.reduce(function (a, b) {
 				return a + b;
 			});
+			var scale = this.get('scale');
 
-			color.domain(labels[0], labels[labels.length - 1]);
+			if (scale === 'linear') {
+				color.domain(d3.extent(values));
+			} else {
+				color.domain(labels[0], labels[labels.length - 1]);
+			}
 
 			var svg = d3.select('#' + this.get('elementId'));
 			svg.attr('width', width).attr('height', height);
@@ -524,6 +530,9 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 			svg.select('.donut-chart').selectAll('.donut-arc').data(pie(values)).enter().append('g').attr('class', 'donut-arc _selected_');
 
 			svg.selectAll('.donut-arc').append('path').attr('fill', function (d, i) {
+				if (scale === 'linear') {
+					return color(d.value);
+				}
 				return color(labels[i]);
 			}).attr('d', arc).each(function (d) {
 				this._current = d;
@@ -611,7 +620,9 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 			});
 			var tooltip = this.get('tip');
 			var units = this.get('units');
+			var color = this.get('colorScale');
 			var selectColor = this.get('selectColor');
+			var scale = this.get('scale');
 
 			var pie = d3.layout.pie().value(function (d) {
 				return d;
@@ -619,9 +630,31 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 
 			var arc = d3.svg.arc().innerRadius(innRadius).outerRadius(outRadius);
 
-			svg.selectAll('path').data(pie(values)).transition().duration(1000).attrTween('d', arcTween);
+			var chart = svg.select('.donut-chart').attr('transform', 'translate(' + width / 2 + ',' + height / 1.75 + ')');
+			var paths = chart.datum(values).selectAll('path').data(pie);
+			var textLabels = chart.datum(values).selectAll('.labelText').data(pie);
 
-			svg.selectAll('path').on('mouseover', function (d, i) {
+			if (scale === 'linear') {
+				color.domain(d3.extent(values));
+			} else {
+				color.domain(labels[0], labels[labels.length - 1]);
+			}
+
+			paths.enter().append('path').attr('d', arc).each(function (d) {
+				this._current = d;
+			});
+
+			paths.transition().duration(1000).attr('fill', function (d, i) {
+				if (scale === 'linear') {
+					console.log("Valor: " + d.value + " - Rang de color: " + color(d.value));
+					return color(d.value);
+				}
+				return color(labels[i]);
+			}).attrTween('d', arcTween);
+
+			textLabels.enter().append('text').attr('class', 'labelText');
+
+			paths.on('mouseover', function (d, i) {
 				var percentage = d.value / total * 100;
 
 				d3.select(this).transition().attr('stroke', selectColor).attr('stroke-width', '2px');
@@ -629,9 +662,17 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 				tooltip.transition().duration(350).style('opacity', 0.9);
 
 				tooltip.html('<h3>' + d3.round(percentage, 2) + '%</h3><p>' + d.value.toLocaleString() + ' ' + units + '</p>').style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 100 + "px");
+			}).on('mouseout', function (d, i) {
+				d3.select(this).transition().attr('stroke', 'none');
+
+				tooltip.transition().duration(500).style('opacity', 0);
 			});
 
-			svg.selectAll('.labelText').data(pie(values)).transition().duration(1250).attr("x", function (d) {
+			chart.transition();
+
+			textLabels.exit().remove();
+
+			textLabels.transition().duration(1250).attr("x", function (d) {
 				var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
 				d.cx = Math.cos(a) * (outRadius + 75);
 				return d.x = Math.cos(a) * (outRadius + 30);
@@ -650,7 +691,11 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 				} else {
 					return "middle";
 				}
+			}).text(function (d, i) {
+				if (d.value > 0) return labels[i];
 			});
+
+			paths.exit().remove();
 
 			svg.transition().attr({ width: width, height: height });
 
@@ -893,7 +938,7 @@ define('client/components/year-evolution', ['exports', 'ember'], function (expor
 
       container.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").attr('stroke-width', '1').call(xAxis);
 
-      container.append('g').attr('class', 'y axis').style('font-size', '1em').call(yAxis);
+      container.append('g').attr('class', 'y axis').style('font-size', '0.75em').call(yAxis);
     },
 
     changeChart: _ember['default'].observer('data', function () {
@@ -951,6 +996,267 @@ define('client/components/year-evolution', ['exports', 'ember'], function (expor
 define('client/controllers/array', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller;
 });
+define('client/controllers/libraries-loans', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Controller.extend({
+		dataService: _ember['default'].inject.service('data-service'),
+		libYearDim: _ember['default'].computed.alias('dataService.libYearDim'),
+		libDistrictDimension: _ember['default'].computed.alias('dataService.libDistrictDimension'),
+		libNameDimension: _ember['default'].computed.alias('dataService.libNameDimension'),
+		year: _ember['default'].computed.alias('dataService.libYear'),
+		scope: 'Barcelona',
+		zoneCode: null,
+		showReset: false,
+		reseted: false,
+		dataMap: _ember['default'].computed('libYearDim', 'libDistrictDimension', 'year', function () {
+			var yearDim = this.get('libYearDim');
+			var districtDim = this.get('libDistrictDimension');
+			var year = this.get('year');
+			var group = undefined,
+			    data = undefined;
+
+			yearDim.filter(year);
+			group = districtDim.group(function (d) {
+				return d;
+			});
+			data = group.reduceSum(function (d) {
+				return d.attributes.loans;
+			});
+
+			return data.all();
+		}),
+
+		yearData: _ember['default'].computed('libYearDim', 'zoneCode', function () {
+			var yearDim = this.get('libYearDim');
+			var data = undefined;
+
+			data = yearDim.group().reduceSum(function (d) {
+				return d.attributes.loans;
+			});
+			return data.all();
+		}),
+
+		pieData: _ember['default'].computed('year', 'zoneCode', function () {
+			var year = this.get('year');
+			var yearDim = this.get('libYearDim');
+			var nameDim = this.get('libNameDimension');
+			var zoneCode = this.get('zoneCode');
+			var data = undefined,
+			    group = undefined;
+
+			group = nameDim.group().reduceSum(function (d) {
+				return d.attributes.loans;
+			});
+
+			return group.all().filter(function (d) {
+				return d.value > 0;
+			});
+		}),
+		actions: {
+			changeView: function changeView() {
+				this.set('zoneCode', null);
+				this.set('scope', 'Barcelona');
+				this.set('showReset', this.get('showReset') || false);
+			},
+
+			changeZone: function changeZone(code, name) {
+				var districtDim = this.get('libDistrictDimension');
+				if (code) {
+					districtDim.filter(+code);
+				}
+				this.set('scope', name);
+				this.set('zoneCode', code);
+				this.set('showReset', true);
+			},
+
+			reset: function reset() {
+				var districtDim = this.get('libDistrictDimension');
+				districtDim.filterAll();
+				this.set('scope', 'Barcelona');
+				this.set('zoneCode', null);
+				this.set('showReset', false);
+				this.toggleProperty('reseted');
+			},
+
+			changeYear: function changeYear(year) {
+				this.set('year', year);
+			}
+
+		}
+	});
+
+	function getSum(total, num) {
+		return total + num;
+	}
+});
+define('client/controllers/libraries-visits', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Controller.extend({
+		dataService: _ember['default'].inject.service('data-service'),
+		libYearDim: _ember['default'].computed.alias('dataService.libYearDim'),
+		libDistrictDimension: _ember['default'].computed.alias('dataService.libDistrictDimension'),
+		libNameDimension: _ember['default'].computed.alias('dataService.libNameDimension'),
+		year: _ember['default'].computed.alias('dataService.libYear'),
+		scope: 'Barcelona',
+		zoneCode: null,
+		showReset: false,
+		reseted: false,
+		dataMap: _ember['default'].computed('libYearDim', 'libDistrictDimension', 'year', function () {
+			var yearDim = this.get('libYearDim');
+			var districtDim = this.get('libDistrictDimension');
+			var year = this.get('year');
+			var group = undefined,
+			    data = undefined;
+
+			yearDim.filter(year);
+			group = districtDim.group(function (d) {
+				return d;
+			});
+			data = group.reduceSum(function (d) {
+				return d.attributes.visits;
+			});
+
+			return data.all();
+		}),
+
+		yearData: _ember['default'].computed('libYearDim', 'zoneCode', function () {
+			var yearDim = this.get('libYearDim');
+			var data = undefined;
+
+			data = yearDim.group().reduceSum(function (d) {
+				return d.attributes.visits;
+			});
+			return data.all();
+		}),
+
+		pieData: _ember['default'].computed('year', 'zoneCode', function () {
+			var year = this.get('year');
+			var yearDim = this.get('libYearDim');
+			var nameDim = this.get('libNameDimension');
+			var zoneCode = this.get('zoneCode');
+			var data = undefined,
+			    group = undefined;
+
+			group = nameDim.group().reduceSum(function (d) {
+				return d.attributes.visits;
+			});
+
+			return group.all().filter(function (d) {
+				return d.value > 0;
+			});
+		}),
+		actions: {
+			changeView: function changeView() {
+				this.set('zoneCode', null);
+				this.set('scope', 'Barcelona');
+				this.set('showReset', this.get('showReset') || false);
+			},
+
+			changeZone: function changeZone(code, name) {
+				var districtDim = this.get('libDistrictDimension');
+				if (code) {
+					districtDim.filter(+code);
+				}
+				this.set('scope', name);
+				this.set('zoneCode', code);
+				this.set('showReset', true);
+			},
+
+			reset: function reset() {
+				var districtDim = this.get('libDistrictDimension');
+				districtDim.filterAll();
+				this.set('scope', 'Barcelona');
+				this.set('zoneCode', null);
+				this.set('showReset', false);
+				this.toggleProperty('reseted');
+			},
+
+			changeYear: function changeYear(year) {
+				this.set('year', year);
+			}
+
+		}
+	});
+
+	function getSum(total, num) {
+		return total + num;
+	}
+});
+define('client/controllers/libraries', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Controller.extend({
+		dataService: _ember['default'].inject.service('data-service'),
+		libYearDim: _ember['default'].computed.alias('dataService.libYearDim'),
+		libDistrictDimension: _ember['default'].computed.alias('dataService.libDistrictDimension'),
+		libNameDimension: _ember['default'].computed.alias('dataService.libNameDimension'),
+		year: _ember['default'].computed.alias('dataService.libYear'),
+		scope: 'Barcelona',
+		zoneCode: null,
+		showReset: false,
+		reseted: false,
+		dataMap: _ember['default'].computed('libYearDim', 'libDistrictDimension', 'year', function () {
+			var yearDim = this.get('libYearDim');
+			var districtDim = this.get('libDistrictDimension');
+			var year = this.get('year');
+			var group = undefined;
+
+			yearDim.filter(year);
+			group = districtDim.group(function (d) {
+				return d;
+			});
+
+			return group.all();
+		}),
+
+		yearData: _ember['default'].computed('libYearDim', 'zoneCode', function () {
+			var yearDim = this.get('libYearDim');
+
+			return yearDim.group().all();
+		}),
+
+		libraries: _ember['default'].computed('zoneCode', 'year', function () {
+			var nameDim = this.get('libNameDimension');
+			var districtDim = this.get('libDistrictDimension');
+			var zoneCode = this.get('zoneCode');
+			var data = null;
+
+			if (zoneCode) {
+				data = nameDim.group().all().filter(function (d) {
+					return d.value === 1;
+				});
+			}
+			return data;
+		}),
+		actions: {
+			changeView: function changeView() {
+				this.set('zoneCode', null);
+				this.set('scope', 'Barcelona');
+				this.set('showReset', this.get('showReset') || false);
+			},
+
+			changeZone: function changeZone(code, name) {
+				var districtDim = this.get('libDistrictDimension');
+				if (code) {
+					districtDim.filter(+code);
+				}
+				this.set('scope', name);
+				this.set('zoneCode', code);
+				this.set('showReset', true);
+			},
+
+			reset: function reset() {
+				var districtDim = this.get('libDistrictDimension');
+				districtDim.filterAll();
+				this.set('scope', 'Barcelona');
+				this.set('zoneCode', null);
+				this.set('showReset', false);
+				this.toggleProperty('reseted');
+			},
+
+			changeYear: function changeYear(year) {
+				this.set('year', year);
+			}
+
+		}
+	});
+});
 define('client/controllers/object', ['exports', 'ember'], function (exports, _ember) {
   exports['default'] = _ember['default'].Controller;
 });
@@ -961,13 +1267,13 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 		districtDimension: _ember['default'].computed.alias('dataService.districtDimension'),
 		neighborDimension: _ember['default'].computed.alias('dataService.neighborDimension'),
 		viewDistricts: true,
-		paths: _ember['default'].computed('viewDistricts', function (d) {
+		paths: _ember['default'].computed('viewDistricts', function () {
 			if (this.get('viewDistricts')) {
 				return this.get('model.district');
 			}
 			return this.get('model.neighbor');
 		}),
-		year: 2015,
+		year: _ember['default'].computed.alias('dataService.populYear'),
 		scope: 'Barcelona',
 		zoneCode: null,
 		minAge: 0,
@@ -1428,17 +1734,6 @@ define("client/instance-initializers/ember-data", ["exports", "ember-data/-priva
     initialize: _emberDataPrivateInstanceInitializersInitializeStoreService["default"]
   };
 });
-define('client/models/poblacio', ['exports', 'ember-data'], function (exports, _emberData) {
-  exports['default'] = _emberData['default'].Model.extend({
-    year: _emberData['default'].attr('number'),
-    district: _emberData['default'].attr('number'),
-    neighbor: _emberData['default'].attr('string'),
-    womenYears: _emberData['default'].attr('array'),
-    menYears: _emberData['default'].attr('array'),
-    womenTotal: _emberData['default'].attr('number'),
-    menTotal: _emberData['default'].attr('number')
-  });
-});
 define('client/resolver', ['exports', 'ember-resolver'], function (exports, _emberResolver) {
   exports['default'] = _emberResolver['default'];
 });
@@ -1454,9 +1749,120 @@ define('client/router', ['exports', 'ember', 'client/config/environment'], funct
     this.route('not-found', { path: '/*path' });
     this.route('poblacio');
     this.route('informacio');
+    this.route('libraries');
+    this.route('libraries-visits');
+    this.route('libraries-loans');
   });
 
   exports['default'] = Router;
+});
+define('client/routes/libraries-loans', ['exports', 'ember', 'ic-ajax'], function (exports, _ember, _icAjax) {
+	exports['default'] = _ember['default'].Route.extend({
+		dataService: _ember['default'].inject.service('data-service'),
+
+		model: function model() {
+			return _ember['default'].RSVP.hash({
+				libraries: (0, _icAjax['default'])({
+					url: '/api/v1/libraries',
+					type: 'get'
+				}),
+
+				district: new Promise(function (res, rej) {
+					d3.json('assets/districtes.json', function (err, data) {
+						err ? rej(err) : res(data);
+					});
+				})
+
+			});
+		},
+
+		afterModel: function afterModel(model, transition) {
+			this.get('dataService').initLibraries(model.libraries.data);
+		},
+
+		setupController: function setupController(controller, model) {
+			this._super(controller, model);
+		},
+
+		actions: {
+			willTransition: function willTransition(transition) {
+				this.controller.send('reset');
+			}
+		}
+
+	});
+});
+define('client/routes/libraries-visits', ['exports', 'ember', 'ic-ajax'], function (exports, _ember, _icAjax) {
+	exports['default'] = _ember['default'].Route.extend({
+		dataService: _ember['default'].inject.service('data-service'),
+
+		model: function model() {
+			return _ember['default'].RSVP.hash({
+				libraries: (0, _icAjax['default'])({
+					url: '/api/v1/libraries',
+					type: 'get'
+				}),
+
+				district: new Promise(function (res, rej) {
+					d3.json('assets/districtes.json', function (err, data) {
+						err ? rej(err) : res(data);
+					});
+				})
+
+			});
+		},
+
+		afterModel: function afterModel(model, transition) {
+			this.get('dataService').initLibraries(model.libraries.data);
+		},
+
+		setupController: function setupController(controller, model) {
+			this._super(controller, model);
+		},
+
+		actions: {
+			willTransition: function willTransition(transition) {
+				this.controller.send('reset');
+			}
+		}
+
+	});
+});
+define('client/routes/libraries', ['exports', 'ember', 'ic-ajax'], function (exports, _ember, _icAjax) {
+	exports['default'] = _ember['default'].Route.extend({
+		dataService: _ember['default'].inject.service('data-service'),
+
+		model: function model() {
+			return _ember['default'].RSVP.hash({
+				libraries: (0, _icAjax['default'])({
+					url: '/api/v1/libraries',
+					type: 'get'
+				}),
+
+				district: new Promise(function (res, rej) {
+					d3.json('assets/districtes.json', function (err, data) {
+						err ? rej(err) : res(data);
+					});
+				})
+
+			});
+		},
+
+		afterModel: function afterModel(model, transition) {
+			this.get('dataService').initLibraries(model.libraries.data);
+		},
+
+		setupController: function setupController(controller, model) {
+			this._super(controller, model);
+		},
+
+		actions: {
+			willTransition: function willTransition(transition) {
+				this.controller.send('reset');
+			}
+		}
+
+	});
 });
 define('client/routes/poblacio', ['exports', 'ember', 'ic-ajax'], function (exports, _ember, _icAjax) {
 	exports['default'] = _ember['default'].Route.extend({
@@ -1489,6 +1895,12 @@ define('client/routes/poblacio', ['exports', 'ember', 'ic-ajax'], function (expo
 
 		setupController: function setupController(controller, model) {
 			this._super(controller, model);
+		},
+
+		actions: {
+			willTransition: function willTransition(transition) {
+				this.controller.send('reset');
+			}
 		}
 
 	});
@@ -1507,36 +1919,67 @@ define('client/services/data-service', ['exports', 'ember'], function (exports, 
 	var crossfilter = window.crossfilter;
 	exports['default'] = _ember['default'].Service.extend({
 
-		crossfilter: null,
+		populationCF: null,
+		librariesCF: null,
 
 		__setup: on('init', function () {
-			this.set('crossfilter', crossfilter());
+			this.set('populationCF', crossfilter());
+			this.set('librariesCF', crossfilter());
 		}),
 
 		initPopulation: function initPopulation(population) {
 			if (isEmpty(this.get('populYearDim'))) {
-				var _crossfilter = this.get('crossfilter');
-
+				var _crossfilter = this.get('populationCF');
 				_crossfilter.add(population);
 
+				var populYearDim = _crossfilter.dimension(function (d) {
+					return d.attributes.year;
+				});
+				var years = populYearDim.group().all();
+
 				this.setProperties({
-					populYearDim: _crossfilter.dimension(function (d) {
-						return d.attributes.year;
-					}),
+					populYearDim: populYearDim,
 					districtDimension: _crossfilter.dimension(function (d) {
 						return d.attributes.district;
 					}),
 					neighborDimension: _crossfilter.dimension(function (d) {
 						return +d.attributes.neighbor.slice(0, d.attributes.neighbor.indexOf('.'));
-					})
+					}),
+					populYear: years[years.length - 1].key
+				});
+			} else {}
+		},
+		populYearDim: null,
+		districtDimension: null,
+		neighborDimension: null,
+		populYear: null,
+
+		initLibraries: function initLibraries(libraries) {
+			if (isEmpty(this.get('libYearDim'))) {
+				var _crossfilter2 = this.get('librariesCF');
+				_crossfilter2.add(libraries);
+
+				var libYearDim = _crossfilter2.dimension(function (d) {
+					return d.attributes.year;
+				});
+				var years = libYearDim.group().all();
+
+				this.setProperties({
+					libYearDim: libYearDim,
+					libDistrictDimension: _crossfilter2.dimension(function (d) {
+						return d.attributes.district;
+					}),
+					libNameDimension: _crossfilter2.dimension(function (d) {
+						return d.attributes.libraryName;
+					}),
+					libYear: years[years.length - 1].key
 				});
 			}
 		},
-
-		populYearDim: null,
-		districtDimension: null,
-		neighborDimension: null
-
+		libYearDim: null,
+		libDistrictDimension: null,
+		libNameDimension: null,
+		libYear: null
 	});
 });
 define("client/templates/application", ["exports"], function (exports) {
@@ -1591,12 +2034,12 @@ define("client/templates/application", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 19,
-              "column": 12
+              "line": 24,
+              "column": 16
             },
             "end": {
-              "line": 19,
-              "column": 43
+              "line": 24,
+              "column": 54
             }
           },
           "moduleName": "client/templates/application.hbs"
@@ -1607,7 +2050,7 @@ define("client/templates/application", ["exports"], function (exports) {
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createTextNode("Població");
+          var el1 = dom.createTextNode("Dades del Padró");
           dom.appendChild(el0, el1);
           return el0;
         },
@@ -1627,11 +2070,119 @@ define("client/templates/application", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 20,
+              "line": 32,
+              "column": 16
+            },
+            "end": {
+              "line": 32,
+              "column": 54
+            }
+          },
+          "moduleName": "client/templates/application.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("Dades generals");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() {
+          return [];
+        },
+        statements: [],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child3 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 33,
+              "column": 16
+            },
+            "end": {
+              "line": 33,
+              "column": 54
+            }
+          },
+          "moduleName": "client/templates/application.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("Visites");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() {
+          return [];
+        },
+        statements: [],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child4 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 34,
+              "column": 16
+            },
+            "end": {
+              "line": 34,
+              "column": 54
+            }
+          },
+          "moduleName": "client/templates/application.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("Prèstecs");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes() {
+          return [];
+        },
+        statements: [],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child5 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 37,
               "column": 12
             },
             "end": {
-              "line": 20,
+              "line": 37,
               "column": 47
             }
           },
@@ -1669,7 +2220,7 @@ define("client/templates/application", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 33,
+            "line": 50,
             "column": 0
           }
         },
@@ -1751,7 +2302,87 @@ define("client/templates/application", ["exports"], function (exports) {
         var el5 = dom.createTextNode("\n        ");
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("li");
-        var el6 = dom.createComment("");
+        dom.setAttribute(el5, "class", "dropdown");
+        var el6 = dom.createTextNode("\n           ");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("a");
+        dom.setAttribute(el6, "href", "#");
+        dom.setAttribute(el6, "class", "dropdown-toggle");
+        dom.setAttribute(el6, "data-toggle", "dropdown");
+        dom.setAttribute(el6, "role", "button");
+        dom.setAttribute(el6, "aria-haspopup", "true");
+        dom.setAttribute(el6, "aria-expanded", "false");
+        var el7 = dom.createTextNode("\n            Població");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("span");
+        dom.setAttribute(el7, "class", "caret");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n          ");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n          ");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("ul");
+        dom.setAttribute(el6, "class", "dropdown-menu");
+        var el7 = dom.createTextNode("\n            ");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("li");
+        var el8 = dom.createComment("");
+        dom.appendChild(el7, el8);
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n          ");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n        ");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n        ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("li");
+        dom.setAttribute(el5, "class", "dropdown");
+        var el6 = dom.createTextNode("\n           ");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("a");
+        dom.setAttribute(el6, "href", "#");
+        dom.setAttribute(el6, "class", "dropdown-toggle");
+        dom.setAttribute(el6, "data-toggle", "dropdown");
+        dom.setAttribute(el6, "role", "button");
+        dom.setAttribute(el6, "aria-haspopup", "true");
+        dom.setAttribute(el6, "aria-expanded", "false");
+        var el7 = dom.createTextNode("\n            Biblioteques");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("span");
+        dom.setAttribute(el7, "class", "caret");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n          ");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n          ");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("ul");
+        dom.setAttribute(el6, "class", "dropdown-menu");
+        var el7 = dom.createTextNode("\n            ");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("li");
+        var el8 = dom.createComment("");
+        dom.appendChild(el7, el8);
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n            ");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("li");
+        var el8 = dom.createComment("");
+        dom.appendChild(el7, el8);
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n            ");
+        dom.appendChild(el6, el7);
+        var el7 = dom.createElement("li");
+        var el8 = dom.createComment("");
+        dom.appendChild(el7, el8);
+        dom.appendChild(el6, el7);
+        var el7 = dom.createTextNode("\n          ");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n        ");
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
         var el5 = dom.createTextNode("\n        ");
@@ -1808,16 +2439,20 @@ define("client/templates/application", ["exports"], function (exports) {
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element0 = dom.childAt(fragment, [0, 1]);
         var element1 = dom.childAt(element0, [7, 1]);
-        var morphs = new Array(4);
+        var element2 = dom.childAt(element1, [3, 3]);
+        var morphs = new Array(7);
         morphs[0] = dom.createMorphAt(dom.childAt(element0, [3]), 3, 3);
-        morphs[1] = dom.createMorphAt(dom.childAt(element1, [1]), 0, 0);
-        morphs[2] = dom.createMorphAt(dom.childAt(element1, [3]), 0, 0);
-        morphs[3] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element1, [1, 3, 1]), 0, 0);
+        morphs[2] = dom.createMorphAt(dom.childAt(element2, [1]), 0, 0);
+        morphs[3] = dom.createMorphAt(dom.childAt(element2, [3]), 0, 0);
+        morphs[4] = dom.createMorphAt(dom.childAt(element2, [5]), 0, 0);
+        morphs[5] = dom.createMorphAt(dom.childAt(element1, [5]), 0, 0);
+        morphs[6] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
         return morphs;
       },
-      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [11, 6], [13, 18]]]], ["block", "link-to", ["poblacio"], [], 1, null, ["loc", [null, [19, 12], [19, 55]]]], ["block", "link-to", ["informacio"], [], 2, null, ["loc", [null, [20, 12], [20, 59]]]], ["content", "outlet", ["loc", [null, [30, 1], [30, 11]]]]],
+      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [11, 6], [13, 18]]]], ["block", "link-to", ["poblacio"], [], 1, null, ["loc", [null, [24, 16], [24, 66]]]], ["block", "link-to", ["libraries"], [], 2, null, ["loc", [null, [32, 16], [32, 66]]]], ["block", "link-to", ["libraries-visits"], [], 3, null, ["loc", [null, [33, 16], [33, 66]]]], ["block", "link-to", ["libraries-loans"], [], 4, null, ["loc", [null, [34, 16], [34, 66]]]], ["block", "link-to", ["informacio"], [], 5, null, ["loc", [null, [37, 12], [37, 59]]]], ["content", "outlet", ["loc", [null, [47, 1], [47, 11]]]]],
       locals: [],
-      templates: [child0, child1, child2]
+      templates: [child0, child1, child2, child3, child4, child5]
     };
   })());
 });
@@ -6016,8 +6651,8 @@ define("client/templates/informacio", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 42,
-            "column": 0
+            "line": 43,
+            "column": 142
           }
         },
         "moduleName": "client/templates/informacio.hbs"
@@ -6194,7 +6829,19 @@ define("client/templates/informacio", ["exports"], function (exports) {
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("h4");
+        var el2 = dom.createTextNode("El codi font d'aquesta aplicació es pot trobar a ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("a");
+        dom.setAttribute(el2, "href", "https://github.com/ElXaxe/Barcelona-Dashboard");
+        dom.setAttribute(el2, "target", "_blank");
+        var el3 = dom.createTextNode("Github");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(". ");
+        dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
         return el0;
       },
@@ -6204,6 +6851,847 @@ define("client/templates/informacio", ["exports"], function (exports) {
       statements: [],
       locals: [],
       templates: []
+    };
+  })());
+});
+define("client/templates/libraries-loans", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 29,
+              "column": 4
+            },
+            "end": {
+              "line": 33,
+              "column": 4
+            }
+          },
+          "moduleName": "client/templates/libraries-loans.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("					");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("button");
+          dom.setAttribute(el1, "class", "btn btn-xs btn-danger");
+          var el2 = dom.createTextNode(" \n						Treure filtres\n					");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element1 = dom.childAt(fragment, [1]);
+          var morphs = new Array(1);
+          morphs[0] = dom.createElementMorph(element1);
+          return morphs;
+        },
+        statements: [["element", "action", ["reset"], [], ["loc", [null, [30, 43], [30, 61]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 51,
+              "column": 2
+            },
+            "end": {
+              "line": 66,
+              "column": 2
+            }
+          },
+          "moduleName": "client/templates/libraries-loans.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("		");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1, "class", "row");
+          var el2 = dom.createTextNode("\n			");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("h4");
+          var el3 = dom.createTextNode("\n				Préstecs de les biblioteques del districte de ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createComment("");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("br");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n			");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n			");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n		");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1]);
+          var morphs = new Array(2);
+          morphs[0] = dom.createMorphAt(dom.childAt(element0, [1]), 1, 1);
+          morphs[1] = dom.createMorphAt(element0, 3, 3);
+          return morphs;
+        },
+        statements: [["content", "scope", ["loc", [null, [54, 50], [54, 59]]]], ["inline", "pie-chart", [], ["class", "col-md-12 col-xs-12", "iniColor", "#FFE8E0", "endColor", "#DB6600", "pieData", ["subexpr", "@mut", [["get", "pieData", ["loc", [null, [60, 13], [60, 20]]]]], [], []], "units", "préstecs", "scale", "linear", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [63, 9], [63, 16]]]]], [], []], "id", "pie-library"], ["loc", [null, [56, 3], [64, 21]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.4.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 71,
+            "column": 0
+          }
+        },
+        "moduleName": "client/templates/libraries-loans.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("h1");
+        var el2 = dom.createTextNode("\n	Biblioteques\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("small");
+        var el3 = dom.createTextNode("Préstecs");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "row libraries");
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-5 col-xs-12");
+        var el3 = dom.createTextNode("\n		\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment(" Map ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-7 col-xs-12");
+        dom.setAttribute(el2, "id", "data-content");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "col-md-6 col-xs-12");
+        dom.setAttribute(el4, "id", "info");
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("h3");
+        var el6 = dom.createComment("");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("h4");
+        var el6 = dom.createTextNode("Any: ");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("span");
+        dom.setAttribute(el6, "class", "infoText");
+        var el7 = dom.createComment("");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode(" ");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("hr");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row pie");
+        var el4 = dom.createTextNode("	\n				");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("h4");
+        var el5 = dom.createTextNode("\n					Evolució dels préstecs per anys");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("br");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n					");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("small");
+        var el6 = dom.createTextNode("Fes click sobre un any per seleccionar-ho");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n				");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("hr");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment(" Map info ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element2 = dom.childAt(fragment, [2]);
+        var element3 = dom.childAt(element2, [5]);
+        var element4 = dom.childAt(element3, [1, 1]);
+        var morphs = new Array(6);
+        morphs[0] = dom.createMorphAt(dom.childAt(element2, [1]), 1, 1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element4, [1]), 0, 0);
+        morphs[2] = dom.createMorphAt(dom.childAt(element4, [3, 1]), 0, 0);
+        morphs[3] = dom.createMorphAt(element4, 5, 5);
+        morphs[4] = dom.createMorphAt(dom.childAt(element3, [5]), 3, 3);
+        morphs[5] = dom.createMorphAt(element3, 9, 9);
+        return morphs;
+      },
+      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [11, 13], [11, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [12, 14], [12, 28]]]]], [], []], "units", "préstecs", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [14, 14], [14, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [15, 13], [15, 21]]]]], [], []], "iniColor", "#FFD1C1", "endColor", "#500000", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [20, 15], [20, 36]]]]], ["loc", [null, [9, 2], [21, 4]]]], ["content", "scope", ["loc", [null, [27, 8], [27, 17]]]], ["content", "year", ["loc", [null, [28, 36], [28, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [29, 10], [29, 19]]]]], [], 0, null, ["loc", [null, [29, 4], [33, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [43, 11], [43, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [44, 18], [44, 22]]]]], [], []], "units", "préstecs", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [46, 12], [46, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [42, 4], [48, 20]]]], ["block", "if", [["get", "zoneCode", ["loc", [null, [51, 8], [51, 16]]]]], [], 1, null, ["loc", [null, [51, 2], [66, 9]]]]],
+      locals: [],
+      templates: [child0, child1]
+    };
+  })());
+});
+define("client/templates/libraries-visits", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 29,
+              "column": 4
+            },
+            "end": {
+              "line": 33,
+              "column": 4
+            }
+          },
+          "moduleName": "client/templates/libraries-visits.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("					");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("button");
+          dom.setAttribute(el1, "class", "btn btn-xs btn-danger");
+          var el2 = dom.createTextNode(" \n						Treure filtres\n					");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element1 = dom.childAt(fragment, [1]);
+          var morphs = new Array(1);
+          morphs[0] = dom.createElementMorph(element1);
+          return morphs;
+        },
+        statements: [["element", "action", ["reset"], [], ["loc", [null, [30, 43], [30, 61]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 51,
+              "column": 2
+            },
+            "end": {
+              "line": 66,
+              "column": 2
+            }
+          },
+          "moduleName": "client/templates/libraries-visits.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("		");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("div");
+          dom.setAttribute(el1, "class", "row");
+          var el2 = dom.createTextNode("\n			");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createElement("h4");
+          var el3 = dom.createTextNode("\n				Visites a les biblioteques del districte de ");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createComment("");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createElement("br");
+          dom.appendChild(el2, el3);
+          var el3 = dom.createTextNode("\n			");
+          dom.appendChild(el2, el3);
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n			");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          var el2 = dom.createTextNode("\n		");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1]);
+          var morphs = new Array(2);
+          morphs[0] = dom.createMorphAt(dom.childAt(element0, [1]), 1, 1);
+          morphs[1] = dom.createMorphAt(element0, 3, 3);
+          return morphs;
+        },
+        statements: [["content", "scope", ["loc", [null, [54, 48], [54, 57]]]], ["inline", "pie-chart", [], ["class", "col-md-12 col-xs-12", "iniColor", "#FFE8E0", "endColor", "#DB6600", "pieData", ["subexpr", "@mut", [["get", "pieData", ["loc", [null, [60, 13], [60, 20]]]]], [], []], "units", "visites", "scale", "linear", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [63, 9], [63, 16]]]]], [], []], "id", "pie-library"], ["loc", [null, [56, 3], [64, 21]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.4.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 71,
+            "column": 0
+          }
+        },
+        "moduleName": "client/templates/libraries-visits.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("h1");
+        var el2 = dom.createTextNode("\n	Biblioteques\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("small");
+        var el3 = dom.createTextNode("Visites");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "row libraries");
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-5 col-xs-12");
+        var el3 = dom.createTextNode("\n		\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment(" Map ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-7 col-xs-12");
+        dom.setAttribute(el2, "id", "data-content");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "col-md-6 col-xs-12");
+        dom.setAttribute(el4, "id", "info");
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("h3");
+        var el6 = dom.createComment("");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("h4");
+        var el6 = dom.createTextNode("Any: ");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("span");
+        dom.setAttribute(el6, "class", "infoText");
+        var el7 = dom.createComment("");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode(" ");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("hr");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row pie");
+        var el4 = dom.createTextNode("	\n				");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("h4");
+        var el5 = dom.createTextNode("\n					Evolució de visites per anys");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("br");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n					");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("small");
+        var el6 = dom.createTextNode("Fes click sobre un any per seleccionar-ho");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n				");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("hr");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment(" Map info ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element2 = dom.childAt(fragment, [2]);
+        var element3 = dom.childAt(element2, [5]);
+        var element4 = dom.childAt(element3, [1, 1]);
+        var morphs = new Array(6);
+        morphs[0] = dom.createMorphAt(dom.childAt(element2, [1]), 1, 1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element4, [1]), 0, 0);
+        morphs[2] = dom.createMorphAt(dom.childAt(element4, [3, 1]), 0, 0);
+        morphs[3] = dom.createMorphAt(element4, 5, 5);
+        morphs[4] = dom.createMorphAt(dom.childAt(element3, [5]), 3, 3);
+        morphs[5] = dom.createMorphAt(element3, 9, 9);
+        return morphs;
+      },
+      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [11, 13], [11, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [12, 14], [12, 28]]]]], [], []], "units", "visites", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [14, 14], [14, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [15, 13], [15, 21]]]]], [], []], "iniColor", "#FFD1C1", "endColor", "#500000", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [20, 15], [20, 36]]]]], ["loc", [null, [9, 2], [21, 4]]]], ["content", "scope", ["loc", [null, [27, 8], [27, 17]]]], ["content", "year", ["loc", [null, [28, 36], [28, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [29, 10], [29, 19]]]]], [], 0, null, ["loc", [null, [29, 4], [33, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [43, 11], [43, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [44, 18], [44, 22]]]]], [], []], "units", "visites", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [46, 12], [46, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [42, 4], [48, 20]]]], ["block", "if", [["get", "zoneCode", ["loc", [null, [51, 8], [51, 16]]]]], [], 1, null, ["loc", [null, [51, 2], [66, 9]]]]],
+      locals: [],
+      templates: [child0, child1]
+    };
+  })());
+});
+define("client/templates/libraries", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 29,
+              "column": 4
+            },
+            "end": {
+              "line": 33,
+              "column": 4
+            }
+          },
+          "moduleName": "client/templates/libraries.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("					");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("button");
+          dom.setAttribute(el1, "class", "btn btn-xs btn-danger");
+          var el2 = dom.createTextNode(" \n						Treure filtres\n					");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1]);
+          var morphs = new Array(1);
+          morphs[0] = dom.createElementMorph(element0);
+          return morphs;
+        },
+        statements: [["element", "action", ["reset"], [], ["loc", [null, [30, 43], [30, 61]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 56,
+              "column": 4
+            },
+            "end": {
+              "line": 58,
+              "column": 4
+            }
+          },
+          "moduleName": "client/templates/libraries.hbs"
+        },
+        isEmpty: false,
+        arity: 1,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("					");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("p");
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
+          return morphs;
+        },
+        statements: [["content", "library.key", ["loc", [null, [57, 8], [57, 23]]]]],
+        locals: ["library"],
+        templates: []
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.4.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 64,
+            "column": 0
+          }
+        },
+        "moduleName": "client/templates/libraries.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("h1");
+        var el2 = dom.createTextNode("\n	Biblioteques\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("small");
+        var el3 = dom.createTextNode("Nombre de biblioteques");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "row libraries");
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-5 col-xs-12");
+        var el3 = dom.createTextNode("\n		\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment(" Map ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-7 col-xs-12");
+        dom.setAttribute(el2, "id", "data-content");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "col-md-6 col-xs-12");
+        dom.setAttribute(el4, "id", "info");
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("h3");
+        var el6 = dom.createComment("");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("h4");
+        var el6 = dom.createTextNode("Any: ");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("span");
+        dom.setAttribute(el6, "class", "infoText");
+        var el7 = dom.createComment("");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode(" ");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("hr");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("	\n				");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("h4");
+        var el5 = dom.createTextNode("\n					Evolució biblioteques per anys");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("br");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n					");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("small");
+        var el6 = dom.createTextNode("Fes click sobre un any per seleccionar-ho");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n				");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("hr");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("h4");
+        var el5 = dom.createTextNode("\n				Biblioteques");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("br");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("small");
+        var el6 = dom.createTextNode("Fes click sobre un districte per veure les seves biblioteques");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment(" Map info ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element1 = dom.childAt(fragment, [2]);
+        var element2 = dom.childAt(element1, [5]);
+        var element3 = dom.childAt(element2, [1, 1]);
+        var morphs = new Array(6);
+        morphs[0] = dom.createMorphAt(dom.childAt(element1, [1]), 1, 1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element3, [1]), 0, 0);
+        morphs[2] = dom.createMorphAt(dom.childAt(element3, [3, 1]), 0, 0);
+        morphs[3] = dom.createMorphAt(element3, 5, 5);
+        morphs[4] = dom.createMorphAt(dom.childAt(element2, [5]), 3, 3);
+        morphs[5] = dom.createMorphAt(dom.childAt(element2, [9]), 3, 3);
+        return morphs;
+      },
+      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [11, 13], [11, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [12, 14], [12, 28]]]]], [], []], "units", "biblioteques", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [14, 14], [14, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [15, 13], [15, 21]]]]], [], []], "iniColor", "#FFD1C1", "endColor", "#500000", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [20, 15], [20, 36]]]]], ["loc", [null, [9, 2], [21, 4]]]], ["content", "scope", ["loc", [null, [27, 8], [27, 17]]]], ["content", "year", ["loc", [null, [28, 36], [28, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [29, 10], [29, 19]]]]], [], 0, null, ["loc", [null, [29, 4], [33, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [43, 11], [43, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [44, 18], [44, 22]]]]], [], []], "units", "biblioteques", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [46, 12], [46, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [42, 4], [48, 20]]]], ["block", "each", [["get", "libraries", ["loc", [null, [56, 12], [56, 21]]]]], [], 1, null, ["loc", [null, [56, 4], [58, 13]]]]],
+      locals: [],
+      templates: [child0, child1]
     };
   })());
 });
@@ -6719,7 +8207,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+23d275e5"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+2f15ea24"});
 }
 
 /* jshint ignore:end */

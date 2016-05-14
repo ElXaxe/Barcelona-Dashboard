@@ -153,7 +153,7 @@ export default Ember.Component.extend({
 				.attr('y', height - 11)
 				.text( function(d, i) {
 					if (i === 0 || i === colorDomain.length - 1) {
-						return d;
+						return d.toLocaleString();
 					}
 				})
 				.style('font-size', '10px')
@@ -267,11 +267,11 @@ export default Ember.Component.extend({
 
 			legend.select('text.min')
 				.transition()
-				.text( colorDomain[0]);
+				.text( colorDomain[0].toLocaleString());
 			
 			legend.select('text.max')
 				.transition()
-				.text( colorDomain[4]);
+				.text( colorDomain[4].toLocaleString());
 
 			svg.transition().attr('width', width).attr('height', height);
 

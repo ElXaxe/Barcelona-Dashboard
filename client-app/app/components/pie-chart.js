@@ -6,19 +6,21 @@ export default Ember.Component.extend({
 	svg: null,
 	margin: {top: 20, right: 20, bottom: 20, left: 20},
 	pieData: null,
-	title: 'Title',
+	title: null,
 	iniColor: '#C1D1FF',
 	endColor: '#000050',
 	selectColor: 'crimson',
 	units: 'u.',
 	reset: false,
+	scale: 'ordinal',
 	colorScale: Ember.computed('iniColor', 'endColor', function(){
 		const first = this.get('iniColor'),
-					last = this.get('endColor');
-
-		const color = d3.scale.ordinal()
-										.range([first, last]);
-
+					last = this.get('endColor'),
+					scale = this.get('scale');
+		let color = d3.scale.ordinal().range([first, last]);
+		if (scale === 'linear') {
+			color = d3.scale.linear().range([first, last]);
+		}
 		return color;
 	}),
 	tip: d3.select('body').append('div').attr('class', 'map-tooltip').style('opacity', 0),
@@ -30,8 +32,6 @@ export default Ember.Component.extend({
 		const width = w - margin.left - margin.right;
   	const height = h - margin.top - margin.bottom;
   	const color = this.get('colorScale');
-  	const iniColor = this.get('iniColor');
-  	const endColor = this.get('endColor');
   	const selectColor = this.get('selectColor');
   	const pieData = this.get('pieData');
   	const radius = Math.min(width, height) / 2;
@@ -43,9 +43,14 @@ export default Ember.Component.extend({
 		const tooltip = this.get('tip');
 		const units = this.get('units');
 		const total = values.reduce(function(a, b) { return a + b; });
+		const scale = this.get('scale');
 		
-  	color.domain(labels[0], labels[labels.length - 1]);
-  	
+  	if (scale === 'linear') {
+			color.domain(d3.extent(values));
+		} else {
+			color.domain(labels[0], labels[labels.length - 1]);
+		}
+
   	const svg = d3.select('#'+this.get('elementId'));
 		svg.attr('width', width).attr('height', height);
 
@@ -71,7 +76,10 @@ export default Ember.Component.extend({
 
 		svg.selectAll('.donut-arc')
 			 .append('path')
-			 .attr('fill', function(d, i) { return color(labels[i]); })
+			 .attr('fill', function(d, i) { 
+			 	if ( scale === 'linear') {return color(d.value);}
+			 	return color(labels[i]); 
+			 })
 			 .attr('d', arc)
 			 .each(function(d) { this._current = d; })
 			 .on('mouseover', function (d, i) { 
@@ -185,8 +193,10 @@ export default Ember.Component.extend({
 		const total = values.reduce(function(a, b) { return a + b; });
 		const tooltip = this.get('tip');
 		const units = this.get('units');
+		const color = this.get('colorScale');
 		const selectColor = this.get('selectColor');
-		
+		const scale = this.get('scale');
+
 		const pie = d3.layout.pie()
 								.value( function(d) { return d; })
 								.sort(null);
@@ -195,14 +205,37 @@ export default Ember.Component.extend({
 								.innerRadius(innRadius)
 								.outerRadius(outRadius);
 		
-		svg.selectAll('path')
-			.data(pie(values))
-			.transition()
-			.duration(1000)
-			.attrTween('d', arcTween);
+		let chart = svg.select('.donut-chart').attr('transform', 'translate(' + (width / 2) + ',' + (height / 1.75) +')');
+		let paths = chart.datum(values).selectAll('path').data(pie);
+		let textLabels = chart.datum(values).selectAll('.labelText').data(pie);
 
-		svg.selectAll('path')
-			.on('mouseover', function (d, i) { 
+		if (scale === 'linear') {
+			color.domain(d3.extent(values));
+		} else {
+			color.domain(labels[0], labels[labels.length - 1]);
+		}
+
+		paths.enter()
+			.append('path')
+			.attr('d', arc)
+			 .each(function(d) { this._current = d; });
+
+		paths.transition()
+			.duration(1000)	
+			.attr('fill', function(d, i) { 
+			 	if ( scale === 'linear'){ 
+			 		console.log("Valor: " + d.value + " - Rang de color: " + color(d.value));
+			 		return color(d.value);
+			  }
+			 	return color(labels[i]); 
+			 }) 
+			 .attrTween('d', arcTween);
+
+		textLabels.enter()
+			.append('text')
+			.attr('class', 'labelText');
+
+		paths.on('mouseover', function (d, i) { 
 			 		let percentage = d.value / total * 100;
 
 			 		d3.select(this)
@@ -219,11 +252,24 @@ export default Ember.Component.extend({
 								  '%</h3><p>' + d.value.toLocaleString() + ' ' + units +'</p>')
 						 .style("left", (d3.event.pageX) + "px")
 	           .style("top", (d3.event.pageY - 100) + "px"); 
+			})
+			.on('mouseout', function (d, i) {
+			 		d3.select(this)
+			 			.transition()
+			 			.attr('stroke', 'none');
+
+			 		tooltip.transition()
+						.duration(500)
+						.style('opacity', 0);
 			 });
 
-		svg.selectAll('.labelText')
-			.data(pie(values))
-			.transition()
+		chart.transition();
+
+		
+
+		textLabels.exit().remove();
+
+		textLabels.transition()
 			.duration(1250)
 			.attr("x", function(d) {
           var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
@@ -246,7 +292,13 @@ export default Ember.Component.extend({
 	        } else {
 	            return "middle";
 	        }
-	    });
+	    })
+	    .text(function(d, i) {
+	    		if (d.value > 0) return labels[i];
+      });
+
+	  paths.exit().remove();
+	  
 
     svg.transition().attr({width: width, height: height});
 
@@ -271,3 +323,5 @@ export default Ember.Component.extend({
 
 	}
 });
+
+

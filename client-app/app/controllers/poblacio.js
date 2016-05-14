@@ -6,13 +6,13 @@ export default Ember.Controller.extend({
 	districtDimension: Ember.computed.alias('dataService.districtDimension'),
 	neighborDimension: Ember.computed.alias('dataService.neighborDimension'),
 	viewDistricts: true,
-	paths: Ember.computed('viewDistricts', function(d) {
+	paths: Ember.computed('viewDistricts', function() {
 		if(this.get('viewDistricts')) {
 			return this.get('model.district');
 		}
 		return this.get('model.neighbor');
 	}),
-	year: 2015,
+	year:  Ember.computed.alias('dataService.populYear'),
 	scope: 'Barcelona',
 	zoneCode: null,
 	minAge: 0,

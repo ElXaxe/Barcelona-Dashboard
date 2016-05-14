@@ -11,6 +11,9 @@ Router.map(function() {
   this.route('not-found', { path: '/*path' });
   this.route('poblacio');
   this.route('informacio');
+  this.route('libraries');
+  this.route('libraries-visits');
+  this.route('libraries-loans');
 });
 
 export default Router;
