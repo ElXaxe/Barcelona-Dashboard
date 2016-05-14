@@ -73,6 +73,50 @@ module.exports = function(app, router) {
 		});
 	});
 
+	// Academic levels
+	router.get('/academic', function(request, response) {
+		db.academic.find({}, function(err, res) {
+			if (err) {
+				handleError(err);
+			}
+			
+			response.json({
+				data: res.map( (el) => {
+					var womenTotal = el.sensedones + el.primarisdones + el.secundarisdones + 
+						el.mitjansdones + el.superiorsdones;
+					var menTotal = el.sensehomes + el.primarishomes + el.secundarishomes + 
+						el.mitjanshomes + el.superiorshomes;
+						console.log(el);
+					return {
+						id: el.id,
+						type: 'academics',
+						attributes: {
+							year: el.anny,
+							district: el.districte,
+							neighbor: el.barri,
+							women: {
+								none: el.sensedones,
+								primary: el.primarisdones,
+								secondary: el.secundarisdones,
+								average: el.mitjansdones,
+								superior: el.superiorsdones,
+								total: womenTotal
+							},
+							men: {
+								none: el.sensehomes,
+								primary: el.primarishomes,
+								secondary: el.secundarishomes,
+								average: el.mitjanshomes,
+								superior: el.superiorshomes,
+								total: menTotal
+							}
+						}
+					};	
+				})
+			});
+		});
+	});
+
 }
 
 // Handle connection errors

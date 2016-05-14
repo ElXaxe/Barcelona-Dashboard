@@ -27,6 +27,39 @@
     stroke: cornflowerblue;
     opacity: 0.5; }
 
+.academics #info h4 {
+  line-height: 1.8em; }
+.academics #info .infoText {
+  color: steelblue; }
+.academics #map {
+  height: 75vh; }
+  .academics #map path._selected_ {
+    fill: crimson; }
+.academics .data-content {
+  margin: 10px; }
+.academics #pieGender {
+  height: 25vh; }
+  .academics #pieGender .donut-arc {
+    opacity: 0.2; }
+    .academics #pieGender .donut-arc._selected_ {
+      opacity: 1; }
+.academics #lineYears {
+  height: 15vh; }
+  .academics #lineYears .bar {
+    opacity: 0.1; }
+    .academics #lineYears .bar._selected_ {
+      opacity: 0.7;
+      fill: orange; }
+.academics .tip {
+  padding-right: 20px; }
+.academics .tooltip-inner {
+  max-width: 75vw;
+  text-align: left; }
+.academics #levelSelector {
+  height: 15vh; }
+  .academics #levelSelector .bar._selected_ {
+    fill: orange; }
+
 .libraries #libMap {
   height: 75vh; }
   .libraries #libMap path._selected_ {
@@ -49,6 +82,9 @@
 
 html, body {
   height: 100%; }
+  html hr, body hr {
+    margin-bottom: 10px;
+    margin-top: 10px; }
   html .navbar-brand, body .navbar-brand {
     padding-top: 0px;
     padding-right: 15px;

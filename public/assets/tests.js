@@ -16,6 +16,15 @@ define('client/tests/app.jshint', ['exports'], function (exports) {
     assert.ok(true, 'app.js should pass jshint.');
   });
 });
+define('client/tests/components/bar-chart.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - components/bar-chart.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'components/bar-chart.js should pass jshint.\ncomponents/bar-chart.js: line 87, col 32, \'d\' is defined but never used.\ncomponents/bar-chart.js: line 20, col 13, \'selection\' is defined but never used.\ncomponents/bar-chart.js: line 39, col 9, \'yd\' is defined but never used.\ncomponents/bar-chart.js: line 114, col 11, \'selection\' is defined but never used.\ncomponents/bar-chart.js: line 117, col 9, \'x\' is defined but never used.\ncomponents/bar-chart.js: line 125, col 9, \'yd\' is defined but never used.\n\n6 errors');
+  });
+});
 define('client/tests/components/data-map.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -52,6 +61,15 @@ define('client/tests/components/year-evolution.jshint', ['exports'], function (e
     assert.ok(false, 'components/year-evolution.js should pass jshint.\ncomponents/year-evolution.js: line 116, col 31, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 132, col 32, \'d\' is defined but never used.\ncomponents/year-evolution.js: line 219, col 33, \'i\' is defined but never used.\ncomponents/year-evolution.js: line 169, col 11, \'currentYear\' is defined but never used.\ncomponents/year-evolution.js: line 170, col 11, \'lineColor\' is defined but never used.\ncomponents/year-evolution.js: line 25, col 21, \'$\' is not defined.\ncomponents/year-evolution.js: line 26, col 26, \'$\' is not defined.\ncomponents/year-evolution.js: line 173, col 17, \'$\' is not defined.\ncomponents/year-evolution.js: line 174, col 18, \'$\' is not defined.\n\n9 errors');
   });
 });
+define('client/tests/controllers/academics.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - controllers/academics.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'controllers/academics.js should pass jshint.\ncontrollers/academics.js: line 97, col 19, \'zoneCode\' is defined but never used.\ncontrollers/academics.js: line 186, col 30, \'i\' is defined but never used.\ncontrollers/academics.js: line 7, col 7, \'$\' is not defined.\ncontrollers/academics.js: line 110, col 21, \'$\' is not defined.\ncontrollers/academics.js: line 119, col 19, \'$\' is not defined.\n\n5 errors');
+  });
+});
 define('client/tests/controllers/libraries-loans.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -85,7 +103,7 @@ define('client/tests/controllers/poblacio.jshint', ['exports'], function (export
   QUnit.module('JSHint - controllers/poblacio.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 77, col 19, \'zoneCode\' is defined but never used.\ncontrollers/poblacio.js: line 162, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 153, col 19, \'minAge\' is defined but never used.\ncontrollers/poblacio.js: line 154, col 19, \'maxAge\' is defined but never used.\ncontrollers/poblacio.js: line 90, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 98, col 19, \'$\' is not defined.\n\n6 errors');
+    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 87, col 19, \'zoneCode\' is defined but never used.\ncontrollers/poblacio.js: line 172, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 163, col 19, \'minAge\' is defined but never used.\ncontrollers/poblacio.js: line 164, col 19, \'maxAge\' is defined but never used.\ncontrollers/poblacio.js: line 100, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 108, col 19, \'$\' is not defined.\n\n6 errors');
   });
 });
 define('client/tests/helpers/destroy-app', ['exports', 'ember'], function (exports, _ember) {
@@ -181,6 +199,155 @@ define('client/tests/helpers/start-app.jshint', ['exports'], function (exports) 
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'helpers/start-app.js should pass jshint.');
+  });
+});
+define('client/tests/integration/components/bar-chart-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleForComponent)('bar-chart', 'Integration | Component | bar chart', {
+    integration: true
+  });
+
+  (0, _emberQunit.test)('it renders', function (assert) {
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
+
+    this.render(Ember.HTMLBars.template((function () {
+      return {
+        meta: {
+          'fragmentReason': {
+            'name': 'missing-wrapper',
+            'problems': ['wrong-type']
+          },
+          'revision': 'Ember@2.4.5',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 1,
+              'column': 13
+            }
+          }
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
+        },
+        statements: [['content', 'bar-chart', ['loc', [null, [1, 0], [1, 13]]]]],
+        locals: [],
+        templates: []
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), '');
+
+    // Template block usage:
+    this.render(Ember.HTMLBars.template((function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            'fragmentReason': false,
+            'revision': 'Ember@2.4.5',
+            'loc': {
+              'source': null,
+              'start': {
+                'line': 2,
+                'column': 4
+              },
+              'end': {
+                'line': 4,
+                'column': 4
+              }
+            }
+          },
+          isEmpty: false,
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode('      template block text\n');
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+
+      return {
+        meta: {
+          'fragmentReason': {
+            'name': 'missing-wrapper',
+            'problems': ['wrong-type']
+          },
+          'revision': 'Ember@2.4.5',
+          'loc': {
+            'source': null,
+            'start': {
+              'line': 1,
+              'column': 0
+            },
+            'end': {
+              'line': 5,
+              'column': 2
+            }
+          }
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode('\n');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createComment('');
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode('  ');
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          return morphs;
+        },
+        statements: [['block', 'bar-chart', [], [], 0, null, ['loc', [null, [2, 4], [4, 18]]]]],
+        locals: [],
+        templates: [child0]
+      };
+    })()));
+
+    assert.equal(this.$().text().trim(), 'template block text');
+  });
+});
+define('client/tests/integration/components/bar-chart-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - integration/components/bar-chart-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'integration/components/bar-chart-test.js should pass jshint.');
   });
 });
 define('client/tests/integration/components/data-map-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
@@ -797,6 +964,15 @@ define('client/tests/router.jshint', ['exports'], function (exports) {
     assert.ok(true, 'router.js should pass jshint.');
   });
 });
+define('client/tests/routes/academics.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - routes/academics.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'routes/academics.js should pass jshint.\nroutes/academics.js: line 16, col 42, Expected an assignment or function call and instead saw an expression.\nroutes/academics.js: line 22, col 42, Expected an assignment or function call and instead saw an expression.\nroutes/academics.js: line 28, col 33, \'transition\' is defined but never used.\nroutes/academics.js: line 37, col 24, \'transition\' is defined but never used.\nroutes/academics.js: line 14, col 27, \'Promise\' is not defined.\nroutes/academics.js: line 20, col 27, \'Promise\' is not defined.\n\n6 errors');
+  });
+});
 define('client/tests/routes/libraries-loans.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -884,6 +1060,28 @@ define('client/tests/unit/adapters/application-test.jshint', ['exports'], functi
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/adapters/application-test.js should pass jshint.');
+  });
+});
+define('client/tests/unit/controllers/academics-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('controller:academics', 'Unit | Controller | academics', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var controller = this.subject();
+    assert.ok(controller);
+  });
+});
+define('client/tests/unit/controllers/academics-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/controllers/academics-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/controllers/academics-test.js should pass jshint.');
   });
 });
 define('client/tests/unit/controllers/libraries-loans-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
@@ -994,6 +1192,27 @@ define('client/tests/unit/models/poblacio-test.jshint', ['exports'], function (e
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/models/poblacio-test.js should pass jshint.');
+  });
+});
+define('client/tests/unit/routes/academics-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('route:academics', 'Unit | Route | academics', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var route = this.subject();
+    assert.ok(route);
+  });
+});
+define('client/tests/unit/routes/academics-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/routes/academics-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/routes/academics-test.js should pass jshint.');
   });
 });
 define('client/tests/unit/routes/application-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
