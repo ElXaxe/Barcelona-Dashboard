@@ -86,7 +86,7 @@ module.exports = function(app, router) {
 						el.mitjansdones + el.superiorsdones;
 					var menTotal = el.sensehomes + el.primarishomes + el.secundarishomes + 
 						el.mitjanshomes + el.superiorshomes;
-						console.log(el);
+						
 					return {
 						id: el.id,
 						type: 'academics',
