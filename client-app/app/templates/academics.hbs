@@ -1,0 +1,86 @@
+<h1>
+	Població
+	<small>Nivell acadèmic</small>
+</h1>
+
+<div class="row population">
+	<div class="col-md-5 col-xs-12">
+		<button class="btn btn-xs btn-info" {{action 'changeView'}}>
+				Mostrar 
+				{{#if viewDistricts}}
+				barris
+				{{else}}
+				districtes
+				{{/if}}
+		</button>
+		
+		{{data-map
+			districtView = viewDistricts
+			mapData = dataMap
+			mapPaths = paths
+			units='persones'
+			zoneCode = zoneCode
+			reseted=resetMap
+			class = "col-xs-12"
+			id = "map"
+			changeZone =(action 'changeZone')
+		}}
+	</div> <!-- Map -->
+
+	<div class="col-md-7 col-xs-12" id="data-content">
+		<div class="row">
+			<div class="col-md-6 col-xs-12" id="info">
+				<h3>{{scope}}</h3>
+				<h4>Any: <span class='infoText'>{{year}}</span> </h4>
+				<h4>Nivell acadèmic: <span class="academicLevel">{{level}}</span></h4>
+				<h4>Sexe: <span class='infoText'>{{gender}}</span></h4>
+				{{#if showReset}}
+					<button class="btn btn-xs btn-danger" {{action 'reset'}}> 
+						Treure filtres
+					</button>
+				{{/if}}
+			</div>
+			{{pie-chart
+			class="col-md-6 col-xs-12"
+			iniColor='darkblue'
+			endColor='purple'
+			pieData = genderData
+			title='Sexe'
+			units='persones'
+			setPie=(action 'changeGender')
+			reset=reseted
+			id="pieGender"}}
+		</div>
+		<hr>
+		<div class="row">	
+				<h4>
+					Evolució població per anys<br/>
+					<small>Fes click sobre un any per seleccionar-ho</small>
+				</h4>
+				{{year-evolution 
+				data = yearData 
+				currentYear = year
+				units = 'persones'
+				setYear=(action 'changeYear')
+				class ="col-md-12 col-xs-12"
+				id="lineYears"}}
+		</div>
+		<hr>
+		<div class="row">
+				<h4>
+					Població per nivell acadèmic a l'any {{year}}<br/>
+					<small>Arrosega sobre el gràfic per seleccionar un rang</small>
+				</h4>
+				{{bar-chart
+					data = barData
+					currentSelection = level
+					units = 'persones'
+					reset=reseted
+					setLevel=(action 'changeLevel')
+					class="col-md-12 col-xs-12"
+					id="levelSelector"}}
+		</div>
+	</div><!-- Map info -->
+</div>
+
+

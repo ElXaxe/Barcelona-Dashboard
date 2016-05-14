@@ -14,6 +14,7 @@ Router.map(function() {
   this.route('libraries');
   this.route('libraries-visits');
   this.route('libraries-loans');
+  this.route('academics');
 });
 
 export default Router;

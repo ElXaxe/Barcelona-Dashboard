@@ -7,12 +7,14 @@ export default Ember.Service.extend({
 
 	populationCF: null,
 	librariesCF: null,
+	academicsCF: null,
 
 	__setup: on(
 		'init',
 		function(){
 			this.set('populationCF', crossfilter());
 			this.set('librariesCF', crossfilter());
+			this.set('academicsCF', crossfilter());
 		}
 	),
 
@@ -58,6 +60,29 @@ export default Ember.Service.extend({
 	libYearDim: null,
 	libDistrictDimension: null,
 	libNameDimension: null,
-	libYear: null
+	libYear: null,
+
+	initAcademics(academics) {
+		if ( isEmpty(this.get('acadYearDim')) ) {
+			const crossfilter = this.get('academicsCF');
+			crossfilter.add(academics);
+
+			const acadYearDim = crossfilter.dimension( (d) => d.attributes.year);
+			const years = acadYearDim.group().all();
+
+			this.setProperties({
+				acadYearDim: acadYearDim,
+				acadDistrictDimension: crossfilter.dimension( (d) => d.attributes.district),
+				acadNeighborDimension: crossfilter.dimension( (d) => +(d.attributes.neighbor).slice(0, (d.attributes.neighbor).indexOf('.')) ),
+				acadYear: years[years.length - 1].key	
+			});
+
+		}
+	},
+	acadYearDim: null,
+	acadYear: null,
+	acadDistrictDimension: null,
+	acadNeighborDimension: null,
+
 });
 
