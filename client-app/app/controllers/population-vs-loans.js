@@ -34,7 +34,7 @@ export default Ember.Controller.extend({
 			});
 			
 			libData = libGroup.reduceSum( function(d) { 
-				return d.attributes.visits;
+				return d.attributes.loans;
 			});
 
 			libData.all().forEach ( function (d, i) {
@@ -58,7 +58,7 @@ export default Ember.Controller.extend({
 								return d.attributes.womenTotal + d.attributes.menTotal;
 							});
 			const libraries = libYearDim.group().reduceSum( function(d) {
-				return d.attributes.visits;
+				return d.attributes.loans;
 			});
 
 			libraries.all().forEach( (library) => {

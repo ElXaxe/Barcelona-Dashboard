@@ -2075,6 +2075,133 @@ define('client/controllers/population-vs-libraries', ['exports', 'ember'], funct
 		}
 	});
 });
+define('client/controllers/population-vs-loans', ['exports', 'ember'], function (exports, _ember) {
+	exports['default'] = _ember['default'].Controller.extend({
+		dataService: _ember['default'].inject.service('data-service'),
+		populYearDim: _ember['default'].computed.alias('dataService.populYearDim'),
+		districtDimension: _ember['default'].computed.alias('dataService.districtDimension'),
+		libYearDim: _ember['default'].computed.alias('dataService.libYearDim'),
+		libDistrictDimension: _ember['default'].computed.alias('dataService.libDistrictDimension'),
+		libNameDimension: _ember['default'].computed.alias('dataService.libNameDimension'),
+		year: _ember['default'].computed.alias('dataService.libYear'),
+		scope: 'Barcelona',
+		zoneCode: null,
+		showReset: false,
+		reseted: false,
+		dataMap: _ember['default'].computed('libYearDim', 'libDistrictDimension', 'year', function () {
+			var libYearDim = this.get('libYearDim'),
+			    populYearDim = this.get('populYearDim');
+			var libDistrictDim = this.get('libDistrictDimension'),
+			    populDistrictDim = this.get('districtDimension');
+			var year = this.get('year');
+			var libGroup = undefined,
+			    populGroup = undefined,
+			    libData = undefined,
+			    populData = undefined;
+			var data = _ember['default'].A([]);
+
+			libYearDim.filter(year);
+			populYearDim.filter(year);
+
+			libGroup = libDistrictDim.group(function (d) {
+				return d;
+			});
+			populGroup = populDistrictDim.group(function (d) {
+				return d;
+			});
+
+			populData = populGroup.reduceSum(function (d) {
+				return d.attributes.womenTotal + d.attributes.menTotal;
+			});
+
+			libData = libGroup.reduceSum(function (d) {
+				return d.attributes.loans;
+			});
+
+			libData.all().forEach(function (d, i) {
+				data.pushObject({
+					key: d.key,
+					value: d3.round(d.value / populData.all()[i].value, 1)
+				});
+			});
+
+			return data;
+		}),
+
+		yearData: _ember['default'].computed('libYearDim', 'zoneCode', function () {
+			var data = _ember['default'].A([]);
+			var libYearDim = this.get('libYearDim');
+			var populYearDim = this.get('populYearDim');
+			var populData = populYearDim.group().reduceSum(function (d) {
+				return d.attributes.womenTotal + d.attributes.menTotal;
+			});
+			var libraries = libYearDim.group().reduceSum(function (d) {
+				return d.attributes.loans;
+			});
+
+			libraries.all().forEach(function (library) {
+				var population = populData.all().find(function (popul, index) {
+					return popul.key === library.key;
+				});
+
+				data.pushObject({
+					key: library.key,
+					value: d3.round(library.value / population.value, 1)
+				});
+			});
+
+			return data;
+		}),
+
+		libraries: _ember['default'].computed('zoneCode', 'year', function () {
+			var districtDim = this.get('libDistrictDimension');
+			var zoneCode = this.get('zoneCode');
+			var nameDim = this.get('libNameDimension');
+			var data = null;
+
+			if (zoneCode) {
+				data = nameDim.group().all().filter(function (d) {
+					return d.value === 1;
+				});
+			}
+			return data;
+		}),
+		actions: {
+			changeView: function changeView() {
+				this.set('zoneCode', null);
+				this.set('scope', 'Barcelona');
+				this.set('showReset', this.get('showReset') || false);
+			},
+
+			changeZone: function changeZone(code, name) {
+				var libDistrictDim = this.get('libDistrictDimension');
+				var populDistrictDim = this.get('districtDimension');
+
+				if (code) {
+					libDistrictDim.filter(+code);
+					populDistrictDim.filter(+code);
+				}
+				this.set('scope', name);
+				this.set('zoneCode', code);
+				this.set('showReset', true);
+			},
+
+			reset: function reset() {
+				this.get('libDistrictDimension').filterAll();
+				this.get('districtDimension').filterAll();
+				this.set('scope', 'Barcelona');
+				this.set('zoneCode', null);
+				this.set('showReset', false);
+				this.toggleProperty('reseted');
+			},
+
+			changeYear: function changeYear(year) {
+				this.set('year', year);
+			}
+
+		}
+	});
+});
 define('client/controllers/population-vs-visits', ['exports', 'ember'], function (exports, _ember) {
 	exports['default'] = _ember['default'].Controller.extend({
 		dataService: _ember['default'].inject.service('data-service'),
@@ -2536,6 +2663,7 @@ define('client/router', ['exports', 'ember', 'client/config/environment'], funct
     this.route('visitsVsLoans');
     this.route('populationVsLibraries');
     this.route('populationVsVisits');
+    this.route('populationVsLoans');
   });
 
   exports['default'] = Router;
@@ -2731,6 +2859,48 @@ define('client/routes/poblacio', ['exports', 'ember', 'ic-ajax'], function (expo
 	});
 });
 define('client/routes/population-vs-libraries', ['exports', 'ember', 'ic-ajax'], function (exports, _ember, _icAjax) {
+	exports['default'] = _ember['default'].Route.extend({
+		dataService: _ember['default'].inject.service('data-service'),
+
+		model: function model() {
+			return _ember['default'].RSVP.hash({
+				population: (0, _icAjax['default'])({
+					url: '/api/v1/population',
+					type: 'get'
+				}),
+
+				libraries: (0, _icAjax['default'])({
+					url: '/api/v1/libraries',
+					type: 'get'
+				}),
+
+				district: new Promise(function (res, rej) {
+					d3.json('assets/districtes.json', function (err, data) {
+						err ? rej(err) : res(data);
+					});
+				})
+
+			});
+		},
+
+		afterModel: function afterModel(model, transition) {
+			this.get('dataService').initLibraries(model.libraries.data);
+			this.get('dataService').initPopulation(model.population.data);
+		},
+
+		setupController: function setupController(controller, model) {
+			this._super(controller, model);
+		},
+
+		actions: {
+			willTransition: function willTransition(transition) {
+				this.controller.send('reset');
+			}
+		}
+
+	});
+});
+define('client/routes/population-vs-loans', ['exports', 'ember', 'ic-ajax'], function (exports, _ember, _icAjax) {
 	exports['default'] = _ember['default'].Route.extend({
 		dataService: _ember['default'].inject.service('data-service'),
 
@@ -3643,7 +3813,7 @@ define("client/templates/application", ["exports"], function (exports) {
             },
             "end": {
               "line": 45,
-              "column": 86
+              "column": 82
             }
           },
           "moduleName": "client/templates/application.hbs"
@@ -3996,7 +4166,7 @@ define("client/templates/application", ["exports"], function (exports) {
         var el5 = dom.createTextNode("\n      	Creat per ");
         dom.appendChild(el4, el5);
         var el5 = dom.createElement("a");
-        dom.setAttribute(el5, "href", "http://www.josedolz.es");
+        dom.setAttribute(el5, "href", "https://es.linkedin.com/in/joseldolz");
         var el6 = dom.createTextNode("Jose L. Dolz");
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
@@ -4052,7 +4222,7 @@ define("client/templates/application", ["exports"], function (exports) {
         morphs[11] = dom.createMorphAt(dom.childAt(fragment, [2]), 1, 1);
         return morphs;
       },
-      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [11, 6], [13, 18]]]], ["block", "link-to", ["poblacio"], [], 1, null, ["loc", [null, [24, 16], [24, 66]]]], ["block", "link-to", ["academics"], [], 2, null, ["loc", [null, [25, 16], [25, 67]]]], ["block", "link-to", ["libraries"], [], 3, null, ["loc", [null, [33, 16], [33, 66]]]], ["block", "link-to", ["libraries-visits"], [], 4, null, ["loc", [null, [34, 16], [34, 66]]]], ["block", "link-to", ["libraries-loans"], [], 5, null, ["loc", [null, [35, 16], [35, 66]]]], ["block", "link-to", ["populationVsLibraries"], [], 6, null, ["loc", [null, [43, 16], [43, 101]]]], ["block", "link-to", ["populationVsVisits"], [], 7, null, ["loc", [null, [44, 16], [44, 95]]]], ["block", "link-to", ["populationVsLibraries"], [], 8, null, ["loc", [null, [45, 16], [45, 98]]]], ["block", "link-to", ["visitsVsLoans"], [], 9, null, ["loc", [null, [46, 16], [46, 90]]]], ["block", "link-to", ["informacio"], [], 10, null, ["loc", [null, [51, 12], [51, 59]]]], ["content", "outlet", ["loc", [null, [61, 1], [61, 11]]]]],
+      statements: [["block", "link-to", ["index"], ["class", "navbar-brand"], 0, null, ["loc", [null, [11, 6], [13, 18]]]], ["block", "link-to", ["poblacio"], [], 1, null, ["loc", [null, [24, 16], [24, 66]]]], ["block", "link-to", ["academics"], [], 2, null, ["loc", [null, [25, 16], [25, 67]]]], ["block", "link-to", ["libraries"], [], 3, null, ["loc", [null, [33, 16], [33, 66]]]], ["block", "link-to", ["libraries-visits"], [], 4, null, ["loc", [null, [34, 16], [34, 66]]]], ["block", "link-to", ["libraries-loans"], [], 5, null, ["loc", [null, [35, 16], [35, 66]]]], ["block", "link-to", ["populationVsLibraries"], [], 6, null, ["loc", [null, [43, 16], [43, 101]]]], ["block", "link-to", ["populationVsVisits"], [], 7, null, ["loc", [null, [44, 16], [44, 95]]]], ["block", "link-to", ["populationVsLoans"], [], 8, null, ["loc", [null, [45, 16], [45, 94]]]], ["block", "link-to", ["visitsVsLoans"], [], 9, null, ["loc", [null, [46, 16], [46, 90]]]], ["block", "link-to", ["informacio"], [], 10, null, ["loc", [null, [51, 12], [51, 59]]]], ["content", "outlet", ["loc", [null, [61, 1], [61, 11]]]]],
       locals: [],
       templates: [child0, child1, child2, child3, child4, child5, child6, child7, child8, child9, child10]
     };
@@ -10081,6 +10251,283 @@ define("client/templates/population-vs-libraries", ["exports"], function (export
     };
   })());
 });
+define("client/templates/population-vs-loans", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    var child0 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 28,
+              "column": 4
+            },
+            "end": {
+              "line": 32,
+              "column": 4
+            }
+          },
+          "moduleName": "client/templates/population-vs-loans.hbs"
+        },
+        isEmpty: false,
+        arity: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("					");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("button");
+          dom.setAttribute(el1, "class", "btn btn-xs btn-danger");
+          var el2 = dom.createTextNode(" \n						Treure filtres\n					");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var element0 = dom.childAt(fragment, [1]);
+          var morphs = new Array(1);
+          morphs[0] = dom.createElementMorph(element0);
+          return morphs;
+        },
+        statements: [["element", "action", ["reset"], [], ["loc", [null, [29, 43], [29, 61]]]]],
+        locals: [],
+        templates: []
+      };
+    })();
+    var child1 = (function () {
+      return {
+        meta: {
+          "fragmentReason": false,
+          "revision": "Ember@2.4.5",
+          "loc": {
+            "source": null,
+            "start": {
+              "line": 56,
+              "column": 4
+            },
+            "end": {
+              "line": 58,
+              "column": 4
+            }
+          },
+          "moduleName": "client/templates/population-vs-loans.hbs"
+        },
+        isEmpty: false,
+        arity: 1,
+        cachedFragment: null,
+        hasRendered: false,
+        buildFragment: function buildFragment(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("					");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createElement("p");
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("\n");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(1);
+          morphs[0] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
+          return morphs;
+        },
+        statements: [["content", "library.key", ["loc", [null, [57, 8], [57, 23]]]]],
+        locals: ["library"],
+        templates: []
+      };
+    })();
+    return {
+      meta: {
+        "fragmentReason": {
+          "name": "missing-wrapper",
+          "problems": ["multiple-nodes"]
+        },
+        "revision": "Ember@2.4.5",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 64,
+            "column": 0
+          }
+        },
+        "moduleName": "client/templates/population-vs-loans.hbs"
+      },
+      isEmpty: false,
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("h1");
+        var el2 = dom.createTextNode("\n	Préstec a les biblioteques per persona\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n");
+        dom.appendChild(el0, el1);
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "row libraries");
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-5 col-xs-12");
+        var el3 = dom.createTextNode("\n		\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode(" ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment(" Map ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-7 col-xs-12");
+        dom.setAttribute(el2, "id", "data-content");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "col-md-6 col-xs-12");
+        dom.setAttribute(el4, "id", "info");
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("h3");
+        var el6 = dom.createComment("");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("h4");
+        var el6 = dom.createTextNode("Any: ");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("span");
+        dom.setAttribute(el6, "class", "infoText");
+        var el7 = dom.createComment("");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode(" ");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("hr");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("	\n				");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("h4");
+        var el5 = dom.createTextNode("\n					Evolució préstecs per persona per anys");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("br");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n					");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("small");
+        var el6 = dom.createTextNode("Fes click sobre un any per seleccionar-ho");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n				");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("hr");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("h4");
+        var el5 = dom.createTextNode("\n				Biblioteques");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("br");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("small");
+        var el6 = dom.createTextNode("Fes click sobre un districte per veure les seves biblioteques");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createComment(" Map info ");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        var el1 = dom.createTextNode("\n\n\n");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element1 = dom.childAt(fragment, [2]);
+        var element2 = dom.childAt(element1, [5]);
+        var element3 = dom.childAt(element2, [1, 1]);
+        var morphs = new Array(6);
+        morphs[0] = dom.createMorphAt(dom.childAt(element1, [1]), 1, 1);
+        morphs[1] = dom.createMorphAt(dom.childAt(element3, [1]), 0, 0);
+        morphs[2] = dom.createMorphAt(dom.childAt(element3, [3, 1]), 0, 0);
+        morphs[3] = dom.createMorphAt(element3, 5, 5);
+        morphs[4] = dom.createMorphAt(dom.childAt(element2, [5]), 3, 3);
+        morphs[5] = dom.createMorphAt(dom.childAt(element2, [9]), 3, 3);
+        return morphs;
+      },
+      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [10, 13], [10, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [11, 14], [11, 28]]]]], [], []], "units", "préstecs per persona", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [13, 14], [13, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [14, 13], [14, 21]]]]], [], []], "iniColor", "#333834", "endColor", "#02C8F0", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [19, 15], [19, 36]]]]], ["loc", [null, [8, 2], [20, 4]]]], ["content", "scope", ["loc", [null, [26, 8], [26, 17]]]], ["content", "year", ["loc", [null, [27, 36], [27, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [28, 10], [28, 19]]]]], [], 0, null, ["loc", [null, [28, 4], [32, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [42, 11], [42, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [43, 18], [43, 22]]]]], [], []], "units", "préstecs per persona", "decimals", 1, "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [46, 12], [46, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [41, 4], [48, 20]]]], ["block", "each", [["get", "libraries", ["loc", [null, [56, 12], [56, 21]]]]], [], 1, null, ["loc", [null, [56, 4], [58, 13]]]]],
+      locals: [],
+      templates: [child0, child1]
+    };
+  })());
+});
 define("client/templates/population-vs-visits", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
@@ -10414,11 +10861,11 @@ define("client/templates/visits-vs-loans", ["exports"], function (exports) {
           "loc": {
             "source": null,
             "start": {
-              "line": 51,
+              "line": 52,
               "column": 2
             },
             "end": {
-              "line": 66,
+              "line": 67,
               "column": 2
             }
           },
@@ -10464,7 +10911,7 @@ define("client/templates/visits-vs-loans", ["exports"], function (exports) {
           morphs[1] = dom.createMorphAt(element0, 3, 3);
           return morphs;
         },
-        statements: [["content", "scope", ["loc", [null, [54, 61], [54, 70]]]], ["inline", "pie-chart", [], ["class", "col-md-12 col-xs-12", "iniColor", "#FFE8E0", "endColor", "#DB6600", "pieData", ["subexpr", "@mut", [["get", "pieData", ["loc", [null, [60, 13], [60, 20]]]]], [], []], "units", "visites", "scale", "linear", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [63, 9], [63, 16]]]]], [], []], "id", "pie-library"], ["loc", [null, [56, 3], [64, 21]]]]],
+        statements: [["content", "scope", ["loc", [null, [55, 61], [55, 70]]]], ["inline", "pie-chart", [], ["class", "col-md-12 col-xs-12", "iniColor", "#FFE8E0", "endColor", "#DB6600", "pieData", ["subexpr", "@mut", [["get", "pieData", ["loc", [null, [61, 13], [61, 20]]]]], [], []], "units", "visites", "scale", "linear", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [64, 9], [64, 16]]]]], [], []], "id", "pie-library"], ["loc", [null, [57, 3], [65, 21]]]]],
         locals: [],
         templates: []
       };
@@ -10483,7 +10930,7 @@ define("client/templates/visits-vs-loans", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 72,
+            "line": 73,
             "column": 0
           }
         },
@@ -10631,7 +11078,7 @@ define("client/templates/visits-vs-loans", ["exports"], function (exports) {
         morphs[5] = dom.createMorphAt(element3, 9, 9);
         return morphs;
       },
-      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [11, 13], [11, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [12, 14], [12, 28]]]]], [], []], "units", "visites per préstec", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [14, 14], [14, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [15, 13], [15, 21]]]]], [], []], "iniColor", "#B9DEEB", "endColor", "#00678A", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [20, 15], [20, 36]]]]], ["loc", [null, [9, 2], [21, 4]]]], ["content", "scope", ["loc", [null, [27, 8], [27, 17]]]], ["content", "year", ["loc", [null, [28, 36], [28, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [29, 10], [29, 19]]]]], [], 0, null, ["loc", [null, [29, 4], [33, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [43, 11], [43, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [44, 18], [44, 22]]]]], [], []], "units", "visites per préstec", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [46, 12], [46, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [42, 4], [48, 20]]]], ["block", "if", [["get", "zoneCode", ["loc", [null, [51, 8], [51, 16]]]]], [], 1, null, ["loc", [null, [51, 2], [66, 9]]]]],
+      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [11, 13], [11, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [12, 14], [12, 28]]]]], [], []], "units", "visites per préstec", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [14, 14], [14, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [15, 13], [15, 21]]]]], [], []], "iniColor", "#B9DEEB", "endColor", "#00678A", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [20, 15], [20, 36]]]]], ["loc", [null, [9, 2], [21, 4]]]], ["content", "scope", ["loc", [null, [27, 8], [27, 17]]]], ["content", "year", ["loc", [null, [28, 36], [28, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [29, 10], [29, 19]]]]], [], 0, null, ["loc", [null, [29, 4], [33, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [43, 11], [43, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [44, 18], [44, 22]]]]], [], []], "units", "visites per préstec", "decimals", 1, "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [47, 12], [47, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [42, 4], [49, 20]]]], ["block", "if", [["get", "zoneCode", ["loc", [null, [52, 8], [52, 16]]]]], [], 1, null, ["loc", [null, [52, 2], [67, 9]]]]],
       locals: [],
       templates: [child0, child1]
     };

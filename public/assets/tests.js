@@ -115,13 +115,22 @@ define('client/tests/controllers/population-vs-libraries.jshint', ['exports'], f
     assert.ok(false, 'controllers/population-vs-libraries.js should pass jshint.\ncontrollers/population-vs-libraries.js: line 59, col 64, \'index\' is defined but never used.\ncontrollers/population-vs-libraries.js: line 72, col 15, \'districtDim\' is defined but never used.\ncontrollers/population-vs-libraries.js: line 105, col 54, Missing semicolon.\n\n3 errors');
   });
 });
+define('client/tests/controllers/population-vs-loans.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - controllers/population-vs-loans.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'controllers/population-vs-loans.js should pass jshint.\ncontrollers/population-vs-loans.js: line 65, col 64, \'index\' is defined but never used.\ncontrollers/population-vs-loans.js: line 79, col 15, \'districtDim\' is defined but never used.\n\n2 errors');
+  });
+});
 define('client/tests/controllers/population-vs-visits.jshint', ['exports'], function (exports) {
   'use strict';
 
   QUnit.module('JSHint - controllers/population-vs-visits.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'controllers/population-vs-visits.js should pass jshint.\ncontrollers/population-vs-visits.js: line 65, col 64, \'index\' is defined but never used.\ncontrollers/population-vs-visits.js: line 79, col 15, \'districtDim\' is defined but never used.\ncontrollers/population-vs-visits.js: line 112, col 54, Missing semicolon.\n\n3 errors');
+    assert.ok(false, 'controllers/population-vs-visits.js should pass jshint.\ncontrollers/population-vs-visits.js: line 65, col 64, \'index\' is defined but never used.\ncontrollers/population-vs-visits.js: line 79, col 15, \'districtDim\' is defined but never used.\n\n2 errors');
   });
 });
 define('client/tests/controllers/visits-vs-loans.jshint', ['exports'], function (exports) {
@@ -1045,6 +1054,15 @@ define('client/tests/routes/population-vs-libraries.jshint', ['exports'], functi
     assert.ok(false, 'routes/population-vs-libraries.js should pass jshint.\nroutes/population-vs-libraries.js: line 21, col 42, Expected an assignment or function call and instead saw an expression.\nroutes/population-vs-libraries.js: line 28, col 33, \'transition\' is defined but never used.\nroutes/population-vs-libraries.js: line 38, col 24, \'transition\' is defined but never used.\nroutes/population-vs-libraries.js: line 19, col 27, \'Promise\' is not defined.\n\n4 errors');
   });
 });
+define('client/tests/routes/population-vs-loans.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - routes/population-vs-loans.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(false, 'routes/population-vs-loans.js should pass jshint.\nroutes/population-vs-loans.js: line 21, col 42, Expected an assignment or function call and instead saw an expression.\nroutes/population-vs-loans.js: line 28, col 33, \'transition\' is defined but never used.\nroutes/population-vs-loans.js: line 38, col 24, \'transition\' is defined but never used.\nroutes/population-vs-loans.js: line 19, col 27, \'Promise\' is not defined.\n\n4 errors');
+  });
+});
 define('client/tests/routes/population-vs-visits.jshint', ['exports'], function (exports) {
   'use strict';
 
@@ -1246,6 +1264,28 @@ define('client/tests/unit/controllers/population-vs-libraries-test.jshint', ['ex
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/controllers/population-vs-libraries-test.js should pass jshint.');
+  });
+});
+define('client/tests/unit/controllers/population-vs-loans-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('controller:population-vs-loans', 'Unit | Controller | population vs loans', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  // Replace this with your real tests.
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var controller = this.subject();
+    assert.ok(controller);
+  });
+});
+define('client/tests/unit/controllers/population-vs-loans-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/controllers/population-vs-loans-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/controllers/population-vs-loans-test.js should pass jshint.');
   });
 });
 define('client/tests/unit/controllers/population-vs-visits-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
@@ -1501,6 +1541,27 @@ define('client/tests/unit/routes/population-vs-libraries-test.jshint', ['exports
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
     assert.ok(true, 'unit/routes/population-vs-libraries-test.js should pass jshint.');
+  });
+});
+define('client/tests/unit/routes/population-vs-loans-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
+
+  (0, _emberQunit.moduleFor)('route:population-vs-loans', 'Unit | Route | population vs loans', {
+    // Specify the other units that are required for this test.
+    // needs: ['controller:foo']
+  });
+
+  (0, _emberQunit.test)('it exists', function (assert) {
+    var route = this.subject();
+    assert.ok(route);
+  });
+});
+define('client/tests/unit/routes/population-vs-loans-test.jshint', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('JSHint - unit/routes/population-vs-loans-test.js');
+  QUnit.test('should pass jshint', function (assert) {
+    assert.expect(1);
+    assert.ok(true, 'unit/routes/population-vs-loans-test.js should pass jshint.');
   });
 });
 define('client/tests/unit/routes/population-vs-visits-test', ['exports', 'ember-qunit'], function (exports, _emberQunit) {
