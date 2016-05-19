@@ -224,7 +224,6 @@ export default Ember.Component.extend({
 			.duration(1000)	
 			.attr('fill', function(d, i) { 
 			 	if ( scale === 'linear'){ 
-			 		console.log("Valor: " + d.value + " - Rang de color: " + color(d.value));
 			 		return color(d.value);
 			  }
 			 	return color(labels[i]); 

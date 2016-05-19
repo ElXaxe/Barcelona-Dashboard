@@ -119,6 +119,7 @@ export default Ember.Component.extend({
 			});
 			
 			// Map color scale
+
 			let colorDomain = [
 				colorScale.domain()[0],
 				colorScale.domain()[1] * 0.25,
@@ -126,6 +127,11 @@ export default Ember.Component.extend({
 				colorScale.domain()[1] * 0.75,
 				colorScale.domain()[1]
 			];
+		
+			let last = 4;
+			if (colorDomain[0] >= colorDomain[1]) {
+			 colorDomain.removeAt(1);
+			}
 
 			let legend = svg.selectAll('g.legend')
 					.data(colorDomain)
@@ -182,6 +188,8 @@ export default Ember.Component.extend({
 		const customMap = this.get('mapPaths');
 		const colorScale = this.get('colorScale');
 		const tooltip = this.get('tip');
+		const units = this.get('units');
+		
 		let svg = d3.select('#'+this.get('elementId'));
 		
 		svg.selectAll('path').remove();
@@ -238,9 +246,10 @@ export default Ember.Component.extend({
 					 .duration(350)
 					 .style('opacity', 0.9);
 
-				tooltip.html('<h5>' + d.properties[property] + '</h5><p>' + mapData[d.properties.codi - 1].value.toLocaleString() +'</p>')
+				tooltip.html('<h5>' + d.properties[property] + '</h5><p>' +
+					 	mapData[d.properties.codi - 1].value.toLocaleString() + ' ' + units + '</p>')
 					 .style("left", (d3.event.pageX) + "px")
-           .style("top", (d3.event.pageY - 50) + "px");  
+           .style("top", (d3.event.pageY - 50) + "px");   
 			})
 			.on('mouseout', function(d) {
 				d3.select(this)
@@ -262,7 +271,11 @@ export default Ember.Component.extend({
 				colorScale.domain()[1] * 0.75,
 				colorScale.domain()[1]
 			];
-			
+
+			if (colorDomain[0] >= colorDomain[1]) {
+			 colorDomain.removeAt(1);
+			}
+
 			let legend = svg.selectAll('g.legend').data(colorDomain);
 
 			legend.select('text.min')
@@ -271,21 +284,11 @@ export default Ember.Component.extend({
 			
 			legend.select('text.max')
 				.transition()
-				.text( colorDomain[4].toLocaleString());
+				.text( colorDomain[colorDomain.length - 1].toLocaleString());
 
 			svg.transition().attr('width', width).attr('height', height);
 
 	}),
-
-	// resetMap: Ember.observer('reseted', function() {
-	// 	let svg = d3.select('#'+this.get('elementId'));
-	// 	const colorScale = this.get('colorScale');
-
-	// 	svg.selectAll('path')
-	// 		.attr('fill', function(d) { 
-	// 			return colorScale(mapData[d.properties.codi - 1	].value); 
-	// 		});
-	// }),
 
 	selectZone: Ember.observer('zoneCode', function() {
 		const svg = d3.select('#'+this.get('elementId'));

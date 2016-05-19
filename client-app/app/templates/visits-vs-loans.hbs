@@ -1,6 +1,6 @@
 <h1>
 	Biblioteques
-	<small>Nombre de biblioteques</small>
+	<small>Visites vs. Préstecs</small>
 </h1>
 
 <div class="row libraries">
@@ -10,11 +10,11 @@
 			districtView = true
 			mapData = dataMap
 			mapPaths = model.district
-			units='persones per biblioteca'
+			units='visites per préstec'
 			zoneCode = zoneCode
 			reseted = resetMap
-			iniColor = '#FFD1C1'
-			endColor = '#500000'
+			iniColor = '#B9DEEB'
+			endColor = '#00678A'
 			class = "col-xs-12"
 			id = "libMap"
 			changeZone =(action 'changeZone')
@@ -34,30 +34,39 @@
 			</div>
 		</div>
 		<hr>
-		<div class="row">	
+		<div class="row pie">	
 				<h4>
-					Evolució biblioteques per anys<br/>
+					Evolució de visites per préstec per anys<br/>
 					<small>Fes click sobre un any per seleccionar-ho</small>
 				</h4>
 				{{year-evolution 
 				data = yearData 
 				currentYear = year
-				units = 'persones per biblioteca'
+				units = 'visites per préstec'
+				decimals = 1
 				setYear=(action 'changeYear')
 				class ="col-md-12 col-xs-12"
 				id="lineYears"}}
 		</div>
 		<hr>
+		{{#if zoneCode}}
 		<div class="row">
 			<h4>
-				Biblioteques<br/>
-				<small>Fes click sobre un districte per veure les seves biblioteques</small>
+				Visites per préstecs a les biblioteques del districte de {{scope}}<br/>
 			</h4>
-				{{#each libraries as |library|}}
-					<p>{{library.key}}</p>
-				{{/each}}
+			{{pie-chart
+			class="col-md-12 col-xs-12"
+			iniColor='#FFE8E0'
+			endColor='#DB6600'
+			pieData = pieData
+			units='visites'
+			scale='linear'
+			reset=reseted
+			id="pie-library"}}
 		</div>
+		{{/if}}
 	</div><!-- Map info -->
 </div>
+
 
 
