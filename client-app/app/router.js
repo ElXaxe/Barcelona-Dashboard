@@ -17,6 +17,7 @@ Router.map(function() {
   this.route('academics');
   this.route('visitsVsLoans');
   this.route('populationVsLibraries');
+  this.route('populationVsVisits');
 });
 
 export default Router;

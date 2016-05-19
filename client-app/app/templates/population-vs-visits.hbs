@@ -1,0 +1,63 @@
+<h1>
+	Visites a biblioteques per persona
+</h1>
+
+<div class="row libraries">
+	<div class="col-md-5 col-xs-12">
+		
+		{{data-map
+			districtView = true
+			mapData = dataMap
+			mapPaths = model.district
+			units='visites per persona'
+			zoneCode = zoneCode
+			reseted = resetMap
+			iniColor = '#333834'
+			endColor = '#06D63A'
+			class = "col-xs-12"
+			id = "libMap"
+			changeZone =(action 'changeZone')
+		}}
+	</div> <!-- Map -->
+
+	<div class="col-md-7 col-xs-12" id="data-content">
+		<div class="row">
+			<div class="col-md-6 col-xs-12" id="info">
+				<h3>{{scope}}</h3>
+				<h4>Any: <span class='infoText'>{{year}}</span> </h4>
+				{{#if showReset}}
+					<button class="btn btn-xs btn-danger" {{action 'reset'}}> 
+						Treure filtres
+					</button>
+				{{/if}}
+			</div>
+		</div>
+		<hr>
+		<div class="row">	
+				<h4>
+					Evolució visites per persona per anys<br/>
+					<small>Fes click sobre un any per seleccionar-ho</small>
+				</h4>
+				{{year-evolution 
+				data = yearData 
+				currentYear = year
+				units = 'visites per persona'
+				decimals = 1
+				setYear=(action 'changeYear')
+				class ="col-md-12 col-xs-12"
+				id="lineYears"}}
+		</div>
+		<hr>
+		<div class="row">
+			<h4>
+				Biblioteques<br/>
+				<small>Fes click sobre un districte per veure les seves biblioteques</small>
+			</h4>
+				{{#each libraries as |library|}}
+					<p>{{library.key}}</p>
+				{{/each}}
+		</div>
+	</div><!-- Map info -->
+</div>
+
+

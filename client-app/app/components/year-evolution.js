@@ -9,6 +9,7 @@ export default Ember.Component.extend({
   currentYear: null,
   tip: d3.select('body').append('div').attr('class', 'map-tooltip').style('opacity', 0),
   units: 'u.',
+  decimals: 0,
 
   didInsertElement: function() {
   	const margin = this.get('margin');
@@ -19,6 +20,7 @@ export default Ember.Component.extend({
 		const currentYear = this.get('currentYear');
     const tooltip = this.get('tip');
     const units = this.get('units');
+    const decimals = this.get('decimals');
 		const lineColor = this.get('color'),
 					lineData = this.get('data');
 		
@@ -48,7 +50,7 @@ export default Ember.Component.extend({
 						      .tickFormat(function (d) {
                     let prefix = d3.formatPrefix(d, 0);
                     if ( d < 10000 ){ 
-                      return d3.round(d, 0); 
+                      return d3.round(d, decimals); 
                     }
                     return d3.round(prefix.scale(d), 3) + prefix.symbol;
                   })
@@ -167,6 +169,7 @@ export default Ember.Component.extend({
     const width = w - margin.left - margin.right;
     const height = h - margin.top - margin.bottom;
     const currentYear = this.get('currentYear');
+    const decimals = this.get('decimals');
     const lineColor = this.get('color'),
           lineData = this.get('data');
     
@@ -191,7 +194,7 @@ export default Ember.Component.extend({
                   .tickFormat(function (d) {
                     let prefix = d3.formatPrefix(d, 0);
                     if ( d < 10000 ){ 
-                      return d3.round(d, 0); 
+                      return d3.round(d, decimals); 
                     }
                     return d3.round(prefix.scale(d), 3) + prefix.symbol;
                   })

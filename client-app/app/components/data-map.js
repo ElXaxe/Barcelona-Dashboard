@@ -127,13 +127,12 @@ export default Ember.Component.extend({
 				colorScale.domain()[1] * 0.75,
 				colorScale.domain()[1]
 			];
-
+		
 			let last = 4;
-			if (colorDomain[0]> colorDomain[1]) {
-			 colorDomain.removeObject(colorDomain[1]);
-			 last = 3;
+			if (colorDomain[0] >= colorDomain[1]) {
+			 colorDomain.removeAt(1);
 			}
-			
+
 			let legend = svg.selectAll('g.legend')
 					.data(colorDomain)
 					.enter()
@@ -273,10 +272,8 @@ export default Ember.Component.extend({
 				colorScale.domain()[1]
 			];
 
-			let last = 4;
-			if (colorDomain[0]> colorDomain[1]) {
-			 colorDomain.removeObject(colorDomain[1]);
-			 last = 3;
+			if (colorDomain[0] >= colorDomain[1]) {
+			 colorDomain.removeAt(1);
 			}
 
 			let legend = svg.selectAll('g.legend').data(colorDomain);
@@ -287,7 +284,7 @@ export default Ember.Component.extend({
 			
 			legend.select('text.max')
 				.transition()
-				.text( colorDomain[last].toLocaleString());
+				.text( colorDomain[colorDomain.length - 1].toLocaleString());
 
 			svg.transition().attr('width', width).attr('height', height);
 
