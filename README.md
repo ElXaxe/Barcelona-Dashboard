@@ -3,6 +3,8 @@ Business Intelligence end-of-degree project based on data from the city of Barce
 
 **This is meant to be run with a postgreSQL database with the correct data tables.**
 
+In folder *database* you can find the SQL scripts to create the tables and the CSV files to import the data.
+
 ###Barcelona data views you can find in this app:
 
 - Population by districts, neighbourhoods, gender, year and age.
