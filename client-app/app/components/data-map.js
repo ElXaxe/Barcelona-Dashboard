@@ -119,20 +119,15 @@ export default Ember.Component.extend({
 			});
 			
 			// Map color scale
-
+			const mean = (colorScale.domain()[0] + colorScale.domain()[1]) / 2;
 			let colorDomain = [
 				colorScale.domain()[0],
-				colorScale.domain()[1] * 0.25,
-				colorScale.domain()[1] * 0.5,
-				colorScale.domain()[1] * 0.75,
+				(colorScale.domain()[0] + mean) / 2,
+				mean,
+				(colorScale.domain()[1] + mean) / 2,
 				colorScale.domain()[1]
 			];
-		
-			let last = 4;
-			if (colorDomain[0] >= colorDomain[1]) {
-			 colorDomain.removeAt(1);
-			}
-
+			
 			let legend = svg.selectAll('g.legend')
 					.data(colorDomain)
 					.enter()
@@ -147,7 +142,7 @@ export default Ember.Component.extend({
 					.attr('width', 20)
 					.attr('height', 20)
 					.style('fill', function(d) { return colorScale(d); });
-
+			
 			legend.append('text')
 				.attr('class', function(d,i) {
 					if (i === 0) { return 'min';}
@@ -217,7 +212,7 @@ export default Ember.Component.extend({
 			.attr('d', path)
 			.attr('stroke-width', 1)
 			.attr('stroke', 'black')
-			.attr('fill', function(d) { 
+			.attr('fill', function(d, i) { 
 				return colorScale(mapData[d.properties.codi - 1].value); 
 			})
 			.classed('_selected_', function(d) {
@@ -264,19 +259,21 @@ export default Ember.Component.extend({
 			})
 			;
 
+			const mean = (colorScale.domain()[0] + colorScale.domain()[1]) / 2;
 			let colorDomain = [
 				colorScale.domain()[0],
-				colorScale.domain()[1] * 0.25,
-				colorScale.domain()[1] * 0.5,
-				colorScale.domain()[1] * 0.75,
+				(colorScale.domain()[0] + mean) / 2,
+				mean,
+				(colorScale.domain()[1] + mean) / 2,
 				colorScale.domain()[1]
 			];
-
-			if (colorDomain[0] >= colorDomain[1]) {
-			 colorDomain.removeAt(1);
-			}
-
+			
 			let legend = svg.selectAll('g.legend').data(colorDomain);
+			
+			legend.select('rect')
+					.transition()
+					.style('fill', function(d) { 
+						return colorScale(d); });
 
 			legend.select('text.min')
 				.transition()

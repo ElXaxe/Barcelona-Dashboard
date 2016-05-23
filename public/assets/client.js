@@ -429,13 +429,8 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 			});
 
 			// Map color scale
-
-			var colorDomain = [colorScale.domain()[0], colorScale.domain()[1] * 0.25, colorScale.domain()[1] * 0.5, colorScale.domain()[1] * 0.75, colorScale.domain()[1]];
-
-			var last = 4;
-			if (colorDomain[0] >= colorDomain[1]) {
-				colorDomain.removeAt(1);
-			}
+			var mean = (colorScale.domain()[0] + colorScale.domain()[1]) / 2;
+			var colorDomain = [colorScale.domain()[0], (colorScale.domain()[0] + mean) / 2, mean, (colorScale.domain()[1] + mean) / 2, colorScale.domain()[1]];
 
 			var legend = svg.selectAll('g.legend').data(colorDomain).enter().append('g').attr('class', 'legend');
 
@@ -504,7 +499,7 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 				return el.value;
 			})));
 
-			svg.selectAll('.zone').data(topojson.feature(customMap, objects).features).enter().append('path').attr('d', path).attr('stroke-width', 1).attr('stroke', 'black').attr('fill', function (d) {
+			svg.selectAll('.zone').data(topojson.feature(customMap, objects).features).enter().append('path').attr('d', path).attr('stroke-width', 1).attr('stroke', 'black').attr('fill', function (d, i) {
 				return colorScale(mapData[d.properties.codi - 1].value);
 			}).classed('_selected_', function (d) {
 				return d.properties.codi === zoneCode;
@@ -534,13 +529,14 @@ define('client/components/data-map', ['exports', 'ember'], function (exports, _e
 				tooltip.transition().duration(500).style('opacity', 0);
 			});
 
-			var colorDomain = [colorScale.domain()[0], colorScale.domain()[1] * 0.25, colorScale.domain()[1] * 0.5, colorScale.domain()[1] * 0.75, colorScale.domain()[1]];
-
-			if (colorDomain[0] >= colorDomain[1]) {
-				colorDomain.removeAt(1);
-			}
+			var mean = (colorScale.domain()[0] + colorScale.domain()[1]) / 2;
+			var colorDomain = [colorScale.domain()[0], (colorScale.domain()[0] + mean) / 2, mean, (colorScale.domain()[1] + mean) / 2, colorScale.domain()[1]];
 
 			var legend = svg.selectAll('g.legend').data(colorDomain);
+
+			legend.select('rect').transition().style('fill', function (d) {
+				return colorScale(d);
+			});
 
 			legend.select('text.min').transition().text(colorDomain[0].toLocaleString());
 
@@ -762,7 +758,6 @@ define('client/components/pie-chart', ['exports', 'ember'], function (exports, _
 
 			paths.transition().duration(1000).attr('fill', function (d, i) {
 				if (scale === 'linear') {
-					console.log("Valor: " + d.value + " - Rang de color: " + color(d.value));
 					return color(d.value);
 				}
 				return color(labels[i]);
@@ -11135,7 +11130,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+4a5f82cc"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+3e45d65d"});
 }
 
 /* jshint ignore:end */

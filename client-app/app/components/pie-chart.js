@@ -218,7 +218,7 @@ export default Ember.Component.extend({
 		paths.enter()
 			.append('path')
 			.attr('d', arc)
-			 .each(function(d) { this._current = d; });
+			.each(function(d) { this._current = d; });
 
 		paths.transition()
 			.duration(1000)	
@@ -263,8 +263,6 @@ export default Ember.Component.extend({
 			 });
 
 		chart.transition();
-
-		
 
 		textLabels.exit().remove();
 
