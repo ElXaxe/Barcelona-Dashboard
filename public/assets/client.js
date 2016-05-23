@@ -10906,7 +10906,7 @@ define("client/templates/visits-vs-loans", ["exports"], function (exports) {
           morphs[1] = dom.createMorphAt(element0, 3, 3);
           return morphs;
         },
-        statements: [["content", "scope", ["loc", [null, [55, 61], [55, 70]]]], ["inline", "pie-chart", [], ["class", "col-md-12 col-xs-12", "iniColor", "#FFE8E0", "endColor", "#DB6600", "pieData", ["subexpr", "@mut", [["get", "pieData", ["loc", [null, [61, 13], [61, 20]]]]], [], []], "units", "visites", "scale", "linear", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [64, 9], [64, 16]]]]], [], []], "id", "pie-library"], ["loc", [null, [57, 3], [65, 21]]]]],
+        statements: [["content", "scope", ["loc", [null, [55, 61], [55, 70]]]], ["inline", "pie-chart", [], ["class", "col-md-12 col-xs-12", "iniColor", "#FFE8E0", "endColor", "#DB6600", "pieData", ["subexpr", "@mut", [["get", "pieData", ["loc", [null, [61, 13], [61, 20]]]]], [], []], "units", "visites per préstec", "scale", "linear", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [64, 9], [64, 16]]]]], [], []], "id", "pie-library"], ["loc", [null, [57, 3], [65, 21]]]]],
         locals: [],
         templates: []
       };
@@ -11130,7 +11130,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+3e45d65d"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+aac4a0a2"});
 }
 
 /* jshint ignore:end */
