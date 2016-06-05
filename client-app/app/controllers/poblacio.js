@@ -60,8 +60,8 @@ export default Ember.Controller.extend({
 					w = d.attributes.womenTotal;
 					m = d.attributes.menTotal;
 				} else {
-					w = d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
-					m = d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+					w = d.attributes.womenYears.slice(minAge, maxAge).reduce(getSum);
+					m = d.attributes.menYears.slice(minAge, maxAge).reduce(getSum);
 				}
 
 				if (gender === 'Dones'){
@@ -101,7 +101,7 @@ export default Ember.Controller.extend({
 					if ( minAge === 0 && maxAge === 95) {
 						return d.attributes.womenTotal; 
 					} else {
-						return d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
+						return d.attributes.womenYears.slice(minAge, maxAge).reduce(getSum);
 					}
 				}).all(), 
 				function(el) { return el.value; });
@@ -109,7 +109,7 @@ export default Ember.Controller.extend({
 					if ( minAge === 0 && maxAge === 95) {
 						return d.attributes.menTotal; 
 					} else {
-						return d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+						return d.attributes.menYears.slice(minAge, maxAge).reduce(getSum);
 					}
 				}).all(), 
 				function(el) { return el.value; });
@@ -139,8 +139,8 @@ export default Ember.Controller.extend({
 			data = yearDim.group()
 							.reduceSum( function(d) { 
 								
-								const women = d.attributes.womenYears.slice(minAge, maxAge + 1);
-								const men = d.attributes.menYears.slice(minAge, maxAge + 1);
+								const women = d.attributes.womenYears.slice(minAge, maxAge);
+								const men = d.attributes.menYears.slice(minAge, maxAge);
 								const w = women.reduce(getSum);
 								const m = men.reduce(getSum);
 

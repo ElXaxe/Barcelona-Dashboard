@@ -1750,8 +1750,8 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 					w = d.attributes.womenTotal;
 					m = d.attributes.menTotal;
 				} else {
-					w = d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
-					m = d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+					w = d.attributes.womenYears.slice(minAge, maxAge).reduce(getSum);
+					m = d.attributes.menYears.slice(minAge, maxAge).reduce(getSum);
 				}
 
 				if (gender === 'Dones') {
@@ -1791,7 +1791,7 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 				if (minAge === 0 && maxAge === 95) {
 					return d.attributes.womenTotal;
 				} else {
-					return d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
+					return d.attributes.womenYears.slice(minAge, maxAge).reduce(getSum);
 				}
 			}).all(), function (el) {
 				return el.value;
@@ -1800,7 +1800,7 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 				if (minAge === 0 && maxAge === 95) {
 					return d.attributes.menTotal;
 				} else {
-					return d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+					return d.attributes.menYears.slice(minAge, maxAge).reduce(getSum);
 				}
 			}).all(), function (el) {
 				return el.value;
@@ -1828,8 +1828,8 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 
 			data = yearDim.group().reduceSum(function (d) {
 
-				var women = d.attributes.womenYears.slice(minAge, maxAge + 1);
-				var men = d.attributes.menYears.slice(minAge, maxAge + 1);
+				var women = d.attributes.womenYears.slice(minAge, maxAge);
+				var men = d.attributes.menYears.slice(minAge, maxAge);
 				var w = women.reduce(getSum);
 				var m = men.reduce(getSum);
 
