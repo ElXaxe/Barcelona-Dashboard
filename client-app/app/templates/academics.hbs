@@ -18,7 +18,7 @@
 			districtView = viewDistricts
 			mapData = dataMap
 			mapPaths = paths
-			units = 'persones'
+			units = 'habitants'
 			iniColor = '#A2FA9D'
 			endColor = '#055E00'
 			zoneCode = zoneCode
@@ -48,7 +48,7 @@
 			endColor='purple'
 			pieData = genderData
 			title='Sexe'
-			units='persones'
+			units='habitants'
 			setPie=(action 'changeGender')
 			reset=reseted
 			id="pieGender"}}
@@ -62,7 +62,7 @@
 				{{year-evolution 
 				data = yearData 
 				currentYear = year
-				units = 'persones'
+				units = 'habitants'
 				setYear=(action 'changeYear')
 				class ="col-md-12 col-xs-12"
 				id="lineYears"}}
@@ -83,7 +83,7 @@
 				{{bar-chart
 					data = barData
 					currentSelection = level
-					units = 'persones'
+					units = 'habitants'
 					reset=reseted
 					setLevel=(action 'changeLevel')
 					class="col-md-12 col-xs-12"
