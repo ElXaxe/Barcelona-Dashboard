@@ -156,12 +156,10 @@ export default Ember.Controller.extend({
 	}),
 	
 	rangeData: Ember.computed(
-		'populYearDim', 'year', 'scope', 'minAge', 'maxAge', 'gender',
+		'populYearDim', 'year', 'scope', 'gender',
 		function() {
 			const year = this.get('year');
 			const yearDim = this.get('populYearDim');
-			const minAge = this.get('minAge');
-			const maxAge = this.get('maxAge');
 			const gender = this.get('gender');
 			let data = Ember.A([]);
 			let aux, old;
@@ -170,7 +168,8 @@ export default Ember.Controller.extend({
 			aux = yearDim.top(Infinity);
 
 			aux.forEach( (d, i) => {
-				for( var j = 0; j < 96;  j++) {
+				
+				for( var j = 0; j < d.attributes.womenYears.length;  j++) {
 					old = data[j] ? data[j] : 0;
 					if (gender === 'Dones') {
 						data[j] = d.attributes.womenYears[j] + old;

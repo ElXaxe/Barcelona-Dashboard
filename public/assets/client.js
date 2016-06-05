@@ -1844,11 +1844,9 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 			return data.all();
 		}),
 
-		rangeData: _ember['default'].computed('populYearDim', 'year', 'scope', 'minAge', 'maxAge', 'gender', function () {
+		rangeData: _ember['default'].computed('populYearDim', 'year', 'scope', 'gender', function () {
 			var year = this.get('year');
 			var yearDim = this.get('populYearDim');
-			var minAge = this.get('minAge');
-			var maxAge = this.get('maxAge');
 			var gender = this.get('gender');
 			var data = _ember['default'].A([]);
 			var aux = undefined,
@@ -1858,7 +1856,8 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 			aux = yearDim.top(Infinity);
 
 			aux.forEach(function (d, i) {
-				for (var j = 0; j < 96; j++) {
+
+				for (var j = 0; j < d.attributes.womenYears.length; j++) {
 					old = data[j] ? data[j] : 0;
 					if (gender === 'Dones') {
 						data[j] = d.attributes.womenYears[j] + old;
