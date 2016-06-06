@@ -8471,7 +8471,7 @@ define("client/templates/index", ["exports"], function (exports) {
         dom.appendChild(el1, el2);
         var el2 = dom.createElement("img");
         dom.setAttribute(el2, "id", "barcelona");
-        dom.setAttribute(el2, "src", "assets/barcelona2.jpg");
+        dom.setAttribute(el2, "src", "assets/Barcelona2.jpg");
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
@@ -11327,7 +11327,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+adff41a8"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+a5f6f66a"});
 }
 
 /* jshint ignore:end */
