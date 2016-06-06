@@ -1750,8 +1750,8 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 					w = d.attributes.womenTotal;
 					m = d.attributes.menTotal;
 				} else {
-					w = d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
-					m = d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+					w = d.attributes.womenYears.slice(minAge, maxAge).reduce(getSum);
+					m = d.attributes.menYears.slice(minAge, maxAge).reduce(getSum);
 				}
 
 				if (gender === 'Dones') {
@@ -1791,7 +1791,7 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 				if (minAge === 0 && maxAge === 95) {
 					return d.attributes.womenTotal;
 				} else {
-					return d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
+					return d.attributes.womenYears.slice(minAge, maxAge).reduce(getSum);
 				}
 			}).all(), function (el) {
 				return el.value;
@@ -1800,7 +1800,7 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 				if (minAge === 0 && maxAge === 95) {
 					return d.attributes.menTotal;
 				} else {
-					return d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+					return d.attributes.menYears.slice(minAge, maxAge).reduce(getSum);
 				}
 			}).all(), function (el) {
 				return el.value;
@@ -1828,8 +1828,8 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 
 			data = yearDim.group().reduceSum(function (d) {
 
-				var women = d.attributes.womenYears.slice(minAge, maxAge + 1);
-				var men = d.attributes.menYears.slice(minAge, maxAge + 1);
+				var women = d.attributes.womenYears.slice(minAge, maxAge);
+				var men = d.attributes.menYears.slice(minAge, maxAge);
 				var w = women.reduce(getSum);
 				var m = men.reduce(getSum);
 
@@ -1844,11 +1844,9 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 			return data.all();
 		}),
 
-		rangeData: _ember['default'].computed('populYearDim', 'year', 'scope', 'minAge', 'maxAge', 'gender', function () {
+		rangeData: _ember['default'].computed('populYearDim', 'year', 'scope', 'gender', function () {
 			var year = this.get('year');
 			var yearDim = this.get('populYearDim');
-			var minAge = this.get('minAge');
-			var maxAge = this.get('maxAge');
 			var gender = this.get('gender');
 			var data = _ember['default'].A([]);
 			var aux = undefined,
@@ -1858,7 +1856,8 @@ define('client/controllers/poblacio', ['exports', 'ember'], function (exports, _
 			aux = yearDim.top(Infinity);
 
 			aux.forEach(function (d, i) {
-				for (var j = 0; j < 96; j++) {
+
+				for (var j = 0; j < d.attributes.womenYears.length; j++) {
 					old = data[j] ? data[j] : 0;
 					if (gender === 'Dones') {
 						data[j] = d.attributes.womenYears[j] + old;
@@ -3493,7 +3492,7 @@ define("client/templates/academics", ["exports"], function (exports) {
         morphs[11] = dom.createMorphAt(element7, 3, 3);
         return morphs;
       },
-      statements: [["element", "action", ["changeView"], [], ["loc", [null, [8, 38], [8, 61]]]], ["block", "if", [["get", "viewDistricts", ["loc", [null, [10, 10], [10, 23]]]]], [], 0, 1, ["loc", [null, [10, 4], [14, 11]]]], ["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "viewDistricts", ["loc", [null, [18, 18], [18, 31]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [19, 13], [19, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "paths", ["loc", [null, [20, 14], [20, 19]]]]], [], []], "units", "persones", "iniColor", "#A2FA9D", "endColor", "#055E00", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [24, 14], [24, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [25, 11], [25, 19]]]]], [], []], "class", "col-xs-12", "id", "map", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [28, 15], [28, 36]]]]], ["loc", [null, [17, 2], [29, 4]]]], ["content", "scope", ["loc", [null, [35, 8], [35, 17]]]], ["content", "year", ["loc", [null, [36, 36], [36, 44]]]], ["content", "level", ["loc", [null, [37, 48], [37, 57]]]], ["content", "gender", ["loc", [null, [38, 37], [38, 47]]]], ["block", "if", [["get", "showReset", ["loc", [null, [39, 10], [39, 19]]]]], [], 2, null, ["loc", [null, [39, 4], [43, 11]]]], ["inline", "pie-chart", [], ["class", "col-md-6 col-xs-12", "iniColor", "darkblue", "endColor", "purple", "pieData", ["subexpr", "@mut", [["get", "genderData", ["loc", [null, [49, 13], [49, 23]]]]], [], []], "title", "Sexe", "units", "persones", "setPie", ["subexpr", "action", ["changeGender"], [], ["loc", [null, [52, 10], [52, 33]]]], "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [53, 9], [53, 16]]]]], [], []], "id", "pieGender"], ["loc", [null, [45, 3], [54, 19]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [63, 11], [63, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [64, 18], [64, 22]]]]], [], []], "units", "persones", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [66, 12], [66, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [62, 4], [68, 20]]]], ["content", "year", ["loc", [null, [73, 42], [73, 50]]]], ["inline", "bar-chart", [], ["data", ["subexpr", "@mut", [["get", "barData", ["loc", [null, [84, 12], [84, 19]]]]], [], []], "currentSelection", ["subexpr", "@mut", [["get", "level", ["loc", [null, [85, 24], [85, 29]]]]], [], []], "units", "persones", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [87, 11], [87, 18]]]]], [], []], "setLevel", ["subexpr", "action", ["changeLevel"], [], ["loc", [null, [88, 14], [88, 36]]]], "class", "col-md-12 col-xs-12", "id", "levelSelector"], ["loc", [null, [83, 4], [90, 25]]]]],
+      statements: [["element", "action", ["changeView"], [], ["loc", [null, [8, 38], [8, 61]]]], ["block", "if", [["get", "viewDistricts", ["loc", [null, [10, 10], [10, 23]]]]], [], 0, 1, ["loc", [null, [10, 4], [14, 11]]]], ["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "viewDistricts", ["loc", [null, [18, 18], [18, 31]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [19, 13], [19, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "paths", ["loc", [null, [20, 14], [20, 19]]]]], [], []], "units", "habitants", "iniColor", "#A2FA9D", "endColor", "#055E00", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [24, 14], [24, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [25, 11], [25, 19]]]]], [], []], "class", "col-xs-12", "id", "map", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [28, 15], [28, 36]]]]], ["loc", [null, [17, 2], [29, 4]]]], ["content", "scope", ["loc", [null, [35, 8], [35, 17]]]], ["content", "year", ["loc", [null, [36, 36], [36, 44]]]], ["content", "level", ["loc", [null, [37, 48], [37, 57]]]], ["content", "gender", ["loc", [null, [38, 37], [38, 47]]]], ["block", "if", [["get", "showReset", ["loc", [null, [39, 10], [39, 19]]]]], [], 2, null, ["loc", [null, [39, 4], [43, 11]]]], ["inline", "pie-chart", [], ["class", "col-md-6 col-xs-12", "iniColor", "darkblue", "endColor", "purple", "pieData", ["subexpr", "@mut", [["get", "genderData", ["loc", [null, [49, 13], [49, 23]]]]], [], []], "title", "Sexe", "units", "habitants", "setPie", ["subexpr", "action", ["changeGender"], [], ["loc", [null, [52, 10], [52, 33]]]], "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [53, 9], [53, 16]]]]], [], []], "id", "pieGender"], ["loc", [null, [45, 3], [54, 19]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [63, 11], [63, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [64, 18], [64, 22]]]]], [], []], "units", "habitants", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [66, 12], [66, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [62, 4], [68, 20]]]], ["content", "year", ["loc", [null, [73, 42], [73, 50]]]], ["inline", "bar-chart", [], ["data", ["subexpr", "@mut", [["get", "barData", ["loc", [null, [84, 12], [84, 19]]]]], [], []], "currentSelection", ["subexpr", "@mut", [["get", "level", ["loc", [null, [85, 24], [85, 29]]]]], [], []], "units", "habitants", "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [87, 11], [87, 18]]]]], [], []], "setLevel", ["subexpr", "action", ["changeLevel"], [], ["loc", [null, [88, 14], [88, 36]]]], "class", "col-md-12 col-xs-12", "id", "levelSelector"], ["loc", [null, [83, 4], [90, 25]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -8373,8 +8372,8 @@ define("client/templates/index", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 6,
-            "column": 298
+            "line": 16,
+            "column": 6
           }
         },
         "moduleName": "client/templates/index.hbs"
@@ -8385,56 +8384,96 @@ define("client/templates/index", ["exports"], function (exports) {
       hasRendered: false,
       buildFragment: function buildFragment(dom) {
         var el0 = dom.createDocumentFragment();
-        var el1 = dom.createElement("h1");
-        var el2 = dom.createTextNode("Tauler de dades de la ciutat de Barcelona");
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "row");
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "id", "emblem");
+        dom.setAttribute(el2, "class", "col-md-2 col-sm-12");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("img");
+        dom.setAttribute(el3, "src", "assets/escut.png");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "col-md-10 col-sm-12");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("h1");
+        var el4 = dom.createTextNode("Tauler de dades de la ciutat de Barcelona");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("h2");
+        var el4 = dom.createTextNode("Benvinguts!");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("p");
+        var el4 = dom.createTextNode("Aquest tauler no és pas cap eina oficial de l'Ajuntament de Barcelona sino que forma part d'un Treball de Final de Grau sobre ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("i");
+        var el5 = dom.createTextNode("Business Intelligence");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(" de la \n		");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "http://www.uoc.edu/portal/ca/index.html");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("Universitat Oberta de Catalunya (UOC)");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(".");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("p");
+        var el4 = dom.createTextNode("Les dades han estat obtingudes de la web ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "http://opendata.bcn.cat/opendata/ca");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("OpenDataBCN");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(", el servei de dades obertes de l'Ajuntament de Barcelona i el codi obert es pot trobar a ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "https://github.com/ElXaxe/Barcelona-Dashboard");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("Github");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(".");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
         var el1 = dom.createTextNode("\n");
         dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h2");
-        var el2 = dom.createTextNode("Benvinguts!");
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "row");
+        var el2 = dom.createTextNode("\n	");
         dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("p");
-        var el2 = dom.createTextNode("Aquest tauler no és pas cap eina oficial de l'Ajuntament de Barcelona sino que forma part d'un Treball de Final de Grau sobre ");
+        var el2 = dom.createElement("img");
+        dom.setAttribute(el2, "id", "barcelona");
+        dom.setAttribute(el2, "src", "assets/barcelona.jpg");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("i");
-        var el3 = dom.createTextNode("Business Intelligence");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode(" de la \n");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("a");
-        dom.setAttribute(el2, "href", "http://www.uoc.edu/portal/ca/index.html");
-        dom.setAttribute(el2, "target", "_blank");
-        var el3 = dom.createTextNode("Universitat Oberta de Catalunya (UOC)");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode(".");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("p");
-        var el2 = dom.createTextNode("Les dades han estat obtingudes de la web ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("a");
-        dom.setAttribute(el2, "href", "http://opendata.bcn.cat/opendata/ca");
-        dom.setAttribute(el2, "target", "_blank");
-        var el3 = dom.createTextNode("OpenDataBCN");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode(", el servei de dades obertes de l'Ajuntament de Barcelona i el codi obert es pot trobar a ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("a");
-        dom.setAttribute(el2, "href", "https://github.com/ElXaxe/Barcelona-Dashboard");
-        dom.setAttribute(el2, "target", "_blank");
-        var el3 = dom.createTextNode("Github");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode(".");
+        var el2 = dom.createTextNode("\n");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
         return el0;
@@ -8453,8 +8492,7 @@ define("client/templates/informacio", ["exports"], function (exports) {
     return {
       meta: {
         "fragmentReason": {
-          "name": "missing-wrapper",
-          "problems": ["multiple-nodes"]
+          "name": "triple-curlies"
         },
         "revision": "Ember@2.4.5",
         "loc": {
@@ -8464,8 +8502,8 @@ define("client/templates/informacio", ["exports"], function (exports) {
             "column": 0
           },
           "end": {
-            "line": 43,
-            "column": 142
+            "line": 76,
+            "column": 6
           }
         },
         "moduleName": "client/templates/informacio.hbs"
@@ -8476,184 +8514,343 @@ define("client/templates/informacio", ["exports"], function (exports) {
       hasRendered: false,
       buildFragment: function buildFragment(dom) {
         var el0 = dom.createDocumentFragment();
-        var el1 = dom.createTextNode("\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h1");
-        var el2 = dom.createTextNode("Informació");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h5");
-        var el2 = dom.createTextNode("Tutor de l'assignatura: ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("bold");
-        var el3 = dom.createTextNode("Humberto Andrés Sanz");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode(" ");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h3");
-        var el2 = dom.createTextNode("Recursos utilitzats");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h4");
-        var el2 = dom.createTextNode("Front-end");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("ul");
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "info-page");
         var el2 = dom.createTextNode("\n	");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
-        var el3 = dom.createTextNode("HTML5 + CSS + Javascript");
+        var el2 = dom.createElement("h1");
+        var el3 = dom.createTextNode("Informació");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n	");
+        var el2 = dom.createTextNode("\n\n	");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
-        var el3 = dom.createTextNode("\n		");
+        var el2 = dom.createElement("h5");
+        var el3 = dom.createTextNode("Tutor de l'assignatura: ");
         dom.appendChild(el2, el3);
-        var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "http://sass-lang.com/");
-        dom.setAttribute(el3, "target", "_blank");
-        var el4 = dom.createTextNode("SaSS");
+        var el3 = dom.createElement("bold");
+        var el4 = dom.createTextNode("Humberto Andrés Sanz");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" per  Hampton Catlin, Natalie Weizenbaum, Chris Eppstein i altres.\n	");
+        var el3 = dom.createTextNode(" ");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("h3");
+        var el3 = dom.createTextNode("Recursos utilitzats");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("h4");
+        var el3 = dom.createTextNode("Front-end");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n	");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
+        var el2 = dom.createElement("ul");
         var el3 = dom.createTextNode("\n		");
         dom.appendChild(el2, el3);
-        var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "http://emberjs.com/");
-        dom.setAttribute(el3, "target", "_blank");
-        var el4 = dom.createTextNode("Ember.js");
+        var el3 = dom.createElement("li");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "http://square.github.io/crossfilter/");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("Crossfilter");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(" per Square\n		");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" per Tilde Inc.\n	");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("li");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "https://github.com/martgnz/bcn-geodata");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("Mapes de Barcelona");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(" per Martín González\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n	");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "row");
         var el3 = dom.createTextNode("\n		");
         dom.appendChild(el2, el3);
-        var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "http://square.github.io/crossfilter/");
-        dom.setAttribute(el3, "target", "_blank");
-        var el4 = dom.createTextNode("Crossfilter");
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "col-xs-5 col-sm-4 col-lg-2");
+        var el4 = dom.createComment(" HTML & CSS ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("img");
+        dom.setAttribute(el4, "src", "http://rohi-solutions.esy.es/wp-content/uploads/2014/07/html5-css3.png");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" per Square\n	");
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "col-xs-4 col-sm-3 col-lg-1");
+        var el4 = dom.createComment(" JavaScript ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("img");
+        dom.setAttribute(el4, "src", "https://c2.staticflickr.com/4/3701/19224697601_6b600f21eb.jpg");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "col-xs-4 col-sm-3 col-lg-1");
+        var el4 = dom.createComment(" SaSS ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "http://sass-lang.com/");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("img");
+        dom.setAttribute(el5, "src", "http://sass-lang.com/assets/img/styleguide/seal-color-aef0354c.png");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "col-xs-4 col-sm-3 col-lg-1");
+        var el4 = dom.createComment(" Bootstrap ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "https://getbootstrap.com/");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("img");
+        dom.setAttribute(el5, "src", "https://upload.wikimedia.org/wikipedia/commons/e/ea/Boostrap_logo.svg");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "col-xs-4 col-sm-3 col-lg-1");
+        var el4 = dom.createComment(" jQuery ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("img");
+        dom.setAttribute(el4, "src", "https://camo.githubusercontent.com/02ed3f6695f288aedec24c2a329c667281efef5f/687474703a2f2f707265636973696f6e2d736f6674776172652e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031342f30342f6a5175726572792e676966");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "col-xs-4 col-sm-3 col-lg-1");
+        var el4 = dom.createComment(" Ember ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "http://emberjs.com/");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("img");
+        dom.setAttribute(el5, "src", "http://emberjs.com/images/community/tomsters/Ember-Munich-Half-sm.png");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "col-xs-4 col-sm-3 col-lg-1");
+        var el4 = dom.createComment(" D3 ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("a");
+        dom.setAttribute(el4, "href", "https://d3js.org/");
+        dom.setAttribute(el4, "target", "_blank");
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("img");
+        dom.setAttribute(el5, "src", "https://d1xwtr0qwr70yv.cloudfront.net/assets/tech/d3-7732c6dfe97d8fdb11a2cf9312b8b088.svg");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n	");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
+        var el2 = dom.createElement("br");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createTextNode("\n	");
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
         var el3 = dom.createTextNode("\n		");
         dom.appendChild(el2, el3);
-        var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "https://d3js.org/");
-        dom.setAttribute(el3, "target", "_blank");
-        var el4 = dom.createTextNode("D3.js");
+        var el3 = dom.createElement("h4");
+        var el4 = dom.createTextNode("Back-end");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" per Mike Bostock\n	");
+        var el3 = dom.createTextNode("\n\n		");
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "row");
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "col-xs-6 col-sm-3 col-lg-2");
+        var el5 = dom.createTextNode(" ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment(" PostgreSQL ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("a");
+        dom.setAttribute(el5, "href", "https://www.postgresql.org/");
+        dom.setAttribute(el5, "target", "_blank");
+        var el6 = dom.createTextNode("\n				");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("img");
+        dom.setAttribute(el6, "src", "http://www.hoplasoftware.com/wp-uploads/2016/01/postgresql-bumper.png");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n				");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "col-xs-6 col-sm-3 col-lg-2");
+        var el5 = dom.createTextNode(" ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment(" NodeJS ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("a");
+        dom.setAttribute(el5, "href", "https://nodejs.org/en/");
+        dom.setAttribute(el5, "target", "_blank");
+        var el6 = dom.createTextNode("\n				");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("img");
+        dom.setAttribute(el6, "src", "http://www.monoforms.com/sites/default/files/node.png");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n				");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "col-xs-6 col-sm-3 col-lg-2");
+        var el5 = dom.createTextNode(" ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment(" ExpressJS ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("a");
+        dom.setAttribute(el5, "href", "http://expressjs.com/");
+        dom.setAttribute(el5, "target", "_blank");
+        var el6 = dom.createTextNode("\n				");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("img");
+        dom.setAttribute(el6, "src", "https://camo.githubusercontent.com/fc61dcbdb7a6e49d3adecc12194b24ab20dfa25b/68747470733a2f2f692e636c6f756475702e636f6d2f7a6659366c4c376546612d3330303078333030302e706e67");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n				");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n			");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "col-xs-6 col-sm-3 col-lg-2");
+        var el5 = dom.createTextNode(" ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment(" MassiveJS ");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n				");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("a");
+        dom.setAttribute(el5, "href", "https://github.com/robconery/massive-js");
+        dom.setAttribute(el5, "target", "_blank");
+        var el6 = dom.createTextNode("\n				");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("img");
+        dom.setAttribute(el6, "src", "https://camo.githubusercontent.com/e7e35514d207ca6c290aa8c0309731020279829d/687474703a2f2f726f622e636f6e6572792e696f2f696d672f323031352f30332f6d6173736976652d6c6f676f2e706e67");
+        dom.appendChild(el5, el6);
+        var el6 = dom.createTextNode("\n				");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createTextNode("\n			");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode("\n		");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createTextNode("\n	");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n	");
         dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
-        var el3 = dom.createTextNode("\n		");
+        var el2 = dom.createElement("h4");
+        var el3 = dom.createTextNode("El codi font d'aquesta aplicació es pot trobar a ");
         dom.appendChild(el2, el3);
         var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "https://github.com/martgnz/bcn-geodata");
+        dom.setAttribute(el3, "href", "https://github.com/ElXaxe/Barcelona-Dashboard");
         dom.setAttribute(el3, "target", "_blank");
-        var el4 = dom.createTextNode("Mapes de Barcelona");
+        var el4 = dom.createTextNode("Github");
         dom.appendChild(el3, el4);
         dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" per Martín González\n	");
+        var el3 = dom.createTextNode(". ");
         dom.appendChild(el2, el3);
         dom.appendChild(el1, el2);
         var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h4");
-        var el2 = dom.createTextNode("Back-end");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("ul");
-        var el2 = dom.createTextNode("\n	");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
-        var el3 = dom.createTextNode("\n		");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "https://nodejs.org/en/");
-        dom.setAttribute(el3, "target", "_blank");
-        var el4 = dom.createTextNode("Node.js");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" per Node.js Foundation\n	");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n	");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
-        var el3 = dom.createTextNode("\n		");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "http://expressjs.com/");
-        dom.setAttribute(el3, "target", "_blank");
-        var el4 = dom.createTextNode("Express");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" per Node.js Foundation\n	");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n	");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("li");
-        var el3 = dom.createTextNode("\n		");
-        dom.appendChild(el2, el3);
-        var el3 = dom.createElement("a");
-        dom.setAttribute(el3, "href", "https://github.com/robconery/massive-js");
-        dom.setAttribute(el3, "target", "_blank");
-        var el4 = dom.createTextNode("Massive.js");
-        dom.appendChild(el3, el4);
-        dom.appendChild(el2, el3);
-        var el3 = dom.createTextNode(" per Rob Conery\n	");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode("\n");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createTextNode("\n\n");
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h4");
-        var el2 = dom.createTextNode("El codi font d'aquesta aplicació es pot trobar a ");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("a");
-        dom.setAttribute(el2, "href", "https://github.com/ElXaxe/Barcelona-Dashboard");
-        dom.setAttribute(el2, "target", "_blank");
-        var el3 = dom.createTextNode("Github");
-        dom.appendChild(el2, el3);
-        dom.appendChild(el1, el2);
-        var el2 = dom.createTextNode(". ");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
         return el0;
@@ -9502,7 +9699,7 @@ define("client/templates/libraries", ["exports"], function (exports) {
         morphs[5] = dom.createMorphAt(dom.childAt(element2, [9]), 3, 3);
         return morphs;
       },
-      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [11, 13], [11, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [12, 14], [12, 28]]]]], [], []], "units", "persones per biblioteca", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [14, 14], [14, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [15, 13], [15, 21]]]]], [], []], "iniColor", "#FFD1C1", "endColor", "#500000", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [20, 15], [20, 36]]]]], ["loc", [null, [9, 2], [21, 4]]]], ["content", "scope", ["loc", [null, [27, 8], [27, 17]]]], ["content", "year", ["loc", [null, [28, 36], [28, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [29, 10], [29, 19]]]]], [], 0, null, ["loc", [null, [29, 4], [33, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [43, 11], [43, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [44, 18], [44, 22]]]]], [], []], "units", "persones per biblioteca", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [46, 12], [46, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [42, 4], [48, 20]]]], ["block", "each", [["get", "libraries", ["loc", [null, [56, 12], [56, 21]]]]], [], 1, null, ["loc", [null, [56, 4], [58, 13]]]]],
+      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [11, 13], [11, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [12, 14], [12, 28]]]]], [], []], "units", "habitants per biblioteca", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [14, 14], [14, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [15, 13], [15, 21]]]]], [], []], "iniColor", "#FFD1C1", "endColor", "#500000", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [20, 15], [20, 36]]]]], ["loc", [null, [9, 2], [21, 4]]]], ["content", "scope", ["loc", [null, [27, 8], [27, 17]]]], ["content", "year", ["loc", [null, [28, 36], [28, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [29, 10], [29, 19]]]]], [], 0, null, ["loc", [null, [29, 4], [33, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [43, 11], [43, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [44, 18], [44, 22]]]]], [], []], "units", "habitants per biblioteca", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [46, 12], [46, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [42, 4], [48, 20]]]], ["block", "each", [["get", "libraries", ["loc", [null, [56, 12], [56, 21]]]]], [], 1, null, ["loc", [null, [56, 4], [58, 13]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -9963,7 +10160,7 @@ define("client/templates/poblacio", ["exports"], function (exports) {
         morphs[13] = dom.createMorphAt(element8, 3, 3);
         return morphs;
       },
-      statements: [["element", "action", ["changeView"], [], ["loc", [null, [8, 38], [8, 61]]]], ["block", "if", [["get", "viewDistricts", ["loc", [null, [10, 10], [10, 23]]]]], [], 0, 1, ["loc", [null, [10, 4], [14, 11]]]], ["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "viewDistricts", ["loc", [null, [18, 18], [18, 31]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [19, 13], [19, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "paths", ["loc", [null, [20, 14], [20, 19]]]]], [], []], "units", "persones", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [22, 14], [22, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [23, 11], [23, 19]]]]], [], []], "class", "col-xs-12", "id", "map", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [26, 15], [26, 36]]]]], ["loc", [null, [17, 2], [27, 4]]]], ["content", "scope", ["loc", [null, [33, 8], [33, 17]]]], ["content", "year", ["loc", [null, [34, 36], [34, 44]]]], ["content", "minAge", ["loc", [null, [35, 43], [35, 53]]]], ["content", "maxAge", ["loc", [null, [35, 56], [35, 66]]]], ["block", "if", [["get", "isMax", ["loc", [null, [35, 73], [35, 78]]]]], [], 2, null, ["loc", [null, [35, 67], [35, 92]]]], ["content", "gender", ["loc", [null, [36, 37], [36, 47]]]], ["block", "if", [["get", "showReset", ["loc", [null, [37, 10], [37, 19]]]]], [], 3, null, ["loc", [null, [37, 4], [41, 11]]]], ["inline", "pie-chart", [], ["class", "col-md-6 col-xs-12", "iniColor", "darkblue", "endColor", "purple", "pieData", ["subexpr", "@mut", [["get", "genderData", ["loc", [null, [47, 13], [47, 23]]]]], [], []], "title", "Sexe", "units", "persones", "setPie", ["subexpr", "action", ["changeGender"], [], ["loc", [null, [50, 10], [50, 33]]]], "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [51, 9], [51, 16]]]]], [], []], "id", "pieGender"], ["loc", [null, [43, 3], [52, 19]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [61, 11], [61, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [62, 18], [62, 22]]]]], [], []], "units", "persones", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [64, 12], [64, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [60, 4], [66, 20]]]], ["content", "year", ["loc", [null, [71, 32], [71, 40]]]], ["inline", "range-selector", [], ["data", ["subexpr", "@mut", [["get", "rangeData", ["loc", [null, [75, 12], [75, 21]]]]], [], []], "minValue", 0, "maxValue", 95, "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [78, 11], [78, 18]]]]], [], []], "setAges", ["subexpr", "action", ["changeAges"], [], ["loc", [null, [79, 13], [79, 34]]]], "class", "col-md-12 col-xs-12", "id", "rangeSelector"], ["loc", [null, [74, 4], [81, 25]]]]],
+      statements: [["element", "action", ["changeView"], [], ["loc", [null, [8, 38], [8, 61]]]], ["block", "if", [["get", "viewDistricts", ["loc", [null, [10, 10], [10, 23]]]]], [], 0, 1, ["loc", [null, [10, 4], [14, 11]]]], ["inline", "data-map", [], ["districtView", ["subexpr", "@mut", [["get", "viewDistricts", ["loc", [null, [18, 18], [18, 31]]]]], [], []], "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [19, 13], [19, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "paths", ["loc", [null, [20, 14], [20, 19]]]]], [], []], "units", "habitants", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [22, 14], [22, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [23, 11], [23, 19]]]]], [], []], "class", "col-xs-12", "id", "map", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [26, 15], [26, 36]]]]], ["loc", [null, [17, 2], [27, 4]]]], ["content", "scope", ["loc", [null, [33, 8], [33, 17]]]], ["content", "year", ["loc", [null, [34, 36], [34, 44]]]], ["content", "minAge", ["loc", [null, [35, 43], [35, 53]]]], ["content", "maxAge", ["loc", [null, [35, 56], [35, 66]]]], ["block", "if", [["get", "isMax", ["loc", [null, [35, 73], [35, 78]]]]], [], 2, null, ["loc", [null, [35, 67], [35, 92]]]], ["content", "gender", ["loc", [null, [36, 37], [36, 47]]]], ["block", "if", [["get", "showReset", ["loc", [null, [37, 10], [37, 19]]]]], [], 3, null, ["loc", [null, [37, 4], [41, 11]]]], ["inline", "pie-chart", [], ["class", "col-md-6 col-xs-12", "iniColor", "darkblue", "endColor", "purple", "pieData", ["subexpr", "@mut", [["get", "genderData", ["loc", [null, [47, 13], [47, 23]]]]], [], []], "title", "Sexe", "units", "habitants", "setPie", ["subexpr", "action", ["changeGender"], [], ["loc", [null, [50, 10], [50, 33]]]], "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [51, 9], [51, 16]]]]], [], []], "id", "pieGender"], ["loc", [null, [43, 3], [52, 19]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [61, 11], [61, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [62, 18], [62, 22]]]]], [], []], "units", "habitants", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [64, 12], [64, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [60, 4], [66, 20]]]], ["content", "year", ["loc", [null, [71, 32], [71, 40]]]], ["inline", "range-selector", [], ["data", ["subexpr", "@mut", [["get", "rangeData", ["loc", [null, [75, 12], [75, 21]]]]], [], []], "minValue", 0, "maxValue", 95, "reset", ["subexpr", "@mut", [["get", "reseted", ["loc", [null, [78, 11], [78, 18]]]]], [], []], "setAges", ["subexpr", "action", ["changeAges"], [], ["loc", [null, [79, 13], [79, 34]]]], "class", "col-md-12 col-xs-12", "id", "rangeSelector"], ["loc", [null, [74, 4], [81, 25]]]]],
       locals: [],
       templates: [child0, child1, child2, child3]
     };
@@ -10240,7 +10437,7 @@ define("client/templates/population-vs-libraries", ["exports"], function (export
         morphs[5] = dom.createMorphAt(dom.childAt(element2, [9]), 3, 3);
         return morphs;
       },
-      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [10, 13], [10, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [11, 14], [11, 28]]]]], [], []], "units", "persones per biblioteca", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [13, 14], [13, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [14, 13], [14, 21]]]]], [], []], "iniColor", "#3DD47E", "endColor", "#9E0B0B", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [19, 15], [19, 36]]]]], ["loc", [null, [8, 2], [20, 4]]]], ["content", "scope", ["loc", [null, [26, 8], [26, 17]]]], ["content", "year", ["loc", [null, [27, 36], [27, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [28, 10], [28, 19]]]]], [], 0, null, ["loc", [null, [28, 4], [32, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [42, 11], [42, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [43, 18], [43, 22]]]]], [], []], "units", "persones per biblioteca", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [45, 12], [45, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [41, 4], [47, 20]]]], ["block", "each", [["get", "libraries", ["loc", [null, [55, 12], [55, 21]]]]], [], 1, null, ["loc", [null, [55, 4], [57, 13]]]]],
+      statements: [["inline", "data-map", [], ["districtView", true, "mapData", ["subexpr", "@mut", [["get", "dataMap", ["loc", [null, [10, 13], [10, 20]]]]], [], []], "mapPaths", ["subexpr", "@mut", [["get", "model.district", ["loc", [null, [11, 14], [11, 28]]]]], [], []], "units", "habitants per biblioteca", "zoneCode", ["subexpr", "@mut", [["get", "zoneCode", ["loc", [null, [13, 14], [13, 22]]]]], [], []], "reseted", ["subexpr", "@mut", [["get", "resetMap", ["loc", [null, [14, 13], [14, 21]]]]], [], []], "iniColor", "#3DD47E", "endColor", "#9E0B0B", "class", "col-xs-12", "id", "libMap", "changeZone", ["subexpr", "action", ["changeZone"], [], ["loc", [null, [19, 15], [19, 36]]]]], ["loc", [null, [8, 2], [20, 4]]]], ["content", "scope", ["loc", [null, [26, 8], [26, 17]]]], ["content", "year", ["loc", [null, [27, 36], [27, 44]]]], ["block", "if", [["get", "showReset", ["loc", [null, [28, 10], [28, 19]]]]], [], 0, null, ["loc", [null, [28, 4], [32, 11]]]], ["inline", "year-evolution", [], ["data", ["subexpr", "@mut", [["get", "yearData", ["loc", [null, [42, 11], [42, 19]]]]], [], []], "currentYear", ["subexpr", "@mut", [["get", "year", ["loc", [null, [43, 18], [43, 22]]]]], [], []], "units", "habitants per biblioteca", "setYear", ["subexpr", "action", ["changeYear"], [], ["loc", [null, [45, 12], [45, 33]]]], "class", "col-md-12 col-xs-12", "id", "lineYears"], ["loc", [null, [41, 4], [47, 20]]]], ["block", "each", [["get", "libraries", ["loc", [null, [55, 12], [55, 21]]]]], [], 1, null, ["loc", [null, [55, 4], [57, 13]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -11130,7 +11327,7 @@ catch(err) {
 /* jshint ignore:start */
 
 if (!runningTests) {
-  require("client/app")["default"].create({"name":"client","version":"0.0.0+aac4a0a2"});
+  require("client/app")["default"].create({"name":"client","version":"0.0.0+49ada4ca"});
 }
 
 /* jshint ignore:end */

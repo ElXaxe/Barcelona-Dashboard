@@ -1,0 +1,36 @@
+#emblem {
+  text-align: center;
+  z-index: 999; }
+  #emblem img {
+    max-height: 300px;
+    max-width: 100%;
+    width: auto;
+    height: auto; }
+
+#barcelona {
+  width: 100%;
+  bottom: 0;
+  position: absolute;
+  max-height: 600px;
+  z-index: 1; }
+
+@media (max-width: 992px) {
+  h1, h2 {
+    text-align: center; }
+
+  #barcelona {
+    position: relative; } }
+@media (max-width: 600px) {
+  #barcelona {
+    display: none; } }
+@media (max-height: 1024px) {
+  #barcelona {
+    max-height: 500px; } }
+@media (max-height: 900px) {
+  #barcelona {
+    max-height: 300px; } }
+@media (max-height: 585px) {
+  #barcelona {
+    display: none; } }
+
+/*# sourceMappingURL=first-page.css.map */

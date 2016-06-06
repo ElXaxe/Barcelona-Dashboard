@@ -60,8 +60,8 @@ export default Ember.Controller.extend({
 					w = d.attributes.womenTotal;
 					m = d.attributes.menTotal;
 				} else {
-					w = d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
-					m = d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+					w = d.attributes.womenYears.slice(minAge, maxAge).reduce(getSum);
+					m = d.attributes.menYears.slice(minAge, maxAge).reduce(getSum);
 				}
 
 				if (gender === 'Dones'){
@@ -101,7 +101,7 @@ export default Ember.Controller.extend({
 					if ( minAge === 0 && maxAge === 95) {
 						return d.attributes.womenTotal; 
 					} else {
-						return d.attributes.womenYears.slice(minAge, maxAge + 1).reduce(getSum);
+						return d.attributes.womenYears.slice(minAge, maxAge).reduce(getSum);
 					}
 				}).all(), 
 				function(el) { return el.value; });
@@ -109,7 +109,7 @@ export default Ember.Controller.extend({
 					if ( minAge === 0 && maxAge === 95) {
 						return d.attributes.menTotal; 
 					} else {
-						return d.attributes.menYears.slice(minAge, maxAge + 1).reduce(getSum);
+						return d.attributes.menYears.slice(minAge, maxAge).reduce(getSum);
 					}
 				}).all(), 
 				function(el) { return el.value; });
@@ -139,8 +139,8 @@ export default Ember.Controller.extend({
 			data = yearDim.group()
 							.reduceSum( function(d) { 
 								
-								const women = d.attributes.womenYears.slice(minAge, maxAge + 1);
-								const men = d.attributes.menYears.slice(minAge, maxAge + 1);
+								const women = d.attributes.womenYears.slice(minAge, maxAge);
+								const men = d.attributes.menYears.slice(minAge, maxAge);
 								const w = women.reduce(getSum);
 								const m = men.reduce(getSum);
 
@@ -156,12 +156,10 @@ export default Ember.Controller.extend({
 	}),
 	
 	rangeData: Ember.computed(
-		'populYearDim', 'year', 'scope', 'minAge', 'maxAge', 'gender',
+		'populYearDim', 'year', 'scope', 'gender',
 		function() {
 			const year = this.get('year');
 			const yearDim = this.get('populYearDim');
-			const minAge = this.get('minAge');
-			const maxAge = this.get('maxAge');
 			const gender = this.get('gender');
 			let data = Ember.A([]);
 			let aux, old;
@@ -170,7 +168,8 @@ export default Ember.Controller.extend({
 			aux = yearDim.top(Infinity);
 
 			aux.forEach( (d, i) => {
-				for( var j = 0; j < 96;  j++) {
+				
+				for( var j = 0; j < d.attributes.womenYears.length;  j++) {
 					old = data[j] ? data[j] : 0;
 					if (gender === 'Dones') {
 						data[j] = d.attributes.womenYears[j] + old;

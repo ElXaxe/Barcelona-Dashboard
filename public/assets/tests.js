@@ -103,7 +103,7 @@ define('client/tests/controllers/poblacio.jshint', ['exports'], function (export
   QUnit.module('JSHint - controllers/poblacio.js');
   QUnit.test('should pass jshint', function (assert) {
     assert.expect(1);
-    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 87, col 19, \'zoneCode\' is defined but never used.\ncontrollers/poblacio.js: line 172, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 163, col 19, \'minAge\' is defined but never used.\ncontrollers/poblacio.js: line 164, col 19, \'maxAge\' is defined but never used.\ncontrollers/poblacio.js: line 100, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 108, col 19, \'$\' is not defined.\n\n6 errors');
+    assert.ok(false, 'controllers/poblacio.js should pass jshint.\ncontrollers/poblacio.js: line 87, col 19, \'zoneCode\' is defined but never used.\ncontrollers/poblacio.js: line 170, col 30, \'i\' is defined but never used.\ncontrollers/poblacio.js: line 100, col 21, \'$\' is not defined.\ncontrollers/poblacio.js: line 108, col 19, \'$\' is not defined.\n\n4 errors');
   });
 });
 define('client/tests/controllers/population-vs-libraries.jshint', ['exports'], function (exports) {
